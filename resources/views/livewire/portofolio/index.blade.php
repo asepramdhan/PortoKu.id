@@ -280,22 +280,22 @@ new class extends Component {
                 </div>
               </div>
             </td>
-            <td>
+            <td class="truncate">
               <p class="font-semibold text-white">{{ rtrim(rtrim(number_format($asset->quantity, 8, '.', '.'), '0'), ',') }} {{ $asset->symbol }}</p>
             </td>
-            <td>
+            <td class="truncate">
               <p class="font-semibold text-white">Rp {{ number_format($asset->avg_buy_price, 0, ',', '.') }}</p>
             </td>
-            <td>
+            <td class="truncate">
               <p class="font-semibold text-white">Rp {{ number_format($asset->current_value, 0, ',', '.') }}</p>
             </td>
-            <td>
+            <td class="truncate">
               <p class="font-semibold {{ $asset->pnl >= 0 ? 'text-green-500' : 'text-red-500' }}">
                 {{ number_format($asset->pnl_percentage, 2, ',', '.') }}%
               </p>
             </td>
             <td>
-              <div class="flex space-x-2">
+              <div class="flex space-x-4">
                 @if ($asset->last_transaction_id)
                 <button wire:click="prepareToEdit({{ $asset->last_transaction_id }})" class="cursor-pointer text-slate-400 hover:text-sky-400">
                   <x-icon name="lucide.edit-3" class="h-5 w-5" /></button>

@@ -33,6 +33,10 @@ new class extends Component {
   public $editingField = null;
   public $editingValue = '';
 
+  // Properti untuk umpan balik inline edit
+  // public $savedMessageId = null;
+  // public $savedMessageField = null;
+
   public function prepareToAdd(): void
   {
     $this->reset('type', 'asset_id', 'quantity', 'price_per_unit', 'amount', 'category', 'notes', 'transaction_date', 'editing');
@@ -119,8 +123,12 @@ new class extends Component {
       $this->editingField => $cleanedValue,
     ]);
 
+    // **TAMBAHKAN INI:** Set properti untuk menampilkan pesan
+    // $this->savedMessageId = $this->editingId;
+    // $this->savedMessageField = $this->editingField;
+
     $this->cancelEdit();
-    session()->flash('message', 'Data berhasil diperbarui.');
+    // session()->flash('message', 'Data berhasil diperbarui.');
   }
 
   public function cancelEdit()
@@ -301,7 +309,7 @@ new class extends Component {
   {{-- <x-alert /> --}}
 
   <!-- Transactions Table -->
-  <div class="card" @click.away="$wire.cancelEdit()">
+  <div class="card">
     <div class="table-wrapper">
       <table>
         <thead>
@@ -317,20 +325,17 @@ new class extends Component {
         <tbody>
           @forelse ($transactions as $transaction)
           <tr wire:key="{{ $transaction->id }}">
-            {{-- <td class="text-slate-300">
-              {{ ($transaction->transaction_date ?? $transaction->updated_at)->format('d M Y') }}
-            </td> --}}
-            <td>
+            <td class="truncate">
               {{-- Inline edit untuk tanggal --}}
               @if($editingId === $transaction->id && $editingField === 'transaction_date')
-              <input type="date" wire:model="editingValue" wire:keydown.enter="saveField" wire:keydown.escape="cancelEdit" class="form-input text-sm p-1" x-init="$nextTick(() => $el.focus())">
+              <input type="date" wire:model="editingValue" wire:keydown.enter="saveField" wire:keydown.escape="cancelEdit" class="form-input text-sm p-1 **w-full**" x-init="$nextTick(() => $el.focus())" x-ref="editInput{{ $transaction->id }}_transaction_date" @click.away="$wire.cancelEdit()" x-trap.noscroll>
               @else
               <p wire:click="editField({{ $transaction->id }}, 'transaction_date')" class="text-slate-300 cursor-pointer hover:bg-slate-700 p-1 rounded">
                 {{ ($transaction->transaction_date ?? $transaction->updated_at)->format('d M Y') }}
               </p>
               @endif
             </td>
-            <td>
+            <td class="truncate">
               @if ($transaction->type == 'buy')
               <p class="font-semibold text-green-400">Beli</p>
               @elseif($transaction->type == 'sell')
@@ -341,19 +346,15 @@ new class extends Component {
               <p class="font-semibold text-orange-400">Pengeluaran</p>
               @endif
             </td>
-            <td>
-              @if($editingId === $transaction->id && $editingField === 'category')
-              <input type="text" wire:model="editingValue" wire:keydown.enter="saveField" wire:keydown.escape="cancelEdit" class="form-input text-sm p-1" x-init="$nextTick(() => $el.focus())">
-              @else
-              <p wire:click="editField({{ $transaction->id }}, 'category')" class="font-semibold text-white cursor-pointer hover:bg-slate-700 p-1 rounded">
+            <td class="truncate">
+              <p class="font-semibold text-white p-1 rounded">
                 {{ Str::title($transaction->asset->name ?? $transaction->category) }}
               </p>
-              @endif
             </td>
-            <td>
+            <td class="truncate">
               @if ($transaction->quantity && $transaction->asset)
               @if($editingId === $transaction->id && $editingField === 'quantity')
-              <input type="text" inputmode="decimal" x-mask:dynamic="'9.99999999'" wire:model="editingValue" wire:keydown.enter="saveField" wire:keydown.escape="cancelEdit" class="form-input text-sm p-1 w-32" x-init="$nextTick(() => $el.focus())">
+              <input type="text" inputmode="decimal" x-mask:dynamic="'9.99999999'" wire:model="editingValue" wire:keydown.enter="saveField" wire:keydown.escape="cancelEdit" class="form-input text-sm p-1 w-full" x-init="$nextTick(() => $el.focus())" x-ref="editInput{{ $transaction->id }}_quantity" @click.away="$wire.cancelEdit()" x-trap.noscroll>
               @else
               <p wire:click="editField({{ $transaction->id }}, 'quantity')" class="font-semibold text-white cursor-pointer hover:bg-slate-700 p-1 rounded">
                 {{ rtrim(rtrim(number_format($transaction->quantity, 8, '.', ','), '0'), '.') }} {{ $transaction->asset->symbol }}
@@ -363,9 +364,9 @@ new class extends Component {
               -
               @endif
             </td>
-            <td>
+            <td class="truncate">
               @if($editingId === $transaction->id && $editingField === 'amount')
-              <input type="text" inputmode="decimal" x-mask:dynamic="$money($input, ',')" wire:model="editingValue" wire:keydown.enter="saveField" wire:keydown.escape="cancelEdit" class="form-input text-sm p-1" x-init="$nextTick(() => $el.focus())">
+              <input type="text" inputmode="decimal" x-mask:dynamic="$money($input, ',')" wire:model="editingValue" wire:keydown.enter="saveField" wire:keydown.escape="cancelEdit" class="form-input text-sm p-1" x-init="$nextTick(() => $el.focus())" x-ref="editInput{{ $transaction->id }}_amount" @click.away="$wire.cancelEdit()" x-trap.noscroll>
               @else
               <p wire:click="editField({{ $transaction->id }}, 'amount')" class="text-slate-300 cursor-pointer hover:bg-slate-700 p-1 rounded">
                 Rp {{ number_format($transaction->amount, 0, ',', '.') }}
@@ -373,7 +374,7 @@ new class extends Component {
               @endif
             </td>
             <td>
-              <div class="flex space-x-2">
+              <div class="flex space-x-4">
                 <button x-on:click="$wire.prepareToEdit({{ $transaction->id }})" class="cursor-pointer text-slate-400 hover:text-sky-400">
                   <x-icon name="lucide.edit-3" class="h-5 w-5" />
                 </button>

@@ -6,37 +6,37 @@ use Livewire\WithPagination;
 use Livewire\Volt\Component;
 
 new class extends Component {
-    use WithPagination;
+  use WithPagination;
 
-    public ?Post $deleting = null;
-    public $showDeleteModal = false;
+  public ?Post $deleting = null;
+  public $showDeleteModal = false;
 
-    public function prepareToDelete(Post $post)
-    {
-        $this->deleting = $post;
-        $this->showDeleteModal = true;
+  public function prepareToDelete(Post $post)
+  {
+    $this->deleting = $post;
+    $this->showDeleteModal = true;
+  }
+
+  public function deletePost()
+  {
+    if ($this->deleting) {
+      $this->deleting->delete();
+      session()->flash('message', 'Postingan berhasil dihapus.');
     }
+    $this->showDeleteModal = false;
+  }
 
-    public function deletePost()
-    {
-        if ($this->deleting) {
-            $this->deleting->delete();
-            session()->flash('message', 'Postingan berhasil dihapus.');
-        }
-        $this->showDeleteModal = false;
-    }
+  public function with(): array
+  {
+    // Ambil semua post, diurutkan dari yang terbaru, dengan relasi ke user (penulis)
+    $posts = Post::with('user')
+      ->orderBy('created_at', 'desc')
+      ->paginate(10);
 
-    public function with(): array
-    {
-        // Ambil semua post, diurutkan dari yang terbaru, dengan relasi ke user (penulis)
-        $posts = Post::with('user')
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
-
-        return [
-            'posts' => $posts,
-        ];
-    }
+    return [
+      'posts' => $posts,
+    ];
+  }
 }; ?>
 
 <div>
@@ -44,7 +44,7 @@ new class extends Component {
   <div class="flex flex-col md:flex-row justify-between md:items-center mb-6">
     <h1 class="text-3xl font-bold text-white">Kelola Postingan Blog</h1>
     <a href="#" class="bg-sky-500 hover:bg-sky-600 text-white font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-colors mt-4 md:mt-0">
-      <i data-lucide="plus-circle" class="w-5 h-5"></i>
+      <x-icon name="lucide.plus-circle" class="h-5 w-5" />
       Buat Postingan Baru
     </a>
   </div>
@@ -78,8 +78,12 @@ new class extends Component {
             <td class="text-slate-300">{{ $post->published_at ? $post->published_at->format('d M Y') : '-' }}</td>
             <td>
               <div class="flex space-x-2">
-                <a href="#" class="text-slate-400 hover:text-sky-400"><i data-lucide="edit-3" class="w-5 h-5"></i></a>
-                <button wire:click="prepareToDelete({{ $post->id }})" class="text-slate-400 hover:text-red-500"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                <a href="#" class="text-slate-400 hover:text-sky-400">
+                  <x-icon name="lucide.edit-3" class="w-5 h-5" />
+                </a>
+                <button wire:click="prepareToDelete({{ $post->id }})" class="text-slate-400 hover:text-red-500">
+                  <x-icon name="lucide.trash-2" class="w-5 h-5" />
+                </button>
               </div>
             </td>
           </tr>
@@ -93,7 +97,7 @@ new class extends Component {
     </div>
     <!-- Pagination -->
     <div class="p-4 border-t border-slate-800">
-      {{ $posts->links('vendor.livewire.tailwind-custom') }}
+      {{ $posts->links('livewire.tailwind-custom') }}
     </div>
   </div>
 
@@ -104,8 +108,14 @@ new class extends Component {
         <h2 class="text-2xl font-bold text-white">Hapus Postingan?</h2>
         <p class="text-slate-400 mt-2">Anda yakin ingin menghapus postingan ini?</p>
         <div class="mt-6 flex justify-center gap-4">
-          <button type="button" @click="show = false" class="bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-2 rounded-lg w-full">Batal</button>
-          <button type="button" wire:click="deletePost" class="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg w-full">Ya, Hapus</button>
+          <button type="button" @click="show = false" class="bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-2 rounded-lg w-full cursor-pointer">Batal</button>
+          <button type="button" wire:click="deletePost" wire:loading.attr="disabled" wire:target="deletePost" class="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg w-full cursor-pointer">
+            <div class="flex items-center justify-center">
+              <x-loading wire:loading wire:target="deletePost" class="loading-dots mr-2" />
+              <x-icon name="lucide.trash-2" wire:loading.remove wire:target="deletePost" class="mr-2" />
+              Ya, Hapus
+            </div>
+          </button>
         </div>
       </div>
     </div>
