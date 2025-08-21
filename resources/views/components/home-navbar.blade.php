@@ -18,7 +18,7 @@
       Daftar Gratis
     </a>
     @else
-    <a href="/dashboard" wire:navigate class="hidden md:block bg-sky-500 hover:bg-sky-600 text-white font-semibold px-5 py-2 rounded-lg transition-colors">
+    <a href="/dashboard" class="hidden md:block bg-sky-500 hover:bg-sky-600 text-white font-semibold px-5 py-2 rounded-lg transition-colors">
       Portofolio
     </a>
     @endguest
@@ -42,7 +42,7 @@
         Daftar Gratis
       </a>
       @else
-      <a href="/dashboard" wire:navigate class="block bg-sky-500 hover:bg-sky-600 text-white font-semibold w-full text-center mt-4 px-5 py-2 rounded-lg transition-colors">
+      <a href="/dashboard" class="block bg-sky-500 hover:bg-sky-600 text-white font-semibold w-full text-center mt-4 px-5 py-2 rounded-lg transition-colors">
         Portofolio
       </a>
       @endguest

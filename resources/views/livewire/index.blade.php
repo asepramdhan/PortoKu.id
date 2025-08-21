@@ -31,7 +31,7 @@
   </section>
 
   <!-- ===== Fitur Utama Section ===== -->
-  <section id="fitur" class="py-20 bg-slate-900">
+  <section id="fitur" class="py-20">
     <div class="container mx-auto px-6">
       <div class="text-center mb-12">
         <h2 class="text-3xl md:text-4xl font-bold text-white">Fitur Unggulan PortoKu.id</h2>

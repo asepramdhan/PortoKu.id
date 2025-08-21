@@ -1,3 +1,22 @@
+<?php
+
+use App\Models\Post;
+use Livewire\Volt\Component;
+use Illuminate\Database\Eloquent\Collection;
+
+new class extends Component {
+  public $post;
+  public Collection $relatedPosts;
+
+  public function mount(): void
+  {
+    $this->relatedPosts = Post::where('id', '!=', $this->post->id)
+      ->inRandomOrder()
+      ->take(3)
+      ->get();
+  }
+}; ?>
+
 <div>
   <main>
     <article class="py-12 md:py-20">
@@ -5,60 +24,51 @@
         <div class="max-w-3xl mx-auto">
           <!-- Post Header -->
           <header class="text-center mb-12">
-            <span class="text-sm font-semibold text-sky-400">BITCOIN</span>
+            @if($post->category)
+            {{-- FIX: Tautan kategori sekarang bisa diklik --}}
+            <a href="/blog/category/{{ $post->category->slug }}" wire:navigate class="text-sm font-semibold text-sky-400 uppercase hover:underline">{{ $post->category->name }}</a>
+            @endif
             <h1 class="mt-2 text-3xl md:text-5xl font-extrabold text-white leading-tight">
-              Analisis Pasar Bitcoin: Apa yang Diharapkan di Kuartal Berikutnya?
+              {{ $this->post->title }}
             </h1>
             <div class="mt-6 flex items-center justify-center space-x-4 text-slate-400">
               <div class="flex items-center space-x-2">
-                <img src="https://placehold.co/40x40/0EA5E9/FFFFFF?text=A" alt="Author" class="w-8 h-8 rounded-full">
-                <span>Andi Wijaya</span>
+                <img src="https://placehold.co/40x40/0EA5E9/FFFFFF?text={{ substr($this->post->user->name, 0, 1) }}" alt="Author" class="w-8 h-8 rounded-full">
+                <span>{{ Str::title($this->post->user->name) }}</span>
               </div>
               <span>&bull;</span>
-              <time datetime="2024-08-15">15 Agustus 2024</time>
+              <time datetime="{{ $this->post->published_at->toIso8601String() }}">{{ $this->post->published_at->format('d M Y') }}</time>
             </div>
           </header>
 
           <!-- Feature Image -->
+          @if($post->featured_image_path)
           <figure class="mb-12">
-            <img src="https://placehold.co/1200x600/1E293B/FFFFFF?text=Analisis+Pasar+Bitcoin" alt="Analisis Pasar Bitcoin" class="w-full h-auto rounded-xl object-cover">
+            <img src="{{ $this->post->featured_image_path }}" alt="Gambar utama untuk {{ $this->post->title }}" class="w-full h-auto rounded-xl object-cover">
           </figure>
+          @endif
 
           <!-- Post Content -->
           <div class="prose prose-lg prose-custom max-w-none">
-            <p>Pasar cryptocurrency, khususnya Bitcoin, terus menunjukkan dinamika yang menarik. Setelah periode konsolidasi yang cukup panjang, banyak investor dan analis bertanya-tanya: apa langkah selanjutnya untuk aset digital terbesar di dunia ini? Tinjauan mendalam tentang tren harga, adopsi institusional, dan faktor makroekonomi menjadi kunci untuk memahami potensi pergerakan di kuartal mendatang.</p>
-
-            <h2>Faktor-Faktor Kunci yang Mempengaruhi Harga</h2>
-            <p>Beberapa faktor utama yang perlu diperhatikan termasuk kebijakan moneter global, perkembangan regulasi, dan inovasi teknologi. Masing-masing memiliki dampak signifikan terhadap sentimen pasar.</p>
-
-            <ul>
-              <li><strong>Kebijakan Moneter Global:</strong> Tingkat suku bunga yang lebih tinggi cenderung menekan aset berisiko seperti Bitcoin, sementara pelonggaran kebijakan dapat memicu aliran dana baru ke pasar.</li>
-              <li><strong>Regulasi:</strong> Kerangka hukum yang jelas dapat meningkatkan kepercayaan investor, sementara ketidakpastian dapat menciptakan volatilitas.</li>
-              <li><strong>Inovasi Teknologi:</strong> Perkembangan seperti adopsi Lightning Network yang terus berkembang dapat meningkatkan utilitas dan nilai jangka panjang Bitcoin.</li>
-            </ul>
-
-            <blockquote>"Adopsi institusional bukan lagi pertanyaan 'jika', tetapi 'kapan dan seberapa besar'. Ini akan menjadi pendorong utama valuasi jangka panjang."</blockquote>
-
-            <h3>Apa yang Diharapkan Investor?</h3>
-            <p>Bagi investor jangka panjang, strategi seperti <code>Dollar Cost Averaging (DCA)</code> tetap menjadi pilihan yang bijaksana untuk mengurangi risiko volatilitas. Sementara itu, trader jangka pendek harus waspada terhadap level support dan resistance kunci.</p>
-
-            <p>Secara keseluruhan, kuartal berikutnya kemungkinan akan diwarnai oleh tarik-menarik antara sentimen makroekonomi dan <strong>fundamental internal jaringan Bitcoin yang semakin kuat</strong>. Tetap terinformasi dan berinvestasi sesuai dengan profil risiko Anda adalah kunci untuk menavigasi pasar yang dinamis ini.</p>
+            {!! $this->post->content !!}
           </div>
 
           <!-- Tags -->
+          @if($post->tags->isNotEmpty())
           <div class="mt-12 flex flex-wrap gap-2">
-            <span class="bg-slate-800 text-sky-400 text-xs font-semibold px-3 py-1 rounded-full">#Bitcoin</span>
-            <span class="bg-slate-800 text-sky-400 text-xs font-semibold px-3 py-1 rounded-full">#AnalisisPasar</span>
-            <span class="bg-slate-800 text-sky-400 text-xs font-semibold px-3 py-1 rounded-full">#Investasi</span>
+            @foreach ($this->post->tags as $tag)
+            <a href="/blog/tag/{{ $tag->slug }}" wire:navigate class="bg-slate-800 text-sky-400 text-xs font-semibold px-3 py-1 rounded-full hover:bg-slate-700 transition-colors">#{{ $tag->name }}</a>
+            @endforeach
           </div>
+          @endif
 
           <!-- Author Bio -->
           <div class="mt-16 pt-8 border-t border-slate-800 flex items-start space-x-6">
-            <img src="https://placehold.co/80x80/0EA5E9/FFFFFF?text=A" alt="Author" class="w-16 h-16 rounded-full flex-shrink-0">
+            <img src="https://placehold.co/80x80/0EA5E9/FFFFFF?text={{ substr($this->post->user->name, 0, 1) }}" alt="Author" class="w-16 h-16 rounded-full flex-shrink-0">
             <div>
-              <h4 class="text-lg font-bold text-white">Tentang Andi Wijaya</h4>
+              <h4 class="text-lg font-bold text-white">Tentang {{ Str::title($this->post->user->name) }}</h4>
               <p class="mt-1 text-slate-400">
-                Andi adalah seorang analis keuangan dengan spesialisasi di aset digital. Dengan pengalaman lebih dari 5 tahun di industri ini, ia berfokus pada analisis fundamental dan makroekonomi untuk memberikan wawasan investasi yang mendalam.
+                Penulis di PortoKu.id yang berfokus pada analisis keuangan dan aset digital.
               </p>
             </div>
           </div>
@@ -66,5 +76,37 @@
         </div>
       </div>
     </article>
+
+    <!-- Related Posts Section -->
+    @if($this->relatedPosts->isNotEmpty())
+    <section class="py-20">
+      <div class="container mx-auto px-6">
+        <h2 class="text-3xl font-bold text-center text-white mb-12">Baca Juga</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          @foreach ($this->relatedPosts as $relatedPost)
+          <div class="blog-card flex flex-col">
+            <a href="/blog/show/{{ $relatedPost->slug }}" wire:navigate class="block">
+              <img src="{{ $relatedPost->featured_image_path ?? 'https://placehold.co/600x400/1E293B/FFFFFF?text=PortoKu.id' }}" alt="Gambar thumbnail untuk {{ $relatedPost->title }}" class="w-full h-48 object-cover">
+            </a>
+            <div class="p-6 flex flex-col flex-grow">
+              @if($relatedPost->category)
+              <a href="/blog/category/{{ $relatedPost->category->slug }}" wire:navigate class="text-sm font-semibold text-sky-400 uppercase hover:underline">{{ $relatedPost->category->name }}</a>
+              @endif
+              <a href="/blog/show/{{ $relatedPost->slug }}" wire:navigate class="group">
+                <h2 class="mt-2 text-xl font-bold text-white group-hover:text-sky-400 transition-colors">
+                  {{ $relatedPost->title }}
+                </h2>
+              </a>
+              <p class="mt-3 text-slate-400 text-sm flex-grow">
+                {{ Str::limit(strip_tags($relatedPost->content), 120) }}
+              </p>
+              <p class="mt-4 text-xs text-slate-500">{{ $relatedPost->published_at->format('d M Y') }}</p>
+            </div>
+          </div>
+          @endforeach
+        </div>
+      </div>
+    </section>
+    @endif
   </main>
 </div>

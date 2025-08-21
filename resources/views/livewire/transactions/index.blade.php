@@ -306,7 +306,7 @@ new class extends Component {
     </div>
   </div>
 
-  {{-- <x-alert /> --}}
+  <x-notification />
 
   <!-- Transactions Table -->
   <div class="card">

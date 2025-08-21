@@ -1,6 +1,6 @@
 <div>
   <!-- ===== Page Header ===== -->
-  <section class="py-20 text-center bg-slate-900">
+  <section class="py-20 text-center">
     <div class="container mx-auto px-6">
       <h1 class="text-4xl md:text-5xl font-extrabold text-white">Semua yang Anda Butuhkan</h1>
       <p class="mt-4 text-lg md:text-xl text-slate-400 max-w-3xl mx-auto">
@@ -104,7 +104,7 @@
   </section>
 
   <!-- ===== Call to Action (CTA) Section ===== -->
-  <section class="py-20 bg-slate-900">
+  <section class="py-20">
     <div class="container mx-auto px-6">
       <div class="bg-slate-800 rounded-2xl p-10 md:p-16 text-center shadow-2xl">
         <h2 class="text-3xl md:text-4xl font-bold text-white">Mulai Kelola Aset Anda Hari Ini</h2>

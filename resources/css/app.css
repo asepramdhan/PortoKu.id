@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import 'trix/dist/trix.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -39,4 +40,437 @@
 
 .mary-table-pagination button {
     @apply cursor-pointer
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #020617;
+    /* slate-950 */
+    color: #F1F5F9;
+    /* slate-100 */
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.5rem;
+    color: #94A3B8;
+    /* slate-400 */
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.sidebar-link:hover {
+    background-color: #1E293B;
+    /* slate-800 */
+    color: #F1F5F9;
+    /* slate-100 */
+}
+
+.sidebar-link.active {
+    background-color: #0EA5E9;
+    /* sky-500 */
+    color: white;
+    font-weight: 600;
+}
+
+.card {
+    background-color: #0F172A;
+    /* slate-900 */
+    border: 1px solid #1E293B;
+    /* slate-800 */
+    border-radius: 0.75rem;
+}
+
+/* Style untuk tabel */
+.table-wrapper {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 1rem 1.5rem;
+    text-align: left;
+}
+
+thead {
+    background-color: #1E293B;
+    /* slate-800 */
+}
+
+th {
+    color: #94A3B8;
+    /* slate-400 */
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+tbody tr {
+    border-bottom: 1px solid #1E293B;
+    /* slate-800 */
+}
+
+tbody tr:last-child {
+    border-bottom: none;
+}
+
+tbody tr:hover {
+    background-color: #151f32;
+    /* Sedikit lebih terang dari card */
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+
+.tab-link {
+    padding: 0.5rem 1rem;
+    border-bottom: 2px solid transparent;
+    color: #94A3B8;
+    /* slate-400 */
+    font-weight: 500;
+}
+
+.tab-link:hover {
+    color: #F1F5F9;
+    /* slate-100 */
+}
+
+.tab-link.active {
+    color: #38BDF8;
+    /* sky-400 */
+    border-bottom-color: #38BDF8;
+}
+
+.form-input {
+    background-color: #1E293B;
+    /* slate-800 */
+    border: 1px solid #334155;
+    /* slate-700 */
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    width: 100%;
+    color: white;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #0EA5E9;
+    /* sky-500 */
+    box-shadow: 0 0 0 2px #0EA5E930;
+}
+
+.form-input.input-error {
+    border-color: #ef4444;
+    /* red-500 */
+}
+
+.form-input.input-error:focus {
+    border-color: #ef4444;
+    /* red-500 */
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+    /* Optional: Ganti ring jadi merah */
+}
+
+[x-cloak] {
+    display: none !important;
+}
+
+ /* Efek gradien pada hero section */
+.hero-gradient {
+    background: radial-gradient(ellipse 80% 80% at 50% -20%, rgba(56, 189, 248, 0.3), rgba(255, 255, 255, 0));
+}
+
+.feature-card {
+    background-color: #1E293B;
+    /* slate-800 */
+    border: 1px solid #334155;
+    /* slate-700 */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.feature-icon {
+    background-color: #1E293B;
+    /* slate-800 */
+    border: 1px solid #334155;
+    /* slate-700 */
+}
+
+.step-card {
+    background-color: #1E293B;
+    /* slate-800 */
+    border: 1px solid #334155;
+    /* slate-700 */
+    border-radius: 1rem;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.step-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.step-number {
+    font-size: 5rem;
+    font-weight: 800;
+    color: #334155;
+    /* slate-700 */
+    line-height: 1;
+}
+
+.blog-card {
+    background-color: #1E293B;
+    /* slate-800 */
+    border-radius: 0.75rem;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.blog-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Styling for article content */
+.prose-custom {
+    color: #cbd5e1;
+    /* slate-300 */
+}
+
+.prose-custom h2,
+.prose-custom h3 {
+    color: #f1f5f9;
+    /* slate-100 */
+    margin-top: 2em;
+    margin-bottom: 1em;
+}
+
+.prose-custom p {
+    line-height: 1.75;
+    margin-bottom: 1.5em;
+}
+
+.prose-custom a {
+    color: #38bdf8;
+    /* sky-400 */
+    text-decoration: none;
+}
+
+.prose-custom a:hover {
+    text-decoration: underline;
+}
+
+.prose-custom blockquote {
+    border-left-color: #38bdf8;
+    /* sky-400 */
+    color: #94a3b8;
+    /* slate-400 */
+    margin-bottom: 1.5em;
+}
+
+.prose-custom strong {
+    color: #7dd3fc;
+    /* sky-300 */
+}
+
+.prose-custom code {
+    background-color: #334155;
+    /* slate-700 */
+    color: #e2e8f0;
+    /* slate-200 */
+    padding: 0.2em 0.4em;
+    border-radius: 0.25rem;
+    font-weight: 600;
+}
+
+.prose-custom ul {
+    margin-bottom: 1.5em;
+    list-style-position: outside;
+    padding-left: 1.25rem;
+}
+
+.prose-custom li {
+    padding-left: 0.5rem;
+    margin-bottom: 0.75em;
+}
+
+/* === TRIX EDITOR DARK THEME OVERRIDE === */
+
+/* Main Toolbar Container */
+trix-toolbar .trix-button-row {
+    background-color: #334155;
+    /* slate-700 */
+    border-bottom: 1px solid #475569;
+    /* slate-600 */
+    border-radius: 0.375rem 0.375rem 0 0;
+    /* FIX: Ensure single line and add horizontal scroll */
+    flex-wrap: nowrap;
+    overflow-x: auto;
+}
+
+/* Custom Scrollbar Styling */
+trix-toolbar .trix-button-row::-webkit-scrollbar {
+    height: 6px;
+}
+
+trix-toolbar .trix-button-row::-webkit-scrollbar-track {
+    background: #1e293b;
+    /* slate-800 */
+}
+
+trix-toolbar .trix-button-row::-webkit-scrollbar-thumb {
+    background: #475569;
+    /* slate-600 */
+    border-radius: 3px;
+}
+
+trix-toolbar .trix-button-row::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+    /* slate-500 */
+}
+
+/* Button Groups (Bold/Italic, Lists, etc.) */
+trix-toolbar .trix-button-group {
+    background-color: transparent;
+    border-color: #475569;
+    /* slate-600 */
+    margin-bottom: 0;
+    flex-shrink: 0;
+    /* Prevent button groups from shrinking */
+}
+
+/* Individual Buttons */
+trix-toolbar .trix-button {
+    background-color: transparent !important;
+    border: none !important;
+}
+
+trix-toolbar .trix-button:not(:disabled):hover {
+    background-color: #475569 !important;
+    /* slate-600 */
+}
+
+trix-toolbar .trix-button.trix-active {
+    background-color: #0ea5e9 !important;
+    /* sky-500 */
+}
+
+/* Main Editor Area */
+trix-editor {
+    background-color: #1e293b;
+    /* slate-800 */
+    border-color: #334155;
+    /* slate-700 */
+    color: #f1f5f9;
+    /* slate-100 */
+    border-top: none;
+    border-radius: 0 0 0.375rem 0.375rem;
+}
+
+trix-editor:focus-within {
+    border-color: #0ea5e9 !important;
+    /* sky-500 */
+    box-shadow: none;
+}
+
+/* Batasi ukuran gambar di dalam editor */
+trix-editor .attachment__content img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* FIX: Styling untuk Progress Bar */
+trix-editor .attachment__progress {
+    background: #475569; /* slate-600 */
+    height: 6px;
+    border-radius: 3px;
+    margin: 0.5rem 0;
+    opacity: 1;
+    transition: opacity 0.2s ease-in;
+    display: block;
+    -webkit-appearance: none;
+    appearance: none;
+    border: none;
+}
+
+trix-editor .attachment__progress::-webkit-progress-bar {
+    background-color: #475569; /* slate-600 */
+    border-radius: 3px;
+}
+
+trix-editor .attachment__progress::-webkit-progress-value {
+    background-color: #0ea5e9; /* sky-500 */
+    border-radius: 3px;
+    transition: width 0.2s ease;
+}
+
+/* FIX: Sembunyikan progress bar HANYA setelah selesai unggah */
+trix-editor .attachment__progress[data-trix-upload-completed] {
+    opacity: 0;
+    display: none !important;
+}
+
+/* FIX: Sembunyikan caption (nama file & ukuran) pada gambar */
+trix-editor .attachment__caption {
+    display: none;
+}
+
+/* Hapus latar belakang abu-abu dari container gambar */
+trix-editor .attachment--preview .attachment__content,
+trix-editor figure.attachment--preview {
+    max-width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+    background: none !important;
+}
+
+/* Dialogs (for adding links) */
+.trix-dialog {
+    background-color: #334155;
+    /* slate-700 */
+    border-color: #475569;
+    /* slate-600 */
+    color: #f1f5f9;
+}
+
+.prose-custom figure {
+    margin: 2em 0;
+}
+/* Nonaktifkan tautan pada gambar */
+.prose-custom figure a {
+    pointer-events: none;
+}
+/* Sembunyikan caption */
+.prose-custom figure figcaption {
+    display: none;
+}
+
+.trix-dialog__link-fields .trix-input {
+    background-color: #1e293b;
+    /* slate-800 */
+    border-color: #475569;
+    /* slate-600 */
+    color: #f1f5f9;
+}
+
+.trix-dialog__link-fields .trix-button-group .trix-button {
+    background-color: #0ea5e9 !important;
+    /* sky-500 */
+    color: white !important;
 }
