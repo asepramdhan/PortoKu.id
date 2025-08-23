@@ -1,14 +1,27 @@
-<header class="bg-slate-900/80 backdrop-blur-sm border-b border-slate-800 p-4 flex justify-between items-center lg:justify-end sticky top-0 z-30">
-  <button id="open-sidebar-btn" @click="isSidebarOpen = true" class="lg:hidden text-white mr-4 cursor-pointer">
-    <x-icon name="lucide.menu" class="w-6 h-6" />
-  </button>
-  <div class="flex items-center space-x-4">
-    <button class="text-slate-400 hover:text-white cursor-pointer">
-      <x-icon name="lucide.bell" class="w-6 h-6" />
+<header
+    class="bg-slate-900/80 backdrop-blur-sm border-b border-slate-800 p-4 flex justify-between items-center lg:justify-end sticky top-0 z-30"
+>
+    <button
+        id="open-sidebar-btn"
+        @click="isSidebarOpen = true"
+        class="lg:hidden text-white mr-4 cursor-pointer"
+    >
+        <x-icon name="lucide.menu" class="w-6 h-6" />
     </button>
-    <div class="flex items-center space-x-2">
-      <img src="https://placehold.co/40x40/0EA5E9/FFFFFF?text=U" alt="User Avatar" class="w-8 h-8 rounded-full">
-      <span class="text-white font-semibold hidden sm:block">{{ Str::title(Str::limit(auth()->user()->name, 10)) }}</span>
+    <div class="flex items-center space-x-4">
+        <x-dark-mode-toggle />
+        <button class="text-slate-400 hover:text-white cursor-pointer">
+            <x-icon name="lucide.bell" class="w-6 h-6" />
+        </button>
+        <div class="flex items-center space-x-2">
+            <img
+                src="{{ asset("storage/" . Auth::user()->profile_photo_path) }}"
+                alt="User Avatar"
+                class="w-8 h-8 rounded-full"
+            />
+            <span class="text-white font-semibold hidden sm:block">
+                {{ Str::title(Str::limit(auth()->user()->name, 10)) }}
+            </span>
+        </div>
     </div>
-  </div>
 </header>
