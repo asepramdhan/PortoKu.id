@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    'openai' => [
+        'api_key' => env('OPENAI_API_KEY'),
+    ],
+
+    'ocrspace' => [
+        'api_key' => env('OCRSPACE_API_KEY'),
+    ],
+
 ];

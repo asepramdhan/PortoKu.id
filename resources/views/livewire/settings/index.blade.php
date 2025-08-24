@@ -48,7 +48,7 @@ new class extends Component {
                 "max:255",
                 "unique:users,email," . Auth::id(),
             ],
-            "photo" => ["nullable", "image", "max:800"],
+            "photo" => ["nullable", "image", "max:1024"],
         ]);
 
         $user = Auth::user();
@@ -202,7 +202,7 @@ new class extends Component {
                                 class="hidden"
                             />
                             <p class="text-xs text-slate-500 mt-2">
-                                JPG, GIF atau PNG. Ukuran maks 800KB.
+                                JPG, GIF atau PNG. Ukuran maks 1MB.
                             </p>
                         </div>
                     </div>

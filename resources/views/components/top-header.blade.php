@@ -10,12 +10,10 @@
     </button>
     <div class="flex items-center space-x-4">
         <x-dark-mode-toggle />
-        <button class="text-slate-400 hover:text-white cursor-pointer">
-            <x-icon name="lucide.bell" class="w-6 h-6" />
-        </button>
+        <livewire:notification-bell />
         <div class="flex items-center space-x-2">
             <img
-                src="{{ asset("storage/" . Auth::user()->profile_photo_path) }}"
+                src="{{ Auth::user()->profile_photo_path ? asset("storage/" . Auth::user()->profile_photo_path) : "https://placehold.co/80x80/0EA5E9/FFFFFF?text=" . substr(Auth::user()->name, 0, 1) }}"
                 alt="User Avatar"
                 class="w-8 h-8 rounded-full"
             />

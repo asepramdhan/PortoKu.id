@@ -1,10 +1,11 @@
 <?php
- 
+
 use function Laravel\Folio\{middleware};
- 
-middleware(['auth', 'verified']);
- 
+
+middleware(["auth", "verified"]);
+
 ?>
+
 <x-layouts.app :title="__('Dashboard')">
-  <livewire:dashboard.index />
+    <livewire:dashboard.index />
 </x-layouts.app>

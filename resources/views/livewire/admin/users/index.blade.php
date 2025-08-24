@@ -2,12 +2,16 @@
 
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 use Livewire\Volt\Component;
 use Livewire\Attributes\Url;
+use Illuminate\Validation\ValidationException;
 
 new class extends Component {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
     public ?User $deleting = null;
     public $showDeleteModal = false;
@@ -20,10 +24,17 @@ new class extends Component {
     public $editingField = null;
     public $editingValue = "";
 
+    // === PHOTO UPLOAD PROPERTIES ===
+    public $photoUpload;
+    public $userIdForPhotoUpload;
+
     public function editField($userId, $field)
     {
-        // Mencegah admin mengedit perannya sendiri
+        // Mencegah admin mengedit perannya sendiri atau nama pengguna lain
         if ($userId === Auth::id() && $field === "is_admin") {
+            return;
+        }
+        if ($userId !== Auth::id() && $field === "name") {
             return;
         }
 
@@ -34,12 +45,17 @@ new class extends Component {
 
         $this->editingId = $userId;
         $this->editingField = $field;
-        $this->editingValue = $user->is_admin;
+
+        if ($field === "name") {
+            $this->editingValue = $user->name;
+        } elseif ($field === "is_admin") {
+            $this->editingValue = $user->is_admin;
+        }
     }
 
     public function saveField()
     {
-        if ($this->editingId === null || $this->editingField === null) {
+        if (! $this->editingId || ! $this->editingField) {
             return;
         }
 
@@ -48,15 +64,53 @@ new class extends Component {
         if ($this->editingField === "is_admin") {
             $this->validate(["editingValue" => "required|boolean"]);
             $user->update(["is_admin" => $this->editingValue]);
+            session()->flash("message", "Peran pengguna berhasil diperbarui.");
+        }
+
+        if ($this->editingField === "name") {
+            $this->validate(["editingValue" => "required|string|max:255"]);
+            $user->update(["name" => $this->editingValue]);
+            session()->flash("message", "Nama berhasil diperbarui.");
         }
 
         $this->cancelEdit();
-        session()->flash("message", "Peran pengguna berhasil diperbarui.");
     }
 
     public function cancelEdit()
     {
         $this->reset("editingId", "editingField", "editingValue");
+    }
+
+    // Metode ini akan berjalan otomatis saat gambar baru dipilih
+    public function updatedPhotoUpload()
+    {
+        try {
+            $this->validate([
+                "photoUpload" => "required|image|max:1024", // Maks 1MB
+            ]);
+        } catch (ValidationException $e) {
+            // Jika validasi gagal, tampilkan notifikasi error
+            session()->flash(
+                "error",
+                "Gagal: Ukuran gambar terlalu besar (maks 1MB).",
+            );
+            // Reset properti unggahan untuk membatalkan
+            $this->reset("photoUpload", "userIdForPhotoUpload");
+            return;
+        }
+
+        $user = User::find($this->userIdForPhotoUpload);
+        if ($user) {
+            // Hapus foto lama jika ada
+            if ($user->profile_photo_path) {
+                Storage::disk("public")->delete($user->profile_photo_path);
+            }
+            // Simpan foto baru
+            $path = $this->photoUpload->store("profile-photos", "public");
+            $user->update(["profile_photo_path" => $path]);
+            $this->reset("photoUpload", "userIdForPhotoUpload");
+            session()->flash("message", "Foto profil berhasil diperbarui.");
+        }
     }
 
     public function prepareToDelete(User $user)
@@ -126,6 +180,7 @@ new class extends Component {
                 <table>
                     <thead>
                         <tr>
+                            <th>Foto</th>
                             <th>Nama</th>
                             <th>Email</th>
                             <th>Peran</th>
@@ -136,10 +191,99 @@ new class extends Component {
                     <tbody>
                         @forelse ($users as $user)
                             <tr wire:key="{{ $user->id }}">
+                                <td>
+                                    @if ($user->id === Auth::id())
+                                        <label
+                                            for="photo-upload-{{ $user->id }}"
+                                            class="cursor-pointer relative"
+                                            wire:click="$set('userIdForPhotoUpload', {{ $user->id }})"
+                                        >
+                                            @if ($userIdForPhotoUpload === $user->id)
+                                                <div
+                                                    wire:loading
+                                                    wire:target="photoUpload"
+                                                    class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                                                >
+                                                    <x-loading
+                                                        class="loading-dots text-sky-400"
+                                                    />
+                                                </div>
+                                            @endif
+
+                                            @if ($user->profile_photo_path)
+                                                <div
+                                                    class="group hover:opacity-75 relative"
+                                                >
+                                                    <img
+                                                        src="{{ asset("storage/" . $user->profile_photo_path) }}"
+                                                        alt="Foto Profil"
+                                                        class="w-12 h-12 object-cover rounded-full"
+                                                    />
+                                                    <div
+                                                        wire:loading.remove
+                                                        wire:target="photoUpload"
+                                                        class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden group-hover:block"
+                                                    >
+                                                        <x-icon
+                                                            name="lucide.upload-cloud"
+                                                            class="text-sky-400"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            @else
+                                                <div
+                                                    class="group hover:opacity-75 relative"
+                                                >
+                                                    <img
+                                                        src="https://placehold.co/48x48/0EA5E9/FFFFFF?text={{ substr($user->name, 0, 1) }}"
+                                                        alt="Avatar"
+                                                        class="w-12 h-12 rounded-full"
+                                                    />
+                                                    <div
+                                                        class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden group-hover:block"
+                                                    >
+                                                        <x-icon
+                                                            name="lucide.upload-cloud"
+                                                            class="text-orange-400"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        </label>
+                                        <input
+                                            type="file"
+                                            id="photo-upload-{{ $user->id }}"
+                                            wire:model="photoUpload"
+                                            class="hidden"
+                                        />
+                                    @else
+                                        <img
+                                            src="{{ $user->profile_photo_path ? asset("storage/" . $user->profile_photo_path) : "https://placehold.co/48x48/0EA5E9/FFFFFF?text=" . substr($user->name, 0, 1) }}"
+                                            alt="Avatar"
+                                            class="w-12 h-12 rounded-full"
+                                        />
+                                    @endif
+                                </td>
                                 <td class="truncate">
-                                    <p class="font-semibold text-white">
-                                        {{ Str::title($user->name) }}
-                                    </p>
+                                    @if ($editingId === $user->id && $editingField === "name")
+                                        <input
+                                            type="text"
+                                            wire:model="editingValue"
+                                            wire:keydown.enter="saveField"
+                                            wire:keydown.escape="cancelEdit"
+                                            class="form-input text-sm p-1"
+                                            x-init="$nextTick(() => $el.focus())"
+                                            x-ref="editInput{{ $user->id }}_name"
+                                            @click.away="$wire.cancelEdit()"
+                                            x-trap.noscroll
+                                        />
+                                    @else
+                                        <p
+                                            @if($user->id === Auth::id()) wire:click="editField({{ $user->id }}, 'name')" class="font-semibold text-white cursor-pointer hover:bg-slate-700 p-1 rounded" @else class="font-semibold text-white p-1" @endif
+                                        >
+                                            {{ $user->name }}
+                                        </p>
+                                    @endif
                                 </td>
                                 <td class="text-slate-300">
                                     {{ $user->email }}

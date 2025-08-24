@@ -3,12 +3,19 @@
 use App\Models\Asset;
 use App\Models\FinancialEntry;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 use Livewire\Volt\Component;
 use Carbon\Carbon;
 
 new class extends Component {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
+
+    // Properti baru untuk unggah struk
+    public $receiptImage;
+    public string $scanStatusMessage = "";
+    public string $scanStatusType = "success";
 
     // Filter properties
     public $filterType = "",
@@ -53,6 +60,86 @@ new class extends Component {
     // Properti untuk umpan balik inline edit
     // public $savedMessageId = null;
     // public $savedMessageField = null;
+
+    // Metode ini akan berjalan otomatis saat struk diunggah
+    public function updatedReceiptImage()
+    {
+        $this->validate([
+            "receiptImage" => "required|image|max:4096",
+        ]);
+
+        try {
+            $apiKey = config("services.ocrspace.api_key");
+            if (! $apiKey) {
+                throw new \Exception("Kunci API OCR.space belum diatur.");
+            }
+
+            // Kirim gambar ke API OCR.space
+            $response = Http::withHeaders(["apikey" => $apiKey])
+                ->attach(
+                    "file",
+                    file_get_contents($this->receiptImage->getRealPath()),
+                    $this->receiptImage->getClientOriginalName(),
+                )
+                ->post("https://api.ocr.space/parse/image", [
+                    "language" => "eng",
+                ]);
+
+            $result = $response->json();
+
+            if ($result && $result["IsErroredOnProcessing"] === false) {
+                $fullText = $result["ParsedResults"][0]["ParsedText"];
+                $extractedAmount = 0;
+
+                // Logika untuk mencari tanggal
+                if (
+                    preg_match(
+                        "/(\d{1,2}\s\w+\s\d{4})/",
+                        $fullText,
+                        $dateMatches,
+                    )
+                ) {
+                    $dateString = $dateMatches[1];
+                    $date = Carbon::createFromFormat("j F Y", $dateString);
+                    $this->transaction_date = $date->format("Y-m-d");
+                    // dd($this->transaction_date);
+                }
+
+                // FIX: Logika baru yang lebih cerdas untuk mencari total
+                // 1. Cari semua angka yang diawali dengan "Rp".
+                preg_match_all("/Rp\s*([\d,.]+)/i", $fullText, $matches);
+
+                // 2. Jika ditemukan, ambil angka terakhir.
+                if (! empty($matches[1])) {
+                    $lastMatch = end($matches[1]);
+                    $cleanedAmount = preg_replace("/[^0-9]/", "", $lastMatch);
+                    $extractedAmount = (int) $cleanedAmount;
+                }
+
+                if ($extractedAmount > 0) {
+                    // Kirim event ke browser dengan data yang diekstrak
+                    $this->dispatch("ocr-completed", amount: $extractedAmount);
+                    $this->scanStatusMessage = "Berhasil dipindai!";
+                    $this->scanStatusType = "success";
+                } else {
+                    $this->scanStatusMessage = "Gagal menemukan total.";
+                    $this->scanStatusType = "error";
+                }
+            } else {
+                $this->scanStatusMessage =
+                    $result["ErrorMessage"][0] ?? "Gagal memproses gambar.";
+                $this->scanStatusType = "error";
+            }
+        } catch (\Exception $e) {
+            $this->scanStatusMessage = "API Error. Coba lagi.";
+            $this->scanStatusType = "error";
+            Log::error("OCR.space API Error: " . $e->getMessage());
+        } finally {
+            $this->reset("receiptImage");
+            // Kirim event ke browser untuk menghapus pesan setelah beberapa detik
+            $this->dispatch("scan-message-received");
+        }
+    }
 
     public function prepareToAdd(): void
     {

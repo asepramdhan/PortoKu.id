@@ -7,6 +7,7 @@ use Livewire\WithPagination;
 use Livewire\Volt\Component;
 use Illuminate\Support\Facades\Storage;
 use Livewire\WithFileUploads;
+use Illuminate\Validation\ValidationException;
 
 new class extends Component {
     use WithPagination, WithFileUploads;
@@ -93,9 +94,20 @@ new class extends Component {
     // Metode ini akan berjalan otomatis saat gambar baru dipilih
     public function updatedImageUpload()
     {
-        $this->validate([
-            "imageUpload" => "required|image|max:1024", // Maks 1MB
-        ]);
+        try {
+            $this->validate([
+                "imageUpload" => "required|image|max:1024", // Maks 1MB
+            ]);
+        } catch (ValidationException $e) {
+            // Jika validasi gagal, tampilkan notifikasi error
+            session()->flash(
+                "error",
+                "Gagal: Ukuran gambar terlalu besar (maks 1MB).",
+            );
+            // Reset properti unggahan untuk membatalkan
+            $this->reset("imageUpload", "postIdForImageUpload");
+            return;
+        }
 
         $post = Post::find($this->postIdForImageUpload);
 
@@ -247,9 +259,21 @@ new class extends Component {
                                         </div>
                                     @else
                                         <div
-                                            class="w-20 h-12 bg-slate-700 rounded-md flex items-center justify-center text-slate-500 text-xs"
+                                            class="group hover:opacity-75 relative"
                                         >
-                                            No Img
+                                            <div
+                                                class="w-20 h-12 bg-slate-700 rounded-md flex items-center justify-center text-slate-500 text-xs"
+                                            >
+                                                No Img
+                                            </div>
+                                            <div
+                                                class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden group-hover:block"
+                                            >
+                                                <x-icon
+                                                    name="lucide.upload-cloud"
+                                                    class="text-sky-400"
+                                                />
+                                            </div>
                                         </div>
                                     @endif
                                 </label>

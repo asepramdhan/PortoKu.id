@@ -190,7 +190,7 @@ new class extends Component {
                             <option value="">Pilih kategori...</option>
                             @foreach ($categories as $category)
                                 <option value="{{ $category->id }}">
-                                    {{ $category->name }}
+                                    {{ Str::title($category->name) }}
                                 </option>
                             @endforeach
                         </select>
@@ -259,9 +259,7 @@ new class extends Component {
                                 wire:target="featured_image"
                                 class="items-center justify-center"
                             >
-                                <p class="text-sm text-slate-400">
-                                    Mengunggah...
-                                </p>
+                                <x-loading class="loading-dots" />
                             </div>
 
                             <input
