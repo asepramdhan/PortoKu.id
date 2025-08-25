@@ -63,6 +63,13 @@
                         {{ $slot }}
                     </x-slot>
                 </x-main>
+
+                @auth
+                    @if (Auth::check() && ! Auth::user()->is_admin)
+                        <livewire:user-chat-widget />
+                    @endif
+                @endauth
+
                 <!-- ===== Footer ===== -->
                 <x-footer />
             </div>

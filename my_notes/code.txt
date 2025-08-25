@@ -1,0 +1,17 @@
+scrollToBottom() {
+                const messageList = this.$refs.messageList
+                if (messageList) {
+                    messageList.scroll({
+                        top: messageList.scrollHeight,
+                        behavior: 'smooth',
+                    })
+                }
+            },
+            scrollHandler(event) {
+                const messageList = this.$refs.messageList
+                if (messageList) {
+                    if (event.target.scrollTop === 0) {
+                        $wire.loadMoreMessages()
+                    }
+                }
+            },

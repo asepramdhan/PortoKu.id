@@ -34,12 +34,11 @@ new class extends Component {
 
 <div
     x-data="{ open: false }"
+    @mouseenter="open = true; $wire.loadNotifications()"
+    @mouseleave="open = false"
     class="relative text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
 >
-    <button
-        @click="open = !open"
-        class="relative text-slate-400 hover:text-white cursor-pointer"
-    >
+    <button class="relative text-slate-400 hover:text-white cursor-pointer">
         @if ($unreadCount > 0)
             <span class="absolute -top-1 -right-1 flex h-3 w-3">
                 <span
@@ -58,7 +57,7 @@ new class extends Component {
         x-show="open"
         @click.away="open = false"
         x-transition
-        class="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-800 rounded-md shadow-lg z-20 border border-slate-200 dark:border-slate-700"
+        class="absolute right-0 mt-2 lg:w-80 w-72 bg-white dark:bg-slate-800 rounded-md shadow-lg z-20 border border-slate-200 dark:border-slate-700"
         x-cloak
     >
         <div

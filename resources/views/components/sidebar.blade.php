@@ -58,6 +58,10 @@
                     <x-icon name="lucide.users" class="mr-3" />
                     Kelola Pengguna
                 </a>
+                <a href="/admin/chat" target="_blank" class="sidebar-link">
+                    <x-icon name="lucide.message-circle" class="mr-3" />
+                    Kelola Chat
+                </a>
             </nav>
         @endadmin
     @else
