@@ -189,13 +189,11 @@ new class extends Component {
         >
             <x-icon name="lucide.message-circle" class="w-8 h-8" />
 
-            {{--
-                <div
+            <div
                 class="absolute top-0 left-0 bg-slate-700 text-white px-1 py-0.5 rounded-full shadow-lg text-xs font-semibold whitespace-nowrap"
-                >
+            >
                 {{ $messageList->count() }}
-                </div>
-            --}}
+            </div>
         </button>
 
         <!-- Chat Window -->

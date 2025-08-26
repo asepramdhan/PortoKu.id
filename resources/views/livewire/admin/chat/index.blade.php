@@ -12,7 +12,6 @@ new class extends Component {
     public ?Conversation $activeConversation = null;
     public Collection $messageList;
     public string $newMessage = "";
-    public int $messageOffset = 0;
     public $hasMore = true;
 
     protected function rules(): array
@@ -64,10 +63,15 @@ new class extends Component {
             "user",
             "messages.user",
         )->findOrFail($conversationId);
-        $this->loadMessages();
 
-        // Tambahkan scroll ke bawah saat memilih percakapan
-        // $this->js("window.dispatchEvent(new CustomEvent('scroll-bottom'))");
+        // update status read_at
+        $this->activeConversation
+            ->messages()
+            ->whereNull("read_at")
+            ->update([
+                "read_at" => now(),
+            ]);
+        $this->loadMessages();
     }
 
     public function loadMoreMessages($oldHeight): void
@@ -198,6 +202,15 @@ new class extends Component {
                                 {{ $conv->last_message_at->diffForHumans() }}
                             </p>
                         </div>
+                        @unless ($conv->messages->whereNull("read_at")->isEmpty())
+                            <span
+                                class="inline-block bg-red-500 text-white text-xs px-2 py-1 rounded-full"
+                            >
+                                {{ $conv->messages->whereNull("read_at")->count() }}
+                            </span>
+                        @else
+                            
+                        @endunless
                     </div>
                 </div>
             @endforeach
