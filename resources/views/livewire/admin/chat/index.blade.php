@@ -28,12 +28,23 @@ new class extends Component {
         // Secara otomatis pilih percakapan pertama jika ada
         if ($this->conversations->isNotEmpty()) {
             $this->selectConversation($this->conversations->first()->id);
+
+            // update read_at
+            // $this->activeConversation->messages()->update(["read_at" => now()]);
         }
     }
 
     public function loadConversations(): void
     {
         $this->conversations = Conversation::with("user")
+            ->withCount([
+                "messages as unread_count" => function ($q) {
+                    $q->whereNull("read_at")->whereHas(
+                        "user",
+                        fn ($q2) => $q2->where("is_admin", false),
+                    );
+                },
+            ])
             ->whereHas("user", fn ($q) => $q->where("is_admin", false))
             ->orderBy("last_message_at", "desc")
             ->get();
@@ -50,6 +61,12 @@ new class extends Component {
                 ->get()
                 ->reverse();
 
+            $this->activeConversation
+                ->messages()
+                ->whereNull("read_at")
+                ->whereHas("user", fn ($q) => $q->where("is_admin", false))
+                ->update(["read_at" => now()]);
+
             // cek apakah masih ada sisa pesan
             $this->hasMore =
                 $this->activeConversation->messages()->count() >
@@ -64,13 +81,6 @@ new class extends Component {
             "messages.user",
         )->findOrFail($conversationId);
 
-        // update status read_at
-        $this->activeConversation
-            ->messages()
-            ->whereNull("read_at")
-            ->update([
-                "read_at" => now(),
-            ]);
         $this->loadMessages();
     }
 
@@ -153,7 +163,7 @@ new class extends Component {
                 window.addEventListener('scroll-bottom', () => {
                     box.scrollTo({
                         top: box.scrollHeight,
-                        behavior: 'smooth',
+                        behavior: 'instant',
                     })
                 })
 
@@ -161,14 +171,14 @@ new class extends Component {
                 window.addEventListener('scroll-keep', (e) => {
                     box.scrollTo({
                         top: e.detail.position,
-                        behavior: 'smooth',
+                        behavior: 'instant',
                     })
                 })
 
                 // Detect scroll ke atas
                 box.addEventListener('scroll', () => {
                     if (box.scrollTop === 0 && @this.get('hasMore')) {
-                        $wire.loadMoreMessages(box.scrollHeight)
+                        $wire.loadMoreMessages(box.scrollHeight - box.clientHeight)
                     }
                 })
             },
@@ -177,7 +187,9 @@ new class extends Component {
 >
     <div class="md:w-1/3 border-r border-slate-700">
         <div class="p-4 border-b border-slate-700">
-            <h3 class="font-semibold text-white">Percakapan</h3>
+            <a href="/admin/chat" wire:navigate>
+                <h3 class="font-semibold text-white">Percakapan</h3>
+            </a>
         </div>
         <div class="overflow-y-auto">
             @foreach ($conversationsList as $conv)
@@ -186,11 +198,21 @@ new class extends Component {
                     class="p-4 border-b border-slate-800 cursor-pointer hover:bg-slate-800 {{ $activeConversationData?->id === $conv->id ? "bg-slate-800" : "" }}"
                 >
                     <div class="flex items-center">
-                        <img
-                            src="{{ $conv->user->profile_photo_path ? asset("storage/" . $conv->user->profile_photo_path) : "https://placehold.co/40x40/0EA5E9/FFFFFF?text=" . substr($conv->user->name, 0, 1) }}"
-                            class="w-12 h-12 rounded-full mr-4"
-                            alt="{{ $conv->user->name }}"
-                        />
+                        <div class="relative">
+                            <img
+                                src="{{ $conv->user->profile_photo_path ? asset("storage/" . $conv->user->profile_photo_path) : "https://placehold.co/40x40/0EA5E9/FFFFFF?text=" . substr($conv->user->name, 0, 1) }}"
+                                class="w-12 h-12 rounded-full mr-4"
+                                alt="{{ $conv->user->name }}"
+                            />
+                            @if ($conv->messages->where("read_at", null)->where("user_id", "!=", Auth::id())->count() > 0)
+                                <span
+                                    class="absolute top-0 left-0 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center"
+                                >
+                                    {{ $conv->messages->where("read_at", null)->where("user_id", "!=", Auth::id())->count() }}
+                                </span>
+                            @endif
+                        </div>
+
                         <div>
                             <p class="font-semibold text-white">
                                 {{ $conv->user->name }}
@@ -202,15 +224,6 @@ new class extends Component {
                                 {{ $conv->last_message_at->diffForHumans() }}
                             </p>
                         </div>
-                        @unless ($conv->messages->whereNull("read_at")->isEmpty())
-                            <span
-                                class="inline-block bg-red-500 text-white text-xs px-2 py-1 rounded-full"
-                            >
-                                {{ $conv->messages->whereNull("read_at")->count() }}
-                            </span>
-                        @else
-                            
-                        @endunless
                     </div>
                 </div>
             @endforeach
@@ -237,7 +250,6 @@ new class extends Component {
                 <div
                     x-ref="chatBox"
                     id="chat-box"
-                    wire:key="messages-{{ $activeConversationData->id }}"
                     class="flex-1 p-4 space-y-4 overflow-y-auto"
                 >
                     {{-- load more --}}
@@ -253,11 +265,6 @@ new class extends Component {
                                         wire:loading
                                         wire:target="loadMoreMessages"
                                         class="loading-dots"
-                                    />
-                                    <x-icon
-                                        name="lucide.refresh-cw"
-                                        wire:loading.remove
-                                        wire:target="loadMoreMessages"
                                     />
                                 </div>
                             </button>
@@ -281,12 +288,25 @@ new class extends Component {
                                     class="text-xs mt-1 opacity-70 {{ $message->user->is_admin ? "text-right" : "text-left" }}"
                                 >
                                     {{ $message->created_at->format("H:i") }}
+                                    @if ($message->user->is_admin)
+                                        @if ($message->read_at == null)
+                                            <x-icon
+                                                name="lucide.check"
+                                                class="w-4 h-4 inline-block"
+                                            />
+                                        @else
+                                            <x-icon
+                                                name="lucide.check-check"
+                                                class="w-4 h-4 text-green-400 inline-block"
+                                            />
+                                        @endif
+                                    @endif
                                 </p>
                             </div>
                         </div>
                     @endforeach
                 </div>
-                <div class="p-4 border-t border-slate-700">
+                <div x-trap="open" class="p-4 border-t border-slate-700">
                     <form
                         wire:submit.prevent="sendMessage"
                         class="flex items-center gap-2"
@@ -298,7 +318,6 @@ new class extends Component {
                             placeholder="Ketik balasan Anda..."
                             class="form-input flex-1 !py-2"
                             autocomplete="off"
-                            autofocus
                         />
                         <button
                             type="submit"

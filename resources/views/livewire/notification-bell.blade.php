@@ -36,7 +36,7 @@ new class extends Component {
     x-data="{ open: false }"
     @mouseenter="open = true; $wire.loadNotifications()"
     @mouseleave="open = false"
-    class="relative text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+    class="relative text-slate-400 hover:text-white"
 >
     <button class="relative text-slate-400 hover:text-white cursor-pointer">
         @if ($unreadCount > 0)
@@ -57,15 +57,13 @@ new class extends Component {
         x-show="open"
         @click.away="open = false"
         x-transition
-        class="absolute right-0 mt-2 lg:w-80 w-72 bg-white dark:bg-slate-800 rounded-md shadow-lg z-20 border border-slate-200 dark:border-slate-700"
+        class="absolute right-0 mt-2 lg:w-80 w-72 bg-slate-800 rounded-md shadow-lg z-20 border border-slate-700"
         x-cloak
     >
         <div
-            class="p-4 flex justify-between items-center border-b border-slate-200 dark:border-slate-700"
+            class="p-4 flex justify-between items-center border-b border-slate-700"
         >
-            <h3 class="font-semibold text-slate-800 dark:text-white">
-                Notifikasi
-            </h3>
+            <h3 class="font-semibold text-white">Notifikasi</h3>
             @if ($unreadCount > 0)
                 <button
                     wire:click="markAsRead"
@@ -77,9 +75,7 @@ new class extends Component {
         </div>
         <div class="p-2 max-h-96 overflow-y-auto">
             @forelse ($notifications as $notification)
-                <div
-                    class="p-3 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700"
-                >
+                <div class="p-3 rounded-lg hover:bg-slate-700">
                     @php
                         $change = $notification->data["percentage_change"];
                         $isPositive = $change >= 0;
@@ -87,12 +83,10 @@ new class extends Component {
                         $currentValue = number_format($notification->data["current_value"], 0, ",", ".");
                     @endphp
 
-                    <p
-                        class="text-sm font-semibold text-slate-700 dark:text-slate-200"
-                    >
+                    <p class="text-sm font-semibold text-slate-200">
                         Ringkasan Portofolio Harian
                     </p>
-                    <p class="text-sm text-slate-500 dark:text-slate-400">
+                    <p class="text-sm text-slate-400">
                         Portofolio Anda {{ $isPositive ? "naik" : "turun" }}
                         <span
                             class="{{ $isPositive ? "text-green-500" : "text-red-500" }} font-bold"
@@ -102,7 +96,7 @@ new class extends Component {
                         dibanding kemarin. Nilai saat ini: Rp
                         {{ $currentValue }}.
                     </p>
-                    <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                    <p class="text-xs text-slate-500 mt-1">
                         {{ $notification->created_at->diffForHumans() }}
                     </p>
                 </div>

@@ -9,7 +9,7 @@
         <x-icon name="lucide.menu" class="w-6 h-6" />
     </button>
     <div class="flex items-center space-x-4">
-        <x-dark-mode-toggle />
+        {{-- <x-dark-mode-toggle /> --}}
         <livewire:notification-bell />
         <div class="flex items-center space-x-2">
             <img

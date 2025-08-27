@@ -14,18 +14,18 @@ new class extends Component {
     public function updateUnreadCount(): void
     {
         $this->unreadCount = Message::whereNull("read_at")
-            ->where("user_id", "!=", auth()->id())
+            ->whereHas("user", fn ($q) => $q->where("is_admin", false))
             ->count();
     }
 }; ?>
 
-<div class="relative">
-    @unless ($this->unreadCount == 0)
+<div>
+    Kelola Chat
+    @if ($this->unreadCount > 0)
         <span
-            class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full"
+            class="px-2 py-1 ms-2 text-xs font-bold text-white bg-slate-700 rounded"
         >
             {{ $this->unreadCount }}
         </span>
-    @endunless
-    Kelola Chat
+    @endif
 </div>

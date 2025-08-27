@@ -10,8 +10,8 @@ new class extends Component {
     public ?Conversation $conversation = null;
     public Collection $messageList;
     public string $newMessage = "";
-    public int $messageOffset = 0;
     public $hasMore = true;
+    public int $unreadCount = 0;
 
     protected function rules(): array
     {
@@ -22,14 +22,34 @@ new class extends Component {
 
     public function mount(): void
     {
-        if (Auth::check() && ! Auth::user()->is_admin) {
-            // Pastikan hanya user biasa yang membuat percakapan
-            $this->conversation = Conversation::firstOrCreate(
-                ["user_id" => Auth::id()],
-                ["last_message_at" => now()],
-            );
+        if (Auth::check()) {
+            if (Auth::user()->is_admin) {
+                // Admin bisa ambil percakapan terakhir misalnya
+                $this->conversation = Conversation::latest(
+                    "last_message_at",
+                )->first();
+            } else {
+                $this->conversation = Conversation::firstOrCreate(
+                    ["user_id" => Auth::id()],
+                    ["last_message_at" => now()],
+                );
 
-            $this->loadMessages();
+                $this->loadMessages();
+            }
+        }
+
+        $this->updateUnreadCount();
+    }
+
+    public function updateReadAt(): void
+    {
+        if ($this->conversation) {
+            $this->conversation->touch("last_message_at");
+
+            $this->conversation
+                ->messages()
+                ->where("user_id", "!=", Auth::id())
+                ->update(["read_at" => now()]);
         }
     }
 
@@ -43,6 +63,9 @@ new class extends Component {
                 ->take(10)
                 ->get()
                 ->reverse();
+
+            // update count unread
+            $this->updateUnreadCount();
 
             // cek apakah masih ada sisa pesan
             $this->hasMore =
@@ -62,7 +85,7 @@ new class extends Component {
         $oldestMessage = Message::with("user")
             ->where("id", "<", $firstVisibleMessage->id)
             ->latest()
-            ->take(10)
+            ->take(5)
             ->get()
             ->reverse();
 
@@ -105,6 +128,29 @@ new class extends Component {
         $this->js("window.dispatchEvent(new CustomEvent('scroll-bottom'))");
     }
 
+    public function updateUnreadCount(): void
+    {
+        if (Auth::user()->is_admin) {
+            // Admin: hitung semua pesan dari user yang belum dibaca
+            $this->unreadCount = Message::whereNull("read_at")
+                ->whereHas("user", fn ($q) => $q->where("is_admin", false))
+                ->count();
+        } else {
+            // User: pastikan conversation ada
+            if (! $this->conversation) {
+                $this->unreadCount = 0;
+                return;
+            }
+
+            // Hitung pesan admin yang belum dibaca user
+            $this->unreadCount = $this->conversation
+                ->messages()
+                ->whereNull("read_at")
+                ->whereHas("user", fn ($q) => $q->where("is_admin", true))
+                ->count();
+        }
+    }
+
     public function with(): array
     {
         return [
@@ -117,8 +163,20 @@ new class extends Component {
     <div
         x-data="{
             open: false,
+            showBubbleChat: false,
+            showBadgeCount: false,
             showCallout: false,
             init() {
+                setTimeout(() => {
+                    this.showBubbleChat = true
+                        setTimeout(() => {
+                            if (@this.unreadCount > 0) {
+                                @this.updateUnreadCount()
+                                this.showBadgeCount = true
+                            }
+                        }, 1300)
+                }, 1000)
+
                 // Hanya tampilkan jika belum pernah muncul di sesi ini
                 if (! sessionStorage.getItem('portokuChatCalloutShown')) {
                     // Tampilkan setelah 2 detik
@@ -130,7 +188,7 @@ new class extends Component {
                             // Tandai sudah pernah muncul
                             sessionStorage.setItem('portokuChatCalloutShown', 'true')
                         }, 5000)
-                    }, 2000)
+                    }, 3000)
                 }
 
                 let box = this.$refs.chatBox
@@ -144,7 +202,7 @@ new class extends Component {
                 window.addEventListener('scroll-bottom', () => {
                     box.scrollTo({
                         top: box.scrollHeight,
-                        behavior: 'smooth',
+                        behavior: 'instant',
                     })
                 })
 
@@ -152,14 +210,14 @@ new class extends Component {
                 window.addEventListener('scroll-keep', (e) => {
                     box.scrollTo({
                         top: e.detail.position,
-                        behavior: 'smooth',
+                        behavior: 'instant',
                     })
                 })
 
                 // Detect scroll ke atas
                 box.addEventListener('scroll', () => {
                     if (box.scrollTop === 0 && @this.get('hasMore')) {
-                        $wire.loadMoreMessages(box.scrollHeight)
+                        $wire.loadMoreMessages(box.scrollHeight - box.clientHeight)
                     }
                 })
             },
@@ -184,16 +242,28 @@ new class extends Component {
 
         <!-- Chat Bubble Button -->
         <button
-            @click="open = !open; showCallout = false; $nextTick(() => { $refs.chatBox.scrollTop = $refs.chatBox.scrollHeight }); $wire.loadMessages()"
+            x-show="showBubbleChat"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 transform translate-y-4"
+            x-transition:enter-end="opacity-100 transform translate-y-0"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 transform translate-y-0"
+            x-transition:leave-end="opacity-0 transform translate-y-4"
+            @click="open = !open; showCallout = false; $nextTick(() => { $refs.chatBox.scrollTop = $refs.chatBox.scrollHeight }); $wire.loadMessages(); $wire.updateReadAt(); $wire.updateUnreadCount()"
             class="bg-sky-500 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg hover:bg-sky-600 transition-transform hover:scale-110 cursor-pointer"
         >
             <x-icon name="lucide.message-circle" class="w-8 h-8" />
 
-            <div
-                class="absolute top-0 left-0 bg-slate-700 text-white px-1 py-0.5 rounded-full shadow-lg text-xs font-semibold whitespace-nowrap"
-            >
-                {{ $messageList->count() }}
-            </div>
+            @if ($unreadCount > 0)
+                <div
+                    x-show="showBadgeCount"
+                    x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 transform translate-y-1"
+                    class="absolute top-0 left-0 bg-slate-700 text-white w-5 h-5 flex items-center justify-center rounded-full shadow-lg text-xs font-semibold"
+                >
+                    {{ $this->unreadCount }}
+                </div>
+            @endif
         </button>
 
         <!-- Chat Window -->
@@ -242,17 +312,14 @@ new class extends Component {
                                     wire:target="loadMoreMessages"
                                     class="loading-dots"
                                 />
-                                <x-icon
-                                    name="lucide.refresh-cw"
-                                    wire:loading.remove
-                                    wire:target="loadMoreMessages"
-                                />
                             </div>
                         </button>
                     @else
-                        <span class="text-slate-600 font-semibold text-sm">
-                            Tidak ada chat lagi
-                        </span>
+                        @unless ($messageList->isEmpty() || $messageList->count() < 5)
+                            <span class="text-slate-600 font-semibold text-sm">
+                                Tidak ada chat lagi
+                            </span>
+                        @endunless
                     @endif
                 </div>
                 @forelse ($messageList as $message)
@@ -267,6 +334,19 @@ new class extends Component {
                                 class="text-xs mt-1 opacity-70 {{ $message->user->is_admin ? "" : "text-right" }}"
                             >
                                 {{ $message->created_at->format("H:i") }}
+                                @if (! $message->user->is_admin)
+                                    @if ($message->read_at == null)
+                                        <x-icon
+                                            name="lucide.check"
+                                            class="w-4 h-4 inline-block"
+                                        />
+                                    @else
+                                        <x-icon
+                                            name="lucide.check-check"
+                                            class="w-4 h-4 text-green-400 inline-block"
+                                        />
+                                    @endif
+                                @endif
                             </p>
                         </div>
                     </div>
@@ -278,14 +358,14 @@ new class extends Component {
             </div>
 
             <!-- Input Area -->
-            <div class="p-4 border-t border-slate-700">
+            <div x-trap="open" class="p-4 border-t border-slate-700">
                 <form
                     wire:submit.prevent="sendMessage"
                     class="flex items-center gap-2"
                 >
                     <input
                         type="text"
-                        @mouseenter="$wire.loadMessages()"
+                        @mouseenter="$wire.loadMessages(); $wire.updateReadAt(); $wire.updateUnreadCount()"
                         wire:model="newMessage"
                         placeholder="Ketik pesan Anda..."
                         class="form-input flex-1 !py-2"
