@@ -14,10 +14,19 @@
     </section>
 
     <!-- ===== Detailed Features Section ===== -->
-    <section class="py-20">
-        <div class="container mx-auto px-6 space-y-24">
-            <!-- Feature 1: Pelacakan Portofolio -->
-            <div class="grid md:grid-cols-2 gap-12 items-center">
+    <section class="py-16 md:py-20">
+        <div class="container mx-auto px-6 space-y-16 md:space-y-24">
+            <div class="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+                <div
+                    class="bg-slate-800 p-4 rounded-xl shadow-lg md:order-last"
+                >
+                    <img
+                        src="{{ asset("images/fitur-visualisasi.svg") }}"
+                        alt="Visualisasi Portofolio"
+                        class="rounded-lg w-full"
+                    />
+                </div>
+
                 <div>
                     <div class="inline-flex items-center gap-3 mb-4">
                         <div class="feature-icon p-3 rounded-lg">
@@ -26,7 +35,7 @@
                                 class="w-7 h-7 text-sky-400"
                             />
                         </div>
-                        <h2 class="text-3xl font-bold text-white">
+                        <h2 class="text-2xl md:text-3xl font-bold text-white">
                             Pelacakan Portofolio Real-Time
                         </h2>
                     </div>
@@ -68,26 +77,17 @@
                         </li>
                     </ul>
                 </div>
-                <div class="bg-slate-800 p-4 rounded-xl shadow-lg">
-                    <img
-                        src="https://placehold.co/600x400/1E293B/FFFFFF?text=Visualisasi+Portofolio"
-                        alt="Visualisasi Portofolio"
-                        class="rounded-lg w-full"
-                    />
-                </div>
             </div>
 
-            <!-- Feature 2: Manajemen Keuangan -->
-            <div class="grid md:grid-cols-2 gap-12 items-center">
-                <div
-                    class="bg-slate-800 p-4 rounded-xl shadow-lg md:order-last"
-                >
+            <div class="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+                <div class="bg-slate-800 p-4 rounded-xl shadow-lg">
                     <img
-                        src="https://placehold.co/600x400/1E293B/FFFFFF?text=Manajemen+Arus+Kas"
+                        src="{{ asset("images/fitur-arus-kas.svg") }}"
                         alt="Manajemen Arus Kas"
                         class="rounded-lg w-full"
                     />
                 </div>
+
                 <div>
                     <div class="inline-flex items-center gap-3 mb-4">
                         <div class="feature-icon p-3 rounded-lg">
@@ -96,7 +96,7 @@
                                 class="w-7 h-7 text-sky-400"
                             />
                         </div>
-                        <h2 class="text-3xl font-bold text-white">
+                        <h2 class="text-2xl md:text-3xl font-bold text-white">
                             Manajemen Keuangan Terpusat
                         </h2>
                     </div>
@@ -139,8 +139,17 @@
                 </div>
             </div>
 
-            <!-- Feature 3: Laporan Visual -->
-            <div class="grid md:grid-cols-2 gap-12 items-center">
+            <div class="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+                <div
+                    class="bg-slate-800 p-4 rounded-xl shadow-lg md:order-last"
+                >
+                    <img
+                        src="{{ asset("images/fitur-laporan.svg") }}"
+                        alt="Grafik dan Laporan"
+                        class="rounded-lg w-full"
+                    />
+                </div>
+
                 <div>
                     <div class="inline-flex items-center gap-3 mb-4">
                         <div class="feature-icon p-3 rounded-lg">
@@ -149,7 +158,7 @@
                                 class="w-7 h-7 text-sky-400"
                             />
                         </div>
-                        <h2 class="text-3xl font-bold text-white">
+                        <h2 class="text-2xl md:text-3xl font-bold text-white">
                             Laporan & Visualisasi Intuitif
                         </h2>
                     </div>
@@ -190,13 +199,6 @@
                             </span>
                         </li>
                     </ul>
-                </div>
-                <div class="bg-slate-800 p-4 rounded-xl shadow-lg">
-                    <img
-                        src="https://placehold.co/600x400/1E293B/FFFFFF?text=Grafik+dan+Laporan"
-                        alt="Grafik dan Laporan"
-                        class="rounded-lg w-full"
-                    />
                 </div>
             </div>
         </div>

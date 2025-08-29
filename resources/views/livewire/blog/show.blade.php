@@ -109,7 +109,7 @@ new class extends Component {
                             </h4>
                             <p class="mt-1 text-slate-400">
                                 Penulis di PortoKu.id yang berfokus pada
-                                analisis keuangan dan aset digital.
+                                {{ $this->post->user->about ?? "N/A" }}
                             </p>
                         </div>
                     </div>

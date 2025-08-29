@@ -3,7 +3,17 @@
 >
     <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
         <a href="/" wire:navigate class="text-2xl font-bold text-white">
-            {!! 'Porto<span class="text-sky-400">Ku</span>.id' !!}
+            <div class="flex items-end">
+                <img
+                    src="{{ asset("images/logo.svg") }}"
+                    alt="PortoKu.id Logo"
+                    class="h-10 w-auto"
+                    style="margin-bottom: 5px"
+                />
+                <span class="ms-2">
+                    {!! 'Porto<span class="text-sky-400">Ku</span>.id' !!}
+                </span>
+            </div>
         </a>
 
         <!-- Desktop Menu -->

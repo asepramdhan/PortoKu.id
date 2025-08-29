@@ -249,7 +249,7 @@ new class extends Component {
                         wire:click="deleteCategory"
                         wire:loading.attr="disabled"
                         wire:target="deleteCategory"
-                        class="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg w-full"
+                        class="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg w-full cursor-pointer"
                     >
                         <div class="flex items-center justify-center">
                             <x-loading

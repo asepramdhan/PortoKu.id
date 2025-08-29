@@ -855,8 +855,8 @@ new class extends Component {
                 </div>
                 <h2 class="text-2xl font-bold text-white">Hapus Transaksi?</h2>
                 <p class="mt-2 text-slate-400">
-                    Apakah Anda yakin ingin menghapus transaksi ini? Tindakan
-                    ini tidak dapat dibatalkan.
+                    Apakah Anda yakin ingin menghapus asset ini? Tindakan ini
+                    tidak dapat dibatalkan.
                 </p>
                 <div class="mt-6 flex justify-center gap-4">
                     <button

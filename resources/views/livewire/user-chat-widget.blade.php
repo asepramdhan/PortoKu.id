@@ -126,9 +126,6 @@ new class extends Component {
         $this->reset("newMessage");
         $this->loadMessages(); // Muat ulang pesan setelah mengirim
 
-        // kirim agar refresh count message ke admin
-        $this->dispatch("new-message-received");
-
         // Scroll ke bawah setelah kirim pesan
         $this->js("window.dispatchEvent(new CustomEvent('scroll-bottom'))");
     }
@@ -260,6 +257,7 @@ new class extends Component {
             x-transition:leave-start="opacity-100 transform translate-y-0"
             x-transition:leave-end="opacity-0 transform translate-y-4"
             @click="open = !open; showCallout = false; sessionStorage.removeItem('notificationPlayed'); $nextTick(() => { $refs.chatBox.scrollTop = $refs.chatBox.scrollHeight }); $wire.loadMessages(); $wire.updateReadAt(); $wire.updateUnreadCount()"
+            wire:poll.60s="updateUnreadCount"
             class="bg-sky-500 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg hover:bg-sky-600 transition-transform hover:scale-110 cursor-pointer"
         >
             <x-icon name="lucide.message-circle" class="w-8 h-8" />

@@ -4,9 +4,35 @@
     class="bg-slate-900 w-64 p-6 fixed inset-y-0 left-0 transform -translate-x-full lg:relative lg:translate-x-0 transition-transform duration-300 ease-in-out z-50 flex flex-col"
 >
     <div class="flex justify-between items-center mb-10">
-        <a href="/" class="text-2xl font-bold text-white">
-            {!! 'Porto<span class="text-sky-400">Ku</span>.id' !!}
-        </a>
+        @admin
+            <a href="/admin/dashboard" class="text-2xl font-bold text-white">
+                <div class="flex items-end">
+                    <img
+                        src="{{ asset("images/logo.svg") }}"
+                        alt="PortoKu.id Logo"
+                        class="h-10 w-auto"
+                        style="margin-bottom: 5px"
+                    />
+                    <span class="ms-2">
+                        {!! 'Porto<span class="text-sky-400">Ku</span>.id' !!}
+                    </span>
+                </div>
+            </a>
+        @else
+            <a href="/dashboard" class="text-2xl font-bold text-white">
+                <div class="flex items-end">
+                    <img
+                        src="{{ asset("images/logo.svg") }}"
+                        alt="PortoKu.id Logo"
+                        class="h-10 w-auto"
+                        style="margin-bottom: 5px"
+                    />
+                    <span class="ms-2">
+                        {!! 'Porto<span class="text-sky-400">Ku</span>.id' !!}
+                    </span>
+                </div>
+            </a>
+        @endadmin
         <button
             id="close-sidebar-btn"
             @click="isSidebarOpen = false"
@@ -21,15 +47,26 @@
                 <a
                     href="/admin/dashboard"
                     wire:navigate
-                    class="sidebar-link {{ request()->is("admin/dashboard") ? "active" : "" }}"
+                    wire:current="active"
+                    class="sidebar-link"
                 >
                     <x-icon name="lucide.layout-dashboard" class="mr-3" />
                     Dashboard
                 </a>
                 <a
+                    href="/admin/assets"
+                    wire:navigate
+                    wire:current="active"
+                    class="sidebar-link"
+                >
+                    <x-icon name="lucide.wallet" class="mr-3" />
+                    Kelola Aset
+                </a>
+                <a
                     href="/admin/blog"
                     wire:navigate
-                    class="sidebar-link {{ request()->is("admin/blog") ? "active" : "" }}"
+                    wire:current.exact="active"
+                    class="sidebar-link"
                 >
                     <x-icon name="lucide.book-open" class="mr-3" />
                     Kelola Blog
@@ -37,7 +74,8 @@
                 <a
                     href="/admin/blog/categories"
                     wire:navigate
-                    class="sidebar-link {{ request()->is("admin/blog/categories") ? "active" : "" }}"
+                    wire:current="active"
+                    class="sidebar-link"
                 >
                     <x-icon name="lucide.tag" class="mr-3" />
                     Kelola Kategori
@@ -45,7 +83,8 @@
                 <a
                     href="/admin/blog/tags"
                     wire:navigate
-                    class="sidebar-link {{ request()->is("admin/blog/tags") ? "active" : "" }}"
+                    wire:current="active"
+                    class="sidebar-link"
                 >
                     <x-icon name="lucide.tags" class="mr-3" />
                     Kelola Tag
@@ -53,7 +92,8 @@
                 <a
                     href="/admin/users"
                     wire:navigate
-                    class="sidebar-link {{ request()->is("admin/users") ? "active" : "" }}"
+                    wire:current="active"
+                    class="sidebar-link"
                 >
                     <x-icon name="lucide.users" class="mr-3" />
                     Kelola Pengguna
@@ -69,7 +109,8 @@
             <a
                 href="/dashboard"
                 wire:navigate
-                class="sidebar-link {{ request()->is("dashboard") ? "active" : "" }}"
+                wire:current="active"
+                class="sidebar-link"
             >
                 <x-icon name="lucide.layout-dashboard" class="mr-3" />
                 Dashboard
@@ -77,7 +118,8 @@
             <a
                 href="/portofolio"
                 wire:navigate
-                class="sidebar-link {{ request()->is("portofolio") ? "active" : "" }}"
+                wire:current="active"
+                class="sidebar-link"
             >
                 <x-icon name="lucide.bitcoin" class="mr-3" />
                 Portofolio
@@ -85,7 +127,8 @@
             <a
                 href="/transactions"
                 wire:navigate
-                class="sidebar-link {{ request()->is("transactions") ? "active" : "" }}"
+                wire:current="active"
+                class="sidebar-link"
             >
                 <x-icon name="lucide.arrow-right-left" class="mr-3" />
                 Transaksi
@@ -93,7 +136,8 @@
             <a
                 href="/reports"
                 wire:navigate
-                class="sidebar-link {{ request()->is("reports") ? "active" : "" }}"
+                wire:current="active"
+                class="sidebar-link"
             >
                 <x-icon name="lucide.pie-chart" class="mr-3" />
                 Laporan
@@ -101,7 +145,8 @@
             <a
                 href="/settings"
                 wire:navigate
-                class="sidebar-link {{ request()->is("settings") ? "active" : "" }}"
+                wire:current="active"
+                class="sidebar-link"
             >
                 <x-icon name="lucide.settings" class="mr-3" />
                 Pengaturan

@@ -14,11 +14,7 @@ class Asset extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'name',
-        'symbol',
-        'type',
-    ];
+    protected $guarded = ['id'];
 
     /**
      * Relasi ke Financial Entries: Satu aset bisa memiliki banyak catatan keuangan.

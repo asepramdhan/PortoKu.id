@@ -17,6 +17,13 @@ new class extends Component {
         $this->totalTransactions = FinancialEntry::count();
     }
 
+    public function updateData(): void
+    {
+        $this->totalUsers = User::count();
+        $this->totalPosts = Post::count();
+        $this->totalTransactions = FinancialEntry::count();
+    }
+
     public function with(): array
     {
         return [
@@ -27,7 +34,7 @@ new class extends Component {
     }
 }; ?>
 
-<div>
+<div wire:poll.60s="updateData">
     <!-- Page Content -->
     <main class="flex-1 p-6 md:p-8">
         <h1 class="text-3xl font-bold text-white mb-6">Dashboard Admin</h1>
@@ -83,6 +90,14 @@ new class extends Component {
             <h3 class="text-xl font-bold text-white mb-4">Aksi Cepat</h3>
             <div class="flex flex-wrap gap-4">
                 <a
+                    href="/admin/assets"
+                    wire:navigate
+                    class="bg-slate-700 hover:bg-slate-600 text-white font-semibold px-5 py-3 rounded-lg flex items-center gap-2 transition-colors"
+                >
+                    <x-icon name="lucide.wallet" class="w-5 h-5" />
+                    Kelola Aset
+                </a>
+                <a
                     href="/admin/blog"
                     wire:navigate
                     class="bg-slate-700 hover:bg-slate-600 text-white font-semibold px-5 py-3 rounded-lg flex items-center gap-2 transition-colors"
@@ -113,6 +128,14 @@ new class extends Component {
                 >
                     <x-icon name="lucide.users" class="w-5 h-5" />
                     Kelola Pengguna
+                </a>
+                <a
+                    href="/admin/profile/edit"
+                    wire:navigate
+                    class="bg-slate-700 hover:bg-slate-600 text-white font-semibold px-5 py-3 rounded-lg flex items-center gap-2 transition-colors"
+                >
+                    <x-icon name="lucide.info" class="w-5 h-5" />
+                    Tentang
                 </a>
             </div>
         </div>

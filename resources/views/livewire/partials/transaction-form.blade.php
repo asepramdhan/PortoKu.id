@@ -78,7 +78,8 @@
                 <option value="">Pilih Aset...</option>
                 @foreach ($assets as $asset)
                     <option value="{{ $asset->id }}">
-                        {{ $asset->name }} ({{ $asset->symbol }})
+                        {{ Str::title($asset->name) }}
+                        ({{ Str::upper($asset->symbol) }})
                     </option>
                 @endforeach
             </select>

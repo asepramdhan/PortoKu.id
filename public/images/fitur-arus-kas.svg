@@ -1,0 +1,61 @@
+<svg width="400" height="250" viewBox="0 0 400 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background Utama -->
+    <rect width="400" height="250" rx="6" fill="#1E293B"/>
+
+    <!-- Kolom Kiri: Ringkasan & Kategori -->
+    <g transform="translate(15, 20)">
+        <!-- Judul -->
+        <text y="12" font-family="Inter, sans-serif" font-size="12" font-weight="600" fill="#FFFFFF">Ringkasan Arus Kas</text>
+        
+        <!-- Kartu Pemasukan -->
+        <rect y="30" width="160" height="50" rx="4" fill="#334155"/>
+        <text x="10" y="48" font-family="Inter, sans-serif" font-size="10" fill="#94a3b8">Pemasukan Bulan Ini</text>
+        <text x="10" y="68" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#22c55e">+Rp 15,0jt</text>
+        
+        <!-- Kartu Pengeluaran -->
+        <rect y="90" width="160" height="50" rx="4" fill="#334155"/>
+        <text x="10" y="108" font-family="Inter, sans-serif" font-size="10" fill="#94a3b8">Pengeluaran Bulan Ini</text>
+        <text x="10" y="128" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#f87171">-Rp 4,5jt</text>
+
+        <!-- Diagram Kategori -->
+        <text y="165" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#FFFFFF">Top Kategori</text>
+        <circle cx="45" cy="205" r="30" stroke="#38bdf8" stroke-width="8"/>
+        <circle cx="45" cy="205" r="30" stroke="#3b82f6" stroke-width="8" stroke-dasharray="125.6 188.4" transform="rotate(-90 45 205)"/>
+        <circle cx="45" cy="205" r="30" stroke="#a78bfa" stroke-width="8" stroke-dasharray="62.8 188.4" transform="rotate(90 45 205)"/>
+    </g>
+
+    <!-- Kolom Kanan: Aktivitas Terkini -->
+    <g transform="translate(190, 20)">
+        <text y="12" font-family="Inter, sans-serif" font-size="12" font-weight="600" fill="#FFFFFF">Aktivitas Terkini</text>
+        
+        <!-- Transaksi 1 -->
+        <g transform="translate(0, 30)">
+            <rect width="195" height="50" rx="4" fill="#334155"/>
+            <circle cx="20" cy="25" r="10" fill="#22c55e" fill-opacity="0.2"/>
+            <path d="M18 25 H22 M20 23 V27" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round"/>
+            <text x="40" y="22" font-family="Inter, sans-serif" font-size="11" font-weight="500" fill="#FFFFFF">Gaji Bulanan</text>
+            <text x="40" y="38" font-family="Inter, sans-serif" font-size="9" fill="#94a3b8">Pemasukan</text>
+            <text x="185" y="30" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#22c55e" text-anchor="end">+15,0jt</text>
+        </g>
+        
+        <!-- Transaksi 2 -->
+        <g transform="translate(0, 90)">
+            <rect width="195" height="50" rx="4" fill="#334155"/>
+            <circle cx="20" cy="25" r="10" fill="#f87171" fill-opacity="0.2"/>
+            <path d="M18 25 H22" stroke="#f87171" stroke-width="1.5" stroke-linecap="round"/>
+            <text x="40" y="22" font-family="Inter, sans-serif" font-size="11" font-weight="500" fill="#FFFFFF">Belanja Bulanan</text>
+            <text x="40" y="38" font-family="Inter, sans-serif" font-size="9" fill="#94a3b8">Kebutuhan Pokok</text>
+            <text x="185" y="30" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#f87171" text-anchor="end">-2,5jt</text>
+        </g>
+        
+        <!-- Transaksi 3 -->
+        <g transform="translate(0, 150)">
+            <rect width="195" height="50" rx="4" fill="#334155"/>
+            <circle cx="20" cy="25" r="10" fill="#f87171" fill-opacity="0.2"/>
+            <path d="M18 25 H22" stroke="#f87171" stroke-width="1.5" stroke-linecap="round"/>
+            <text x="40" y="22" font-family="Inter, sans-serif" font-size="11" font-weight="500" fill="#FFFFFF">Tagihan Listrik</text>
+            <text x="40" y="38" font-family="Inter, sans-serif" font-size="9" fill="#94a3b8">Rumah Tangga</text>
+            <text x="185" y="30" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#f87171" text-anchor="end">-750rb</text>
+        </g>
+    </g>
+</svg>
