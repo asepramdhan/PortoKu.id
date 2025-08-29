@@ -5,6 +5,7 @@ use App\Models\Message;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Volt\Component;
 use Illuminate\Database\Eloquent\Collection;
+use Livewire\Attributes\On;
 
 new class extends Component {
     public ?Conversation $conversation = null;
@@ -53,6 +54,7 @@ new class extends Component {
         }
     }
 
+    #[On("refreshUserChat")]
     public function loadMessages(): void
     {
         if ($this->conversation) {
@@ -124,31 +126,27 @@ new class extends Component {
         $this->reset("newMessage");
         $this->loadMessages(); // Muat ulang pesan setelah mengirim
 
+        // kirim agar refresh count message ke admin
+        $this->dispatch("new-message-received");
+
         // Scroll ke bawah setelah kirim pesan
         $this->js("window.dispatchEvent(new CustomEvent('scroll-bottom'))");
     }
 
     public function updateUnreadCount(): void
     {
-        if (Auth::user()->is_admin) {
-            // Admin: hitung semua pesan dari user yang belum dibaca
-            $this->unreadCount = Message::whereNull("read_at")
-                ->whereHas("user", fn ($q) => $q->where("is_admin", false))
-                ->count();
-        } else {
-            // User: pastikan conversation ada
-            if (! $this->conversation) {
-                $this->unreadCount = 0;
-                return;
-            }
-
-            // Hitung pesan admin yang belum dibaca user
-            $this->unreadCount = $this->conversation
-                ->messages()
-                ->whereNull("read_at")
-                ->whereHas("user", fn ($q) => $q->where("is_admin", true))
-                ->count();
+        // User: pastikan conversation ada
+        if (! $this->conversation) {
+            $this->unreadCount = 0;
+            return;
         }
+
+        // Hitung pesan admin yang belum dibaca user
+        $this->unreadCount = $this->conversation
+            ->messages()
+            ->whereNull("read_at")
+            ->whereHas("user", fn ($q) => $q->where("is_admin", true))
+            ->count();
     }
 
     public function with(): array
@@ -166,11 +164,18 @@ new class extends Component {
             showBubbleChat: false,
             showBadgeCount: false,
             showCallout: false,
+
             init() {
                 setTimeout(() => {
                     this.showBubbleChat = true
                         setTimeout(() => {
                             if (@this.unreadCount > 0) {
+                                // sound notification
+                                if (! sessionStorage.getItem('notificationPlayed')) {
+                                    this.$refs.audioNotification.play()
+                                    sessionStorage.setItem('notificationPlayed', 'true')
+                                }
+
                                 @this.updateUnreadCount()
                                 this.showBadgeCount = true
                             }
@@ -225,6 +230,11 @@ new class extends Component {
         x-init="init()"
         class="relative"
     >
+        <!-- Audio untuk notifikasi -->
+        <audio x-ref="audioNotification" preload="auto">
+            <source src="/sounds/notify.mp3" type="audio/mpeg" />
+        </audio>
+
         <!-- Callout Badge -->
         <div
             x-show="showCallout"
@@ -249,7 +259,7 @@ new class extends Component {
             x-transition:leave="transition ease-in duration-200"
             x-transition:leave-start="opacity-100 transform translate-y-0"
             x-transition:leave-end="opacity-0 transform translate-y-4"
-            @click="open = !open; showCallout = false; $nextTick(() => { $refs.chatBox.scrollTop = $refs.chatBox.scrollHeight }); $wire.loadMessages(); $wire.updateReadAt(); $wire.updateUnreadCount()"
+            @click="open = !open; showCallout = false; sessionStorage.removeItem('notificationPlayed'); $nextTick(() => { $refs.chatBox.scrollTop = $refs.chatBox.scrollHeight }); $wire.loadMessages(); $wire.updateReadAt(); $wire.updateUnreadCount()"
             class="bg-sky-500 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg hover:bg-sky-600 transition-transform hover:scale-110 cursor-pointer"
         >
             <x-icon name="lucide.message-circle" class="w-8 h-8" />

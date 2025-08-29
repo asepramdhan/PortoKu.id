@@ -47,5 +47,8 @@
 
         <!-- ===== Footer ===== -->
         <x-home-footer />
+
+        <!-- ===== Cookies ===== -->
+        <livewire:cookies />
     </body>
 </html>

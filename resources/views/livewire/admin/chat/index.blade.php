@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Volt\Component;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cache;
 
 new class extends Component {
     public Collection $conversations;
@@ -133,7 +134,6 @@ new class extends Component {
         $this->reset("newMessage");
         $this->loadConversations(); // Muat ulang daftar percakapan untuk urutan
         $this->selectConversation($this->activeConversation->id); // Muat ulang pesan
-        $this->loadMessages();
 
         // Scroll ke bawah setelah kirim pesan
         $this->js("window.dispatchEvent(new CustomEvent('scroll-bottom'))");
@@ -150,7 +150,7 @@ new class extends Component {
 }; ?>
 
 <div
-    x-data="{
+    x-data="{ 
             init() {
                 let box = this.$refs.chatBox
 
@@ -306,7 +306,7 @@ new class extends Component {
                         </div>
                     @endforeach
                 </div>
-                <div x-trap="open" class="p-4 border-t border-slate-700">
+                <div class="p-4 border-t border-slate-700">
                     <form
                         wire:submit.prevent="sendMessage"
                         class="flex items-center gap-2"

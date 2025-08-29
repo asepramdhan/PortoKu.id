@@ -42,14 +42,16 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-    /**
-     * Kirim notifikasi reset kata sandi.
-     *
-     * @param  string  $token
-     * @return void
-     */
-    public function sendPasswordResetNotification($token)
+
+    // relasi ke user_cookie
+    public function userCookies()
     {
-        $this->notify(new ResetPasswordNotification($token));
+        return $this->hasMany(UserCookie::class);
+    }
+
+    // relasi ke message
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
     }
 }

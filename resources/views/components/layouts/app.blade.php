@@ -74,5 +74,7 @@
                 <x-footer />
             </div>
         </div>
+        <!--- Cookies -->
+        <livewire:cookies />
     </body>
 </html>

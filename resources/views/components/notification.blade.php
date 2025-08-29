@@ -1,14 +1,15 @@
 @php
     // Cek apakah ini pesan error atau sukses
     $isError = session()->has("error");
+    $isInfo = session()->has("info");
     // Ambil pesan yang sesuai
-    $message = session("message") ?? session("error");
+    $message = session("message") ?? (session("error") ?? session("info"));
 
     // Tentukan kelas CSS secara dinamis berdasarkan tipe pesan
-    $wrapperClasses = $isError ? "bg-red-500/10 border-red-500/30 text-red-300" : "bg-green-500/10 border-green-500/30 text-green-300";
+    $wrapperClasses = $isError ? "bg-red-500/10 border-red-500/30 text-red-300" : ($isInfo ? "bg-sky-500/10 border-sky-500/30 text-sky-300" : "bg-green-500/10 border-green-500/30 text-green-300");
 
-    $iconClasses = $isError ? "text-red-400" : "text-green-400";
-    $buttonClasses = $isError ? "text-red-300/70 hover:text-white" : "text-green-300/70 hover:text-white";
+    $iconClasses = $isError ? "text-red-400" : ($isInfo ? "text-sky-400" : "text-green-400");
+    $buttonClasses = $isError ? "text-red-300/70 hover:text-white" : ($isInfo ? "text-sky-300/70 hover:text-white" : "text-green-300/70 hover:text-white");
 @endphp
 
 {{-- Hanya tampilkan komponen jika ada pesan (baik sukses maupun error) --}}
@@ -30,12 +31,17 @@
             {{-- Tampilkan ikon yang benar --}}
             @if ($isError)
                 <x-icon
-                    name="lucide.x-circle"
+                    name="lucide.triangle-alert"
+                    class="w-6 h-6 mr-3 {{ $iconClasses }}"
+                />
+            @elseif ($isInfo)
+                <x-icon
+                    name="lucide.circle-alert"
                     class="w-6 h-6 mr-3 {{ $iconClasses }}"
                 />
             @else
                 <x-icon
-                    name="lucide.check-circle"
+                    name="lucide.circle-check"
                     class="w-6 h-6 mr-3 {{ $iconClasses }}"
                 />
             @endif
