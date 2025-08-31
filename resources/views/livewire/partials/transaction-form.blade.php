@@ -218,7 +218,7 @@
             {{-- Tombol Scan Struk Baru --}}
             <label
                 for="receiptImage"
-                class="flex-shrink-0 bg-slate-700 disabled:hover:bg-slate-600 text-white font-semibold p-2.5 rounded-lg cursor-not-allowed transition-colors"
+                class="flex-shrink-0 bg-slate-700 hover:bg-slate-600 text-white font-semibold p-2.5 rounded-lg transition-colors cursor-pointer"
             >
                 <div wire:loading.remove wire:target="receiptImage">
                     <x-icon name="lucide.scan-line" class="w-5 h-5" />
@@ -232,7 +232,7 @@
                 id="receiptImage"
                 wire:model.live="receiptImage"
                 class="hidden"
-                disabled
+                accept="image/*"
             />
         </div>
         @error("amount")

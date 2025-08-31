@@ -68,18 +68,20 @@ new class extends Component {
     // Metode ini akan berjalan otomatis saat struk diunggah
     public function updatedReceiptImage()
     {
-        $this->validate([
-            "receiptImage" => "required|image|max:4096",
-        ]);
+        $this->validate(["receiptImage" => "required|image|max:4096"]);
+        $this->scanStatusMessage = "Membaca gambar struk...";
+        $this->scanStatusType = "info";
 
         try {
-            $apiKey = config("services.ocrspace.api_key");
-            if (! $apiKey) {
-                throw new \Exception("Kunci API OCR.space belum diatur.");
+            // === LANGKAH 1: Gunakan OCR.space untuk mengubah gambar menjadi teks mentah ===
+            $ocrApiKey = config("services.ocrspace.api_key");
+            if (! $ocrApiKey) {
+                throw new \Exception("Kunci API OCR.space belum diatur");
             }
 
-            // Kirim gambar ke API OCR.space
-            $response = Http::withHeaders(["apikey" => $apiKey])
+            $ocrResponse = \Illuminate\Support\Facades\Http::withHeaders([
+                "apikey" => $ocrApiKey,
+            ])
                 ->attach(
                     "file",
                     file_get_contents($this->receiptImage->getRealPath()),
@@ -89,58 +91,116 @@ new class extends Component {
                     "language" => "eng",
                 ]);
 
-            $result = $response->json();
+            $ocrResult = $ocrResponse->json();
 
-            if ($result && $result["IsErroredOnProcessing"] === false) {
-                $fullText = $result["ParsedResults"][0]["ParsedText"];
-                $extractedAmount = 0;
+            if (
+                ! $ocrResponse->successful() ||
+                $ocrResult["IsErroredOnProcessing"]
+            ) {
+                throw new \Exception(
+                    $ocrResult["ErrorMessage"][0] ??
+                        "Gagal memproses gambar dengan OCR.",
+                );
+            }
 
-                // Logika untuk mencari tanggal
+            $rawText = $ocrResult["ParsedResults"][0]["ParsedText"];
+
+            // === LANGKAH 2: Gunakan Groq untuk menganalisis teks mentah hasil OCR ===
+            $this->scanStatusMessage = "Menganalisis teks struk...";
+            $groqApiKey = config("services.groq.api_key");
+            if (! $groqApiKey) {
+                throw new \Exception("Kunci API Groq belum diatur");
+            }
+
+            // Prompt untuk Groq, sekarang inputnya adalah teks, bukan gambar
+            $promptForGroq =
+                "Anda adalah seorang analis data keuangan yang sangat teliti dan cerdas. Tugas Anda adalah menganalisis teks hasil OCR dari sebuah struk dan mengekstrak data secara akurat ke dalam format JSON.
+
+                Aturan untuk `type`:
+                1.  Berdasarkan konteks struk, tentukan tipe transaksinya.
+                2.  Hampir semua struk belanja, pembayaran, atau tagihan adalah 'expense' (pengeluaran).
+                3.  Hanya jika struk tersebut adalah bukti penerimaan gaji, bonus, atau pemasukan lain, gunakan 'income'.
+                4.  Jika ragu, defaultnya adalah 'expense'.
+
+                Aturan untuk `total_amount`:
+                1.  Cari kata kunci penanda total seperti 'TOTAL', 'TOTAL BAYAR', 'TAGIHAN'. Angka yang paling dekat dengan kata kunci ini adalah prioritas utama.
+                2.  Abaikan angka yang berhubungan dengan 'TUNAI', 'CASH', 'KEMBALI', atau 'CHANGE'.
+                3.  Hasil akhir HARUS berupa angka integer (bulat) tanpa titik, koma, atau simbol mata uang.
+                4.  Jika tidak bisa menemukan total yang valid, kembalikan nilai `null`.
+
+                Aturan untuk `transaction_date`:
+                1.  Cari tanggal dalam format apapun (DD-MM-YYYY, DD/MM/YY, dll) dan ubah ke format YYYY-MM-DD.
+                2.  Jika tidak ada tanggal, kembalikan `null`.
+
+                Aturan untuk `category`:
+                1.  Berdasarkan item-item belanja atau nama toko (misal: 'INDOMARET', 'ALFAMART', 'SUPERINDO', 'PLN', 'GOJEK'), tentukan satu kategori yang paling relevan.
+                2.  Contoh kategori: 'Kebutuhan Harian', 'Makanan & Minuman', 'Transportasi', 'Tagihan', 'Restoran', 'Elektronik'.
+                3.  Jika tidak bisa menentukan kategori, kembalikan `null`.
+
+                Jawab HANYA dengan format JSON yang valid. Pastikan semua field (`type`, `total_amount`, `transaction_date`, `category`) ada di dalam JSON.
+
+                Teks struknya adalah:
+                \n\n" . $rawText;
+
+            $groqResponse = \Illuminate\Support\Facades\Http::withToken(
+                $groqApiKey,
+            )
+                ->withHeaders(["Content-Type" => "application/json"])
+                ->post("https://api.groq.com/openai/v1/chat/completions", [
+                    "model" => "llama3-8b-8192", // Pakai model yg lebih kecil & cepat untuk efisiensi
+                    "messages" => [
+                        ["role" => "user", "content" => $promptForGroq],
+                    ],
+                    "response_format" => ["type" => "json_object"],
+                    "temperature" => 0.1,
+                ]);
+
+            $groqResult = $groqResponse->json();
+
+            if (
+                $groqResponse->successful() &&
+                isset($groqResult["choices"][0]["message"]["content"])
+            ) {
+                $contentJson = $groqResult["choices"][0]["message"]["content"];
+                $extractedData = json_decode($contentJson, true);
+
                 if (
-                    preg_match(
-                        "/(\d{1,2}\s\w+\s\d{4})/",
-                        $fullText,
-                        $dateMatches,
-                    )
+                    json_last_error() === JSON_ERROR_NONE &&
+                    isset($extractedData["total_amount"])
                 ) {
-                    $dateString = $dateMatches[1];
-                    $date = Carbon::createFromFormat("j F Y", $dateString);
-                    $this->transaction_date = $date->format("Y-m-d");
-                    // dd($this->transaction_date);
-                }
+                    // TAMBAHKAN VALIDASI INI DI DALAMNYA
+                    if (
+                        empty($extractedData["total_amount"]) ||
+                        ! is_numeric($extractedData["total_amount"]) ||
+                        $extractedData["total_amount"] <= 0
+                    ) {
+                        throw new \Exception(
+                            "AI gagal mengekstrak total yang valid dari struk.",
+                        );
+                    }
 
-                // FIX: Logika baru yang lebih cerdas untuk mencari total
-                // 1. Cari semua angka yang diawali dengan "Rp".
-                preg_match_all("/Rp\s*([\d,.]+)/i", $fullText, $matches);
-
-                // 2. Jika ditemukan, ambil angka terakhir.
-                if (! empty($matches[1])) {
-                    $lastMatch = end($matches[1]);
-                    $cleanedAmount = preg_replace("/[^0-9]/", "", $lastMatch);
-                    $extractedAmount = (int) $cleanedAmount;
-                }
-
-                if ($extractedAmount > 0) {
-                    // Kirim event ke browser dengan data yang diekstrak
-                    $this->dispatch("ocr-completed", amount: $extractedAmount);
-                    $this->scanStatusMessage = "Berhasil dipindai!";
+                    $this->amount = $extractedData["total_amount"];
+                    $this->transaction_date =
+                        $extractedData["transaction_date"] ??
+                        now()->format("Y-m-d");
+                    $this->category = $extractedData["category"] ?? null;
+                    $this->dispatch("ocr-completed", amount: $this->amount);
+                    $this->scanStatusMessage = "Struk berhasil dipindai!";
                     $this->scanStatusType = "success";
                 } else {
-                    $this->scanStatusMessage = "Gagal menemukan total.";
-                    $this->scanStatusType = "error";
+                    throw new \Exception("Groq gagal mem-parsing teks OCR.");
                 }
             } else {
-                $this->scanStatusMessage =
-                    $result["ErrorMessage"][0] ?? "Gagal memproses gambar.";
-                $this->scanStatusType = "error";
+                throw new \Exception(
+                    $groqResult["error"]["message"] ??
+                        "Gagal menganalisis teks dengan Groq.",
+                );
             }
         } catch (\Exception $e) {
-            $this->scanStatusMessage = "API Error. Coba lagi.";
+            $this->scanStatusMessage = "Error: " . $e->getMessage();
             $this->scanStatusType = "error";
-            Log::error("OCR.space API Error: " . $e->getMessage());
         } finally {
             $this->reset("receiptImage");
-            // Kirim event ke browser untuk menghapus pesan setelah beberapa detik
             $this->dispatch("scan-message-received");
         }
     }
