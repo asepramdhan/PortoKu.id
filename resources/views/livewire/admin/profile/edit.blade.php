@@ -2,11 +2,17 @@
 
 use Livewire\Volt\Component;
 use Illuminate\Support\Facades\Auth;
+use Livewire\WithFileUploads;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 new class extends Component {
+    use WithFileUploads;
+
     public string $name = "";
     public string $email = "";
     public ?string $about = "";
+    public $photo;
+    public ?TemporaryUploadedFile $previous_photo = null;
 
     public function mount()
     {
@@ -16,19 +22,45 @@ new class extends Component {
         $this->about = $user->about;
     }
 
+    public function updatedPhoto(TemporaryUploadedFile $value): void
+    {
+        $this->previous_photo?->delete();
+        $this->previous_photo = $value;
+    }
+
     public function save()
     {
-        $this->validate([
+        $validated = $this->validate([
+            "photo" => ["nullable", "image", "max:1024"],
             "name" => "required|string|max:255",
             "about" => "nullable|string|max:200", // Batasi 200 karakter
         ]);
 
         $user = Auth::user();
-        $user->update([
-            "name" => $this->name,
-            "about" => $this->about,
-        ]);
 
+        if ($this->photo) {
+            // Hapus foto lama jika ada
+            if ($user->profile_photo_path) {
+                Storage::disk("public")->delete($user->profile_photo_path);
+            }
+            // Simpan foto baru
+            $validated["profile_photo_path"] = $this->photo->store(
+                "profile-photos",
+                "public",
+            );
+        }
+
+        unset($validated["photo"]); // Hapus 'photo' dari data yang akan disimpan
+
+        Auth::user()->fill($validated);
+
+        if (Auth::user()->isDirty("email")) {
+            Auth::user()->email_verified_at = null;
+        }
+
+        Auth::user()->save();
+
+        $this->reset("photo", "previous_photo");
         // Beri notifikasi dengan event
         $this->dispatch("profile-updated");
     }
@@ -42,6 +74,73 @@ new class extends Component {
         <form wire:submit.prevent="save">
             <div class="card p-6 md:p-8">
                 <div class="space-y-6">
+                    <div>
+                        <label
+                            class="block text-sm font-medium text-slate-300 mb-2"
+                        >
+                            Foto Profil
+                        </label>
+                        <div class="flex items-center gap-4">
+                            <div class="relative">
+                                {{-- Spinner Overlay --}}
+                                <div
+                                    wire:loading
+                                    wire:target="photo"
+                                    class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                                >
+                                    <x-loading class="loading-dots" />
+                                </div>
+                                {{-- Image Preview --}}
+                                <div
+                                    wire:loading.class="opacity-50"
+                                    wire:target="photo"
+                                >
+                                    @if ($photo)
+                                        <img
+                                            src="{{ $photo->temporaryUrl() }}"
+                                            class="w-20 h-20 rounded-full object-cover"
+                                        />
+                                    @elseif (Auth::user()->profile_photo_path)
+                                        <img
+                                            src="{{ asset("storage/" . Auth::user()->profile_photo_path) }}"
+                                            class="w-20 h-20 rounded-full object-cover"
+                                        />
+                                    @else
+                                        <div
+                                            class="w-20 h-20 rounded-full bg-slate-700 flex items-center justify-center"
+                                        >
+                                            <x-icon
+                                                name="lucide.user"
+                                                class="w-10 h-10 text-slate-400"
+                                            />
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                            <div>
+                                <label
+                                    for="photo"
+                                    class="bg-slate-700 hover:bg-slate-600 text-white font-semibold px-4 py-2 rounded-lg text-sm cursor-pointer"
+                                >
+                                    Unggah Foto
+                                </label>
+                                <input
+                                    type="file"
+                                    id="photo"
+                                    wire:model="photo"
+                                    class="hidden"
+                                />
+                                <p class="text-xs text-slate-500 mt-2">
+                                    JPG, GIF atau PNG. Ukuran maks 1MB.
+                                </p>
+                            </div>
+                        </div>
+                        @error("photo")
+                            <p class="mt-2 text-sm text-red-500">
+                                {{ $message }}
+                            </p>
+                        @enderror
+                    </div>
                     <div>
                         <label
                             for="name"

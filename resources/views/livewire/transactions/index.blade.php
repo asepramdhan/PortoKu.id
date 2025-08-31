@@ -34,6 +34,8 @@ new class extends Component {
         $quantity,
         $price_per_unit,
         $amount,
+        $fee_percentage,
+        $fee_amount,
         $category,
         $notes,
         $transaction_date;
@@ -44,6 +46,8 @@ new class extends Component {
         $edit_quantity,
         $edit_price_per_unit,
         $edit_amount,
+        $edit_fee_percentage,
+        $edit_fee_amount,
         $edit_category,
         $edit_notes,
         $edit_transaction_date;
@@ -143,19 +147,6 @@ new class extends Component {
 
     public function prepareToAdd(): void
     {
-        $this->reset(
-            "type",
-            "asset_id",
-            "quantity",
-            "price_per_unit",
-            "amount",
-            "category",
-            "notes",
-            "transaction_date",
-            "editing",
-        );
-        $this->type = "income";
-        $this->transaction_date = now()->format("Y-m-d");
         $this->showAddModal = true;
     }
 
@@ -187,6 +178,20 @@ new class extends Component {
 
         FinancialEntry::create($validated + ["user_id" => Auth::id()]);
 
+        $this->reset(
+            "type",
+            "asset_id",
+            "quantity",
+            "price_per_unit",
+            "amount",
+            "fee_percentage",
+            "fee_amount",
+            "category",
+            "notes",
+            "transaction_date",
+            "editing",
+        );
+        $this->type = "income";
         session()->flash("message", "Transaksi berhasil ditambahkan.");
         $this->showAddModal = false;
     }
@@ -278,24 +283,54 @@ new class extends Component {
     {
         $this->editing = $entry;
 
-        // Populate EDIT form properties
+        // Populate EDIT form properties with raw values from DB
         $this->edit_type = $entry->type;
         $this->edit_asset_id = $entry->asset_id;
         $this->edit_quantity = $entry->quantity;
         $this->edit_price_per_unit = $entry->price_per_unit;
-        // $this->edit_price_per_unit = number_format($entry->price_per_unit ?? 0, 0, ',', '.');
         $this->edit_amount = $entry->amount;
-        // $this->edit_amount = number_format($entry->amount, 0, ',', '.');
         $this->edit_category = $entry->category;
         $this->edit_notes = $entry->notes;
 
-        // **LOGIC KRUSIAL UNTUK TANGGAL DI MODAL EDIT:**
-        // Saat modal edit dibuka, isi input tanggal:
-        // Jika transaction_date sudah ada di database, gunakan itu.
-        // Jika belum ada (misal null), gunakan updated_at sebagai default.
-        // Kemudian format ke 'Y-m-d' untuk input type="date".
+        // Logika untuk tanggal
         $dateForEdit = $entry->transaction_date ?? $entry->updated_at;
         $this->edit_transaction_date = $dateForEdit->format("Y-m-d");
+
+        // --- Logika Krusial untuk Fee dan Quantity ---
+        // Karena fee dan quantity tidak disimpan, kita hitung ulang saat modal dibuka
+        if ($this->edit_type === "buy" || $this->edit_type === "sell") {
+            // Beri nilai default untuk fee_percentage karena tidak ada di database
+            $this->edit_fee_percentage = 0.1;
+
+            // Bersihkan format nilai sebelum dihitung
+            $cleanAmount = (float) str_replace(
+                [".", ","],
+                ["", "."],
+                $this->edit_amount ?? 0,
+            );
+            $cleanPricePerUnit = (float) str_replace(
+                [".", ","],
+                ["", "."],
+                $this->edit_price_per_unit ?? 0,
+            );
+
+            // Hitung fee_amount
+            $this->edit_fee_amount =
+                $cleanAmount * ($this->edit_fee_percentage / 100);
+
+            // Perbarui quantity agar konsisten
+            if ($cleanPricePerUnit > 0) {
+                $finalAmount =
+                    $this->edit_type === "buy"
+                        ? $cleanAmount - $this->edit_fee_amount
+                        : $cleanAmount + $this->edit_fee_amount;
+                $this->edit_quantity = $finalAmount / $cleanPricePerUnit;
+            }
+        } else {
+            // Jika bukan buy/sell, reset nilai fee
+            $this->edit_fee_percentage = 0;
+            $this->edit_fee_amount = 0;
+        }
 
         // Format untuk tampilan input (jika menggunakan x-mask atau number_format)
         $this->edit_price_per_unit = number_format(

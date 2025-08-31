@@ -36,6 +36,7 @@ new class extends Component {
     x-data="{ open: false }"
     @mouseenter="open = true; $wire.loadNotifications()"
     @mouseleave="open = false"
+    @click="open = true; $wire.loadNotifications()"
     class="relative text-slate-400 hover:text-white"
 >
     <button class="relative text-slate-400 hover:text-white cursor-pointer">

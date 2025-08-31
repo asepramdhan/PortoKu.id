@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Folio\Folio;
 
@@ -22,16 +23,11 @@ class FolioServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // buat kondisi url yang ngeredirect, jika usernya adalah admin, redirect ke dashboard admin
-        // $admin = [
-        //     'admin*' => 'admin.dashboard',
-        // ];
-        // if (Auth::check() && Auth::user()->is_admin) {
-        //     $admin = [
-        //         'dashboard*' => 'admin.dashboard',
-        //     ];
-        // }
-        // dd($admin);
+        // Daftarkan rute API Anda di sini
+        Route::middleware('api')
+            ->prefix('api')
+            ->group(base_path('routes/api.php'));
+
         Folio::path(resource_path('views/pages'))->middleware([
             'admin*' => [
                 'auth',

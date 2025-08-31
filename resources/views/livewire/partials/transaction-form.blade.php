@@ -1,6 +1,56 @@
 <form
     wire:submit.prevent="addTransaction"
-    x-data
+    x-data="{
+        amount: @entangle("amount"),
+        price_per_unit: @entangle("price_per_unit"),
+        quantity: @entangle("quantity"),
+        fee_percentage: @entangle("fee_percentage"),
+        fee_amount: @entangle("fee_amount"),
+        type: @entangle("type"),
+
+        // Fungsi untuk membersihkan dan mengonversi nilai
+        parseNumber(value) {
+            return parseFloat(value.replace(/[^0-9,-]/g, '').replace(',', '.')) || 0
+        },
+
+        // Fungsi untuk menghitung fee
+        calculateFee() {
+            let rawAmount = this.parseNumber(this.amount)
+            let rawFeePercentage = parseFloat(this.fee_percentage) || 0
+            this.fee_amount = (rawAmount * (rawFeePercentage / 100)).toFixed(2)
+        },
+
+        // Fungsi untuk menghitung quantity
+        calculateQuantity() {
+            let rawAmount = this.parseNumber(this.amount)
+            let rawPricePerUnit = this.parseNumber(this.price_per_unit)
+            let rawFeeAmount = this.parseNumber(this.fee_amount)
+
+            if (rawPricePerUnit <= 0) return
+
+            let finalAmount = rawAmount
+            if (this.type === 'buy') {
+                finalAmount = rawAmount - rawFeeAmount
+            } else if (this.type === 'sell') {
+                finalAmount = rawAmount + rawFeeAmount
+            }
+
+            this.quantity = (finalAmount / rawPricePerUnit).toFixed(8)
+        },
+    }"
+    x-init="
+        // Watcher untuk memicu perhitungan saat input berubah
+        $watch('amount', () => {
+            calculateFee()
+            calculateQuantity()
+        })
+        $watch('price_per_unit', () => calculateQuantity())
+        $watch('fee_percentage', () => {
+            calculateFee()
+            calculateQuantity()
+        })
+        $watch('type', () => calculateQuantity()) // Tambahkan watcher untuk type
+    "
     @ocr-completed.window="
         if ($refs.amountInput) {
             $refs.amountInput.value = $event.detail.amount;
@@ -15,7 +65,7 @@
         <button
             type="button"
             @click="show = false"
-            class="text-slate-400 hover:text-white"
+            class="text-slate-400 hover:text-white cursor-pointer"
         >
             <x-icon name="lucide.x" class="h-6 w-6" />
         </button>
@@ -26,7 +76,7 @@
         <label for="type" class="block text-sm font-medium text-slate-300 mb-2">
             Tipe Transaksi
         </label>
-        <select id="type" wire:model.live="type" class="form-input">
+        <select id="type" x-model="type" class="form-input">
             <option value="income">Pemasukan</option>
             <option value="expense">Pengeluaran</option>
             <option value="buy">Beli Aset</option>
@@ -101,8 +151,8 @@
                     inputmode="decimal"
                     id="quantity"
                     x-mask:dynamic="'9.99999999'"
-                    wire:model="quantity"
-                    placeholder="Contoh: 0.05 atau 1.12345"
+                    x-model="quantity"
+                    placeholder="Akan diisi otomatis"
                     class="form-input @error("quantity") input-error @enderror"
                 />
                 @error("quantity")
@@ -122,7 +172,7 @@
                     inputmode="decimal"
                     id="price_per_unit"
                     x-mask:dynamic="$money($input, ',')"
-                    wire:model="price_per_unit"
+                    x-model="price_per_unit"
                     placeholder="Contoh: 90.000.000"
                     class="form-input @error("price_per_unit") input-error @enderror"
                 />
@@ -161,7 +211,7 @@
                 inputmode="decimal"
                 id="amount"
                 x-mask:dynamic="$money($input, ',')"
-                wire:model="amount"
+                x-model="amount"
                 :placeholder="$wire.type === 'income' ? 'Contoh: 5.000.000' : ($wire.type === 'expense' ? 'Contoh: 50.000' : ($wire.type === 'buy' ? 'Contoh: 90.050.000' : 'Contoh: 89.950.000'))"
                 class="form-input @error("amount") input-error @enderror"
             />
@@ -192,6 +242,36 @@
         @error("receiptImage")
             <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
         @enderror
+    </div>
+
+    <div x-show="$wire.type === 'buy' || $wire.type === 'sell'" x-transition>
+        <div>
+            <label
+                for="fee_percentage"
+                class="block text-sm font-medium text-slate-300 mb-2"
+            >
+                Biaya Transaksi (%)
+            </label>
+            <input
+                type="text"
+                id="fee_percentage"
+                inputmode="decimal"
+                x-model="fee_percentage"
+                x-mask:dynamic="'9.999'"
+                placeholder="Contoh: 0.1"
+                class="form-input @error("fee_percentage") input-error @enderror"
+            />
+            @error("fee_percentage")
+                <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <div class="text-sm text-slate-400 mt-2">
+            Biaya Fee Dihitung: Rp.
+            <span
+                x-text="parseFloat(fee_amount).toLocaleString('id-ID')"
+            ></span>
+        </div>
     </div>
 
     <div>

@@ -6,7 +6,6 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Volt\Component;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Cache;
 
 new class extends Component {
     public Collection $conversations;
@@ -198,7 +197,7 @@ new class extends Component {
                     class="p-4 border-b border-slate-800 cursor-pointer hover:bg-slate-800 {{ $activeConversationData?->id === $conv->id ? "bg-slate-800" : "" }}"
                 >
                     <div class="flex items-center">
-                        <div wire:poll.60s class="relative">
+                        <div class="relative">
                             <img
                                 src="{{ $conv->user->profile_photo_path ? asset("storage/" . $conv->user->profile_photo_path) : "https://placehold.co/40x40/0EA5E9/FFFFFF?text=" . substr($conv->user->name, 0, 1) }}"
                                 class="w-12 h-12 rounded-full mr-4"
