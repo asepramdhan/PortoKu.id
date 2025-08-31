@@ -71,6 +71,77 @@
         </button>
     </div>
 
+    <div class="text-center">
+        <label class="block text-sm font-medium text-slate-300 mb-3">
+            Mulai dengan memindai:
+        </label>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <button
+                type="button"
+                @click="$wire.setScanContext('expense'); $refs.fileInput.click()"
+                class="w-full flex items-center justify-center gap-2 rounded-lg bg-sky-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-sky-700 cursor-pointer"
+            >
+                <x-icon name="lucide.receipt" class="h-5 w-5" />
+                <span>Struk Belanja</span>
+            </button>
+            <button
+                type="button"
+                @click="$wire.setScanContext('asset'); $refs.fileInput.click()"
+                class="w-full flex items-center justify-center gap-2 rounded-lg bg-teal-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-teal-700 cursor-pointer"
+            >
+                <x-icon name="lucide.bar-chart-2" class="h-5 w-5" />
+                <span>Transaksi Aset</span>
+            </button>
+        </div>
+    </div>
+
+    {{-- Input file tersembunyi yang kita picu dari tombol di atas --}}
+    <input
+        x-ref="fileInput"
+        type="file"
+        wire:model="receiptImage"
+        class="hidden"
+        accept="image/*"
+    />
+
+    <p>
+        <i class="block text-sm text-slate-400">
+            * Harap periksa kembali data sebelum disimpan, karena fitur scan ini
+            masih dalam tahap pengembangan (beta)
+        </i>
+    </p>
+
+    {{-- Pemisah --}}
+    <div class="flex items-center">
+        <div class="flex-grow border-t border-slate-700"></div>
+        <span class="flex-shrink mx-4">
+            <span wire:loading.remove wire:target="receiptImage">
+                @if ($scanStatusMessage)
+                    <span
+                        x-data="{ show: true }"
+                        x-show="show"
+                        x-transition
+                        class="text-sm {{ $scanStatusType === "success" ? "text-green-400 opacity-80" : "text-red-400 opacity-80" }}"
+                    >
+                        {{ $scanStatusMessage }}
+                    </span>
+                @endif
+
+                @if (! $scanStatusMessage)
+                    <span class="text-sm text-slate-400">Atau isi manual</span>
+                @endif
+            </span>
+            <span
+                wire:loading
+                wire:target="receiptImage"
+                class="text-sm text-slate-400"
+            >
+                <x-loading class="loading-dots" />
+            </span>
+        </span>
+        <div class="flex-grow border-t border-slate-700"></div>
+    </div>
+
     <!-- Tipe Transaksi -->
     <div>
         <label for="type" class="block text-sm font-medium text-slate-300 mb-2">
@@ -192,16 +263,6 @@
             >
                 Total Nilai (IDR)
             </label>
-            @if ($scanStatusMessage)
-                <span
-                    x-data="{ show: true }"
-                    x-show="show"
-                    x-transition
-                    class="text-xs {{ $scanStatusType === "success" ? "text-green-400 opacity-80" : "text-red-400 opacity-80" }}"
-                >
-                    {{ $scanStatusMessage }}
-                </span>
-            @endif
         </div>
 
         <div class="flex items-center gap-2">
@@ -214,25 +275,6 @@
                 x-model="amount"
                 :placeholder="$wire.type === 'income' ? 'Contoh: 5.000.000' : ($wire.type === 'expense' ? 'Contoh: 50.000' : ($wire.type === 'buy' ? 'Contoh: 90.050.000' : 'Contoh: 89.950.000'))"
                 class="form-input @error("amount") input-error @enderror"
-            />
-            {{-- Tombol Scan Struk Baru --}}
-            <label
-                for="receiptImage"
-                class="flex-shrink-0 bg-slate-700 hover:bg-slate-600 text-white font-semibold p-2.5 rounded-lg transition-colors cursor-pointer"
-            >
-                <div wire:loading.remove wire:target="receiptImage">
-                    <x-icon name="lucide.scan-line" class="w-5 h-5" />
-                </div>
-                <div wire:loading wire:target="receiptImage">
-                    <x-loading class="loading-dots" />
-                </div>
-            </label>
-            <input
-                type="file"
-                id="receiptImage"
-                wire:model.live="receiptImage"
-                class="hidden"
-                accept="image/*"
             />
         </div>
         @error("amount")
@@ -257,7 +299,7 @@
                 id="fee_percentage"
                 inputmode="decimal"
                 x-model="fee_percentage"
-                x-mask:dynamic="'9.999'"
+                x-mask:dynamic="'9.9999'"
                 placeholder="Contoh: 0.1"
                 class="form-input @error("fee_percentage") input-error @enderror"
             />

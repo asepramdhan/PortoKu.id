@@ -5,12 +5,13 @@
         price_per_unit: @entangle("edit_price_per_unit"),
         quantity: @entangle("edit_quantity"),
         fee_percentage: @entangle("edit_fee_percentage"),
-        fee_amount: @entangle("edit_fee_amount"),
+        fee_amount: 0,
         type: @entangle("edit_type"),
 
         // Fungsi untuk membersihkan dan mengonversi nilai
         parseNumber(value) {
-            return parseFloat(value.replace(/[^0-9,-]/g, '').replace(',', '.')) || 0
+            if (typeof value !== 'string') return value || 0
+            return parseFloat(value.replace(/\./g, '').replace(',', '.')) || 0
         },
 
         // Fungsi untuk menghitung fee
@@ -69,6 +70,77 @@
         >
             <x-icon name="lucide.x" class="h-6 w-6" />
         </button>
+    </div>
+
+    <div class="text-center">
+        <label class="block text-sm font-medium text-slate-300 mb-3">
+            Pindai ulang untuk perbarui data:
+        </label>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <button
+                type="button"
+                @click="$wire.setScanContext('expense'); $refs.fileInputEdit.click()"
+                class="w-full flex items-center justify-center gap-2 rounded-lg bg-sky-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-sky-700 cursor-pointer"
+            >
+                <x-icon name="lucide.receipt" class="h-5 w-5" />
+                <span>Struk Belanja</span>
+            </button>
+            <button
+                type="button"
+                @click="$wire.setScanContext('asset'); $refs.fileInputEdit.click()"
+                class="w-full flex items-center justify-center gap-2 rounded-lg bg-teal-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-teal-700 cursor-pointer"
+            >
+                <x-icon name="lucide.bar-chart-2" class="h-5 w-5" />
+                <span>Transaksi Aset</span>
+            </button>
+        </div>
+    </div>
+
+    {{-- Input file tersembunyi yang kita picu dari tombol di atas --}}
+    <input
+        x-ref="fileInputEdit"
+        type="file"
+        wire:model="editReceiptImage"
+        class="hidden"
+        accept="image/*"
+    />
+
+    <p>
+        <i class="block text-sm text-slate-400">
+            * Harap periksa kembali data sebelum disimpan, karena fitur scan ini
+            masih dalam tahap pengembangan (beta)
+        </i>
+    </p>
+
+    {{-- Pemisah --}}
+    <div class="flex items-center">
+        <div class="flex-grow border-t border-slate-700"></div>
+        <span class="flex-shrink mx-4">
+            <span wire:loading.remove wire:target="editReceiptImage">
+                @if ($scanStatusMessage)
+                    <span
+                        x-data="{ show: true }"
+                        x-show="show"
+                        x-transition
+                        class="text-sm {{ $scanStatusType === "success" ? "text-green-400 opacity-80" : "text-red-400 opacity-80" }}"
+                    >
+                        {{ $scanStatusMessage }}
+                    </span>
+                @endif
+
+                @if (! $scanStatusMessage)
+                    <span class="text-sm text-slate-400">Atau ubah manual</span>
+                @endif
+            </span>
+            <span
+                wire:loading
+                wire:target="editReceiptImage"
+                class="text-sm text-slate-400"
+            >
+                <x-loading class="loading-dots" />
+            </span>
+        </span>
+        <div class="flex-grow border-t border-slate-700"></div>
     </div>
 
     <!-- Tipe Transaksi -->
@@ -215,13 +287,14 @@
                 class="block text-sm font-medium text-slate-300 mb-2"
             >
                 Biaya Transaksi (%)
+                <i class="text-xs text-red-400">* not saved</i>
             </label>
             <input
                 type="text"
                 id="fee_percentage"
                 inputmode="decimal"
                 x-model="fee_percentage"
-                x-mask:dynamic="'9.999'"
+                x-mask:dynamic="'9.9999'"
                 placeholder="Contoh: 0.1"
                 class="form-input @error("fee_percentage") input-error @enderror"
             />
