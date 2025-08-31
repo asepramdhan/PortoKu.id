@@ -163,7 +163,7 @@ new class extends Component {
             )
                 ->withHeaders(["Content-Type" => "application/json"])
                 ->post("https://api.groq.com/openai/v1/chat/completions", [
-                    "model" => "llama3-8b-8192", // Pakai model yg lebih kecil & cepat untuk efisiensi
+                    "model" => "llama-3.1-8b-instant", // compound-beta
                     "messages" => [
                         ["role" => "user", "content" => $promptForGroq],
                     ],
@@ -304,7 +304,7 @@ new class extends Component {
             )
                 ->withHeaders(["Content-Type" => "application/json"])
                 ->post("https://api.groq.com/openai/v1/chat/completions", [
-                    "model" => "llama3-8b-8192",
+                    "model" => "llama-3.1-8b-instant", // compound-beta
                     "messages" => [
                         ["role" => "user", "content" => $promptForAsset],
                     ],
@@ -471,7 +471,7 @@ new class extends Component {
             )
                 ->withHeaders(["Content-Type" => "application/json"])
                 ->post("https://api.groq.com/openai/v1/chat/completions", [
-                    "model" => "llama3-8b-8192",
+                    "model" => "llama-3.1-8b-instant", // compound-beta
                     "messages" => [
                         ["role" => "user", "content" => $promptForGroq],
                     ],
@@ -609,7 +609,7 @@ new class extends Component {
             )
                 ->withHeaders(["Content-Type" => "application/json"])
                 ->post("https://api.groq.com/openai/v1/chat/completions", [
-                    "model" => "llama3-8b-8192",
+                    "model" => "llama-3.1-8b-instant", // compound-beta
                     "messages" => [
                         ["role" => "user", "content" => $promptForAsset],
                     ],
