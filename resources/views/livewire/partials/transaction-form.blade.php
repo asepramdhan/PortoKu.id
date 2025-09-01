@@ -71,11 +71,21 @@
         </button>
     </div>
 
-    <div class="text-center">
-        <label class="block text-sm font-medium text-slate-300 mb-3">
-            Mulai dengan memindai:
-        </label>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div class="space-y-3 mt-4">
+        <button
+            type="button"
+            @click="$dispatch('open-camera-modal')"
+            class="w-full flex items-center justify-center gap-2 rounded-lg bg-indigo-400 px-4 py-3 font-semibold text-white transition-colors disabled:bg-indigo-200 disabled:cursor-not-allowed cursor-pointer"
+            {{-- class="w-full flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 font-semibold text-white transition-colors disabled:bg-indigo-500 disabled:cursor-not-allowed cursor-pointer" --}}
+            disabled
+        >
+            <x-icon name="lucide.camera" class="h-5 w-5" />
+            <span>Pindai dengan Kamera</span>
+        </button>
+        <div class="text-center text-xs text-slate-400">
+            atau pilih dari galeri:
+        </div>
+        <div class="grid grid-cols-2 gap-4">
             <button
                 type="button"
                 @click="$wire.setScanContext('expense'); $refs.fileInput.click()"
@@ -128,7 +138,7 @@
                 @endif
 
                 @if (! $scanStatusMessage)
-                    <span class="text-sm text-slate-400">Atau isi manual</span>
+                    <span class="text-sm text-slate-400">atau isi manual</span>
                 @endif
             </span>
             <span

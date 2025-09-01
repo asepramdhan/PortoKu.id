@@ -191,7 +191,7 @@ new class extends Component {
                     <tbody>
                         @forelse ($users as $user)
                             <tr wire:key="{{ $user->id }}">
-                                <td>
+                                <td class="truncate">
                                     @if ($user->id === Auth::id())
                                         <label
                                             for="photo-upload-{{ $user->id }}"
@@ -217,7 +217,7 @@ new class extends Component {
                                                     <img
                                                         src="{{ asset("storage/" . $user->profile_photo_path) }}"
                                                         alt="Foto Profil"
-                                                        class="w-12 h-12 object-cover rounded-full"
+                                                        class="w-12 h-auto object-cover rounded-full"
                                                     />
                                                     <div
                                                         wire:loading.remove
@@ -237,7 +237,7 @@ new class extends Component {
                                                     <img
                                                         src="https://placehold.co/48x48/0EA5E9/FFFFFF?text={{ substr($user->name, 0, 1) }}"
                                                         alt="Avatar"
-                                                        class="w-12 h-12 rounded-full"
+                                                        class="w-12 h-auto rounded-full"
                                                     />
                                                     <div
                                                         class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden group-hover:block"
@@ -260,7 +260,7 @@ new class extends Component {
                                         <img
                                             src="{{ $user->profile_photo_path ? asset("storage/" . $user->profile_photo_path) : "https://placehold.co/48x48/0EA5E9/FFFFFF?text=" . substr($user->name, 0, 1) }}"
                                             alt="Avatar"
-                                            class="w-12 h-12 rounded-full"
+                                            class="w-12 h-auto rounded-full"
                                         />
                                     @endif
                                 </td>

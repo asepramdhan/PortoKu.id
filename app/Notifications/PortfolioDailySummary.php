@@ -30,7 +30,7 @@ class PortfolioDailySummary extends Notification
      */
     public function via($notifiable): array
     {
-        return ['database']; // Simpan notifikasi ke database
+        return ['mail', 'database']; // Kirim notifikasi melalui email dan Simpan notifikasi ke database
     }
 
     /**
@@ -38,10 +38,29 @@ class PortfolioDailySummary extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
+        $change = number_format($this->percentageChange, 2);
+        $value = number_format($this->currentValue, 0, ',', '.');
+        $greeting = "Halo, " . $notifiable->name . "!"; // Mengambil nama user
+
+        $subject = "Ringkasan Harian Portofolio Aset Anda";
+        $line = "Portofolio aset Anda hari ini bernilai **Rp " . $value . "**. ";
+
+        if ($this->percentageChange > 0) {
+            $line .= "Ini adalah kenaikan sebesar **" . $change . "%** dari kemarin. Kerja bagus!";
+            $subject .= " 📈"; // Tambah emoji naik
+        } elseif ($this->percentageChange < 0) {
+            $line .= "Ini adalah penurunan sebesar **" . abs($change) . "%** dari kemarin. Tetap semangat!";
+            $subject .= " 📉"; // Tambah emoji turun
+        } else {
+            $line .= "Nilainya tidak berubah dari kemarin.";
+        }
+
         return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
-            ->line('Thank you for using our application!');
+            ->subject($subject)
+            ->greeting($greeting)
+            ->line($line)
+            ->action('Lihat Portofolio Anda', url('/portofolio')) // Arahkan ke halaman portofolio
+            ->line('Terima kasih telah menggunakan PortoKu.id!');
     }
 
     /**
