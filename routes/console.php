@@ -9,4 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 // FIX: Tambahkan penjadwalan Anda di sini
-Schedule::command('app:generate-portfolio-summary')->dailyAt('06:00');
+Schedule::command('app:generate-portfolio-summary')->everyMinute();
