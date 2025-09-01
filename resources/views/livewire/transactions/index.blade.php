@@ -695,6 +695,43 @@ new class extends Component {
         $this->showAddModal = true;
     }
 
+    // Ambil harga Bitcoin saat ini untuk memasukan harga ke input
+    public function fetchCurrentBtcPrice()
+    {
+        // Kita "curi" logika dari fungsi calculateSummary Anda
+        $currentPrice = \Illuminate\Support\Facades\Cache::remember(
+            "bitcoin_price_idr",
+            now()->addMinutes(5), // Simpan di cache selama 5 menit
+            function () {
+                try {
+                    $response = \Illuminate\Support\Facades\Http::get(
+                        "https://api.coingecko.com/api/v3/simple/price",
+                        [
+                            "ids" => "bitcoin",
+                            "vs_currencies" => "idr",
+                        ],
+                    )->json();
+                    return $response["bitcoin"]["idr"] ?? null;
+                } catch (\Exception $e) {
+                    return null;
+                }
+            },
+        );
+
+        // Jika API gagal, kita bisa kasih fallback atau lempar error
+        if (is_null($currentPrice)) {
+            $this->dispatch(
+                "current-price-error",
+                message: "Gagal mengambil harga Bitcoin.",
+            );
+            return;
+        }
+
+        // Kirim harga ke AlpineJS di form yang sedang aktif
+        // Kita gunakan event browser agar bisa didengar oleh form Tambah dan Edit
+        $this->dispatch("current-price-fetched", price: $currentPrice);
+    }
+
     // addTransaction
     public function addTransaction(): void
     {

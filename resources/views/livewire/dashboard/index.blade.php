@@ -239,7 +239,14 @@ new class extends Component {
         <div class="card p-6">
             <div class="mb-4 flex items-center justify-between">
                 <h3 class="font-medium text-slate-400">Total Laba/Rugi</h3>
-                <x-icon name="lucide.trending-up" class="text-slate-500" />
+                @if ($summaryData->total_pnl >= 0)
+                    <x-icon name="lucide.trending-up" class="text-slate-500" />
+                @else
+                    <x-icon
+                        name="lucide.trending-down"
+                        class="text-slate-500"
+                    />
+                @endif
             </div>
             <p
                 class="text-3xl font-bold {{ $summaryData->total_pnl >= 0 ? "text-green-500" : "text-red-500" }}"

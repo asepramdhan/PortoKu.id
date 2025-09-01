@@ -59,6 +59,10 @@
         }
       "
     @scan-message-received.window="setTimeout(() => $wire.set('scanStatusMessage', ''), 4000)"
+    @current-price-fetched.window="
+        price_per_unit = $event.detail.price;
+        $dispatch('input', $event.detail.price); // Trik untuk update x-mask
+    "
     class="p-6 md:p-8 space-y-4"
 >
     <div class="flex justify-between items-center mb-2">
@@ -85,7 +89,7 @@
         <div class="text-center text-xs text-slate-400">
             atau pilih dari galeri:
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <button
                 type="button"
                 @click="$wire.setScanContext('expense'); $refs.fileInputEdit.click()"
@@ -242,12 +246,38 @@
                 @enderror
             </div>
             <div>
-                <label
-                    for="edit_price_per_unit"
-                    class="block text-sm font-medium text-slate-300 mb-2"
-                >
-                    Harga per Unit (IDR)
-                </label>
+                <div class="flex items-center justify-between">
+                    <label
+                        for="edit_price_per_unit"
+                        class="block text-sm font-medium text-slate-300 mb-2"
+                    >
+                        Harga Aset (IDR)
+                    </label>
+                    <button
+                        type="button"
+                        wire:click="fetchCurrentBtcPrice"
+                        wire:loading.attr="disabled"
+                        class="text-xs text-sky-400 hover:text-sky-300 transition-colors cursor-pointer"
+                    >
+                        <span
+                            wire:loading.remove
+                            wire:target="fetchCurrentBtcPrice"
+                            class="hidden lg:inline"
+                        >
+                            Ambil harga..
+                        </span>
+                        <span
+                            wire:loading.remove
+                            wire:target="fetchCurrentBtcPrice"
+                            class="lg:hidden"
+                        >
+                            Ambil harga saat ini
+                        </span>
+                        <span wire:loading wire:target="fetchCurrentBtcPrice">
+                            Memuat...
+                        </span>
+                    </button>
+                </div>
                 <input
                     type="text"
                     inputmode="decimal"
