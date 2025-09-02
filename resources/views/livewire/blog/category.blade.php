@@ -2,11 +2,33 @@
 
 use Livewire\WithPagination;
 use Livewire\Volt\Component;
+use Illuminate\Support\Facades\Cache;
 
 new class extends Component {
     use WithPagination;
 
     public $category;
+
+    public function mount(): void
+    {
+        $this->updateViewsCount();
+    }
+
+    private function updateViewsCount(): void
+    {
+        // --- TAMBAHKAN LOGIKA PENGHITUNG VIEW DI SINI ---
+        $cacheKey =
+            "viewed_category_" . $this->category->id . "_" . request()->ip();
+
+        if (! Cache::has($cacheKey)) {
+            // Jika IP ini belum melihat kategori ini dalam 24 jam,
+            // kita hitung sebagai view baru
+            $this->category->increment("views_count");
+
+            // Lalu, simpan jejaknya ke cache selama 24 jam (1440 menit)
+            Cache::put($cacheKey, true, now()->addDays(1));
+        }
+    }
 
     public function with(): array
     {

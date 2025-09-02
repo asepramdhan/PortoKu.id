@@ -152,6 +152,7 @@ new class extends Component {
                             <th>Nama</th>
                             <th>Slug</th>
                             <th>Jumlah Postingan</th>
+                            <th>Dilihat</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -185,6 +186,9 @@ new class extends Component {
                                 </td>
                                 <td class="text-slate-400">
                                     {{ $tag->posts_count }}
+                                </td>
+                                <td class="text-slate-400 font-mono">
+                                    {{ number_format($tag->views_count, 0, ",", ".") }}
                                 </td>
                                 <td>
                                     <div>

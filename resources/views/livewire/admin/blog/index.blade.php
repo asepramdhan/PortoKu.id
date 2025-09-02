@@ -213,6 +213,7 @@ new class extends Component {
                         <th>Penulis</th>
                         <th>Status</th>
                         <th>Tanggal Publikasi</th>
+                        <th>Dilihat</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -352,6 +353,9 @@ new class extends Component {
                             </td>
                             <td class="text-slate-300 truncate">
                                 {{ $post->published_at ? $post->published_at->format("d M Y") : "-" }}
+                            </td>
+                            <td class="text-slate-300 text-center font-mono">
+                                {{ number_format($post->views_count, 0, ",", ".") }}
                             </td>
                             <td>
                                 <div class="flex space-x-4 lg:space-x-2">

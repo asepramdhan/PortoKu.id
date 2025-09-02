@@ -3,6 +3,7 @@
 use App\Models\Post;
 use Livewire\Volt\Component;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cache;
 
 new class extends Component {
     public $post;
@@ -10,10 +11,26 @@ new class extends Component {
 
     public function mount(): void
     {
+        $this->updateViewsCount();
         $this->relatedPosts = Post::where("id", "!=", $this->post->id)
             ->inRandomOrder()
             ->take(3)
             ->get();
+    }
+
+    private function updateViewsCount(): void
+    {
+        // 1. Logika untuk menghitung unique view berdasarkan IP dalam 24 jam
+        $cacheKey = "viewed_post_" . $this->post->id . "_" . request()->ip();
+
+        if (! Cache::has($cacheKey)) {
+            // Jika IP ini belum melihat post ini dalam 24 jam,
+            // kita hitung sebagai view baru
+            $this->post->increment("views_count");
+
+            // Lalu, simpan jejaknya ke cache selama 24 jam (1440 menit)
+            Cache::put($cacheKey, true, now()->addMinutes(1440));
+        }
     }
 }; ?>
 
