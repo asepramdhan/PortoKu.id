@@ -30,18 +30,19 @@
     26 => 'Laravel\\Folio\\FolioServiceProvider',
     27 => 'Laravel\\Pail\\PailServiceProvider',
     28 => 'Laravel\\Sail\\SailServiceProvider',
-    29 => 'Laravel\\Tinker\\TinkerServiceProvider',
-    30 => 'Livewire\\LivewireServiceProvider',
-    31 => 'Livewire\\Volt\\VoltServiceProvider',
-    32 => 'MallardDuck\\LucideIcons\\BladeLucideIconsServiceProvider',
-    33 => 'Carbon\\Laravel\\ServiceProvider',
-    34 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
-    35 => 'Termwind\\Laravel\\TermwindServiceProvider',
-    36 => 'OpenAI\\Laravel\\ServiceProvider',
-    37 => 'Mary\\MaryServiceProvider',
-    38 => 'App\\Providers\\AppServiceProvider',
-    39 => 'App\\Providers\\FolioServiceProvider',
-    40 => 'App\\Providers\\VoltServiceProvider',
+    29 => 'Laravel\\Socialite\\SocialiteServiceProvider',
+    30 => 'Laravel\\Tinker\\TinkerServiceProvider',
+    31 => 'Livewire\\LivewireServiceProvider',
+    32 => 'Livewire\\Volt\\VoltServiceProvider',
+    33 => 'MallardDuck\\LucideIcons\\BladeLucideIconsServiceProvider',
+    34 => 'Carbon\\Laravel\\ServiceProvider',
+    35 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
+    36 => 'Termwind\\Laravel\\TermwindServiceProvider',
+    37 => 'OpenAI\\Laravel\\ServiceProvider',
+    38 => 'Mary\\MaryServiceProvider',
+    39 => 'App\\Providers\\AppServiceProvider',
+    40 => 'App\\Providers\\FolioServiceProvider',
+    41 => 'App\\Providers\\VoltServiceProvider',
   ),
   'eager' => 
   array (
@@ -225,6 +226,7 @@
     'Illuminate\\Contracts\\Validation\\UncompromisedVerifier' => 'Illuminate\\Validation\\ValidationServiceProvider',
     'Laravel\\Sail\\Console\\InstallCommand' => 'Laravel\\Sail\\SailServiceProvider',
     'Laravel\\Sail\\Console\\PublishCommand' => 'Laravel\\Sail\\SailServiceProvider',
+    'Laravel\\Socialite\\Contracts\\Factory' => 'Laravel\\Socialite\\SocialiteServiceProvider',
     'command.tinker' => 'Laravel\\Tinker\\TinkerServiceProvider',
     'OpenAI\\Client' => 'OpenAI\\Laravel\\ServiceProvider',
     'OpenAI\\Contracts\\ClientContract' => 'OpenAI\\Laravel\\ServiceProvider',
@@ -272,6 +274,9 @@
     array (
     ),
     'Laravel\\Sail\\SailServiceProvider' => 
+    array (
+    ),
+    'Laravel\\Socialite\\SocialiteServiceProvider' => 
     array (
     ),
     'Laravel\\Tinker\\TinkerServiceProvider' => 
