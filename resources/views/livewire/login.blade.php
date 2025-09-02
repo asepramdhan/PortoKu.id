@@ -136,27 +136,31 @@ new class extends Component {
                     </button>
                 </div>
             </form>
-            <div class="relative flex py-5 items-center">
+
+            <!--=== === Tahap Pengembangan === ===-->
+            {{--
+                <div class="relative flex py-5 items-center">
                 <div class="flex-grow border-t border-slate-700"></div>
                 <span class="flex-shrink mx-4 text-slate-400 text-sm">
-                    Atau lanjutkan dengan
+                Atau lanjutkan dengan
                 </span>
                 <div class="flex-grow border-t border-slate-700"></div>
-            </div>
-
-            <div>
+                </div>
+                
+                <div>
                 <a
-                    href="/google/redirect"
-                    class="w-full inline-flex justify-center py-3 px-4 border border-slate-600 rounded-md shadow-sm bg-slate-800 text-sm font-medium text-white hover:bg-slate-700 transition-colors"
+                href="/google/redirect"
+                class="w-full inline-flex justify-center py-3 px-4 border border-slate-600 rounded-md shadow-sm bg-slate-800 text-sm font-medium text-white hover:bg-slate-700 transition-colors"
                 >
-                    <img
-                        class="w-5 h-5 mr-2"
-                        src="https://developers.google.com/identity/images/g-logo.png"
-                        alt="Google logo"
-                    />
-                    Login dengan Google
+                <img
+                class="w-5 h-5 mr-2"
+                src="https://developers.google.com/identity/images/g-logo.png"
+                alt="Google logo"
+                />
+                Login dengan Google
                 </a>
-            </div>
+                </div>
+            --}}
         </div>
     </main>
 </div>
