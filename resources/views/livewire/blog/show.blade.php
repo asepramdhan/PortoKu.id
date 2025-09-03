@@ -24,6 +24,10 @@ new class extends Component {
         $cacheKey = "viewed_post_" . $this->post->id . "_" . request()->ip();
 
         if (! Cache::has($cacheKey)) {
+            // Buat catatan baru di tabel post_views
+            $this->post->views()->create([
+                "ip_address" => request()->ip(),
+            ]);
             // Jika IP ini belum melihat post ini dalam 24 jam,
             // kita hitung sebagai view baru
             $this->post->increment("views_count");

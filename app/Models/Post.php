@@ -29,4 +29,9 @@ class Post extends Model
     {
         return $this->belongsToMany(Tag::class);
     }
+
+    public function views()
+    {
+        return $this->hasMany(PostView::class);
+    }
 }
