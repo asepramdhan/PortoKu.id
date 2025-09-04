@@ -85,9 +85,8 @@ new class extends Component {
 
     public function delete(Comment $comment): void
     {
-        // Keamanan: Pastikan hanya pemilik komentar atau admin yang bisa menghapus
-        // Kita gunakan Gate atau Policy untuk best practice, tapi ini cukup untuk sekarang
-        if (! Auth::user() !== $comment->user_id && ! Auth::user()?->is_admin) {
+        // Keamanan: Pastikan hanya pemilik komentar yang bisa menghapus
+        if (! Auth::user() !== $comment->user_id) {
             abort(403); // Akses ditolak
         }
 
