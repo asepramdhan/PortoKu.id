@@ -90,6 +90,15 @@
                     Kelola Tag
                 </a>
                 <a
+                    href="/admin/comments"
+                    wire:navigate
+                    wire:current="active"
+                    class="sidebar-link"
+                >
+                    <x-icon name="lucide.messages-square" class="mr-3" />
+                    Kelola Komentar
+                </a>
+                <a
                     href="/admin/users"
                     wire:navigate
                     wire:current="active"
