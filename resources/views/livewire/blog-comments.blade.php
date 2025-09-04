@@ -13,6 +13,9 @@ new class extends Component {
     public ?Comment $editing = null;
     public string $editingContent = "";
 
+    public ?int $replyingTo = null;
+    public string $replyContent = "";
+
     public function addComment(): void
     {
         // Pastikan user sudah login
@@ -88,12 +91,51 @@ new class extends Component {
         $comment->delete();
     }
 
+    public function startReply(int $commentId): void
+    {
+        // Hanya admin yang boleh memulai balasan
+        if (! auth()->check() || ! auth()->user()->is_admin) {
+            abort(403);
+        }
+        $this->replyingTo = $commentId;
+    }
+
+    public function addReply(): void
+    {
+        // Hanya admin yang boleh mengirim balasan
+        if (
+            ! auth()->check() ||
+            ! auth()->user()->is_admin ||
+            is_null($this->replyingTo)
+        ) {
+            abort(403);
+        }
+
+        $validated = $this->validate([
+            "replyContent" => "required|string|max:1000",
+        ]);
+
+        $this->post->comments()->create([
+            "user_id" => auth()->id(),
+            "content" => $validated["replyContent"],
+            "parent_id" => $this->replyingTo, // <-- Ini kuncinya!
+        ]);
+
+        $this->cancelReply();
+    }
+
+    public function cancelReply(): void
+    {
+        $this->reset("replyingTo", "replyContent");
+    }
+
     public function with(): array
     {
         return [
             "comments" => $this->post
                 ->comments()
-                ->with("user")
+                ->whereNull("parent_id")
+                ->with(["user", "replies.user"])
                 ->latest()
                 ->paginate(5),
         ];
@@ -250,8 +292,171 @@ new class extends Component {
                             <p>{{ $comment->content }}</p>
                         </div>
                     @endif
+                    @auth
+                        @if (auth()->user()->is_admin)
+                            <div class="mt-2">
+                                <button
+                                    wire:click="startReply({{ $comment->id }})"
+                                    class="text-xs font-semibold text-sky-400 hover:underline cursor-pointer"
+                                >
+                                    Balas
+                                </button>
+                            </div>
+                        @endif
+                    @endauth
                 </div>
             </div>
+            @if ($replyingTo == $comment->id)
+                <div class="ml-10 md:ml-14 pl-4 border-l-2 border-slate-700">
+                    <form wire:submit.prevent="addReply">
+                        <textarea
+                            wire:model="replyContent"
+                            rows="3"
+                            class="form-input"
+                            placeholder="Tulis balasan Anda sebagai admin..."
+                            required
+                        ></textarea>
+                        @error("replyContent")
+                            <p class="mt-1 text-sm text-red-500">
+                                {{ $message }}
+                            </p>
+                        @enderror
+
+                        <div class="flex items-center gap-2 mt-2">
+                            <button
+                                type="submit"
+                                class="text-xs bg-sky-500 hover:bg-sky-600 text-white font-semibold px-3 py-1 rounded-md cursor-pointer transition-colors"
+                            >
+                                Kirim Balasan
+                            </button>
+                            <button
+                                wire:click="cancelReply"
+                                type="button"
+                                class="text-xs text-slate-400 hover:underline cursor-pointer"
+                            >
+                                Batal
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            @endif
+
+            {{-- Daftar Balasan --}}
+            @if ($comment->replies->isNotEmpty())
+                <div
+                    class="ml-10 md:ml-14 mt-4 space-y-4 pl-4 border-l-2 border-slate-700"
+                >
+                    @foreach ($comment->replies as $reply)
+                        <div
+                            class="flex items-start space-x-4"
+                            wire:key="comment-{{ $reply->id }}"
+                        >
+                            <img
+                                src="{{ $reply->user->profile_photo_path ? asset("storage/" . $reply->user->profile_photo_path) : "https://placehold.co/48x48/0EA5E9/FFFFFF?text=" . substr($reply->user->name, 0, 1) }}"
+                                class="w-10 h-10 rounded-full flex-shrink-0 mt-1"
+                            />
+                            <div
+                                class="flex-grow bg-slate-800/50 p-3 rounded-lg"
+                            >
+                                <div
+                                    class="flex items-baseline justify-between"
+                                >
+                                    <div class="flex items-baseline space-x-2">
+                                        <p class="font-semibold text-white">
+                                            {{ $reply->user->name }}
+                                            <span
+                                                class="text-xs font-normal px-2 py-0.5 bg-sky-500/20 text-sky-400 rounded-md"
+                                            >
+                                                Admin
+                                            </span>
+                                        </p>
+                                        <span class="text-xs text-slate-400">
+                                            {{ $reply->created_at->diffForHumans() }}
+                                        </span>
+                                    </div>
+                                    {{-- Grup Tombol Aksi untuk pemilik balasan (admin) --}}
+                                    @if (Auth::id() == $reply->user_id && ! $editing?->is($reply))
+                                        <div
+                                            class="flex items-center space-x-2 flex-shrink-0"
+                                        >
+                                            <button
+                                                wire:click="edit({{ $reply->id }})"
+                                                class="text-xs text-sky-400 hover:text-sky-300 cursor-pointer"
+                                                title="Edit"
+                                            >
+                                                <x-icon
+                                                    name="lucide.square-pen"
+                                                    class="h-4 w-4"
+                                                />
+                                            </button>
+                                            <span
+                                                class="text-xs text-slate-600"
+                                            >
+                                                |
+                                            </span>
+                                            <button
+                                                x-on:click="
+                                                    if (confirm('Anda yakin ingin menghapus balasan ini?')) {
+                                                        $wire.delete({{ $reply->id }})
+                                                    }
+                                                "
+                                                class="text-xs text-red-500 hover:text-red-400 cursor-pointer"
+                                                title="Hapus"
+                                            >
+                                                <x-icon
+                                                    name="lucide.trash-2"
+                                                    class="h-4 w-4"
+                                                />
+                                            </button>
+                                        </div>
+                                    @endif
+                                </div>
+                                {{-- "SAKLAR" ANTARA TAMPILAN BIASA DAN FORM EDIT UNTUK BALASAN --}}
+                                @if ($editing?->is($reply))
+                                    <div class="mt-2">
+                                        <textarea
+                                            wire:model="editingContent"
+                                            rows="3"
+                                            class="form-input"
+                                            required
+                                        ></textarea>
+                                        @error("editingContent")
+                                            <p
+                                                class="mt-1 text-sm text-red-500"
+                                            >
+                                                {{ $message }}
+                                            </p>
+                                        @enderror
+
+                                        <div
+                                            class="flex items-center gap-2 mt-2"
+                                        >
+                                            <button
+                                                wire:click="update"
+                                                class="text-xs bg-sky-500 hover:bg-sky-600 text-white font-semibold px-3 py-1 rounded-md cursor-pointer transition-colors"
+                                            >
+                                                Simpan
+                                            </button>
+                                            <button
+                                                wire:click="cancelEdit"
+                                                class="text-xs text-slate-400 hover:underline cursor-pointer"
+                                            >
+                                                Batal
+                                            </button>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div
+                                        class="prose prose-sm prose-invert mt-2 max-w-none text-slate-300"
+                                    >
+                                        <p>{{ $reply->content }}</p>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
         @empty
             <p class="text-slate-400 text-center py-8">
                 Belum ada komentar. Jadilah yang pertama!
