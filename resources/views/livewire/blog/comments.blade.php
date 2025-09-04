@@ -82,8 +82,8 @@ new class extends Component {
 
     public function delete(Comment $comment): void
     {
-        // Keamanan: Pastikan hanya pemilik komentar ATAU admin yang bisa menghapus
-        if (auth()->id() !== $comment->user_id && ! auth()->user()?->is_admin) {
+        // Keamanan: Pastikan hanya pemilik komentar yang bisa menghapus
+        if (auth()->id() !== $comment->user_id) {
             abort(403);
         }
         $comment->delete();
@@ -180,21 +180,19 @@ new class extends Component {
                         </div>
 
                         {{-- Tombol Edit hanya muncul untuk pemilik komentar --}}
-                        @if ((Auth::id() === $comment->user_id || Auth::user()?->is_admin) && ! $editing?->is($comment))
+                        @if (Auth::id() === $comment->user_id && ! $editing?->is($comment))
                             <div
                                 class="flex items-center space-x-2 flex-shrink-0"
                             >
-                                @if (Auth::id() === $comment->user_id)
-                                    <button
-                                        wire:click="edit({{ $comment->id }})"
-                                        class="text-xs text-sky-400 cursor-pointer"
-                                    >
-                                        <x-icon
-                                            name="lucide.square-pen"
-                                            class="h-4 w-4"
-                                        />
-                                    </button>
-                                @endif
+                                <button
+                                    wire:click="edit({{ $comment->id }})"
+                                    class="text-xs text-sky-400 cursor-pointer"
+                                >
+                                    <x-icon
+                                        name="lucide.square-pen"
+                                        class="h-4 w-4"
+                                    />
+                                </button>
 
                                 <span class="text-xs text-slate-600">|</span>
                                 <button
