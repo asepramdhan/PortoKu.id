@@ -142,7 +142,7 @@ new class extends Component {
         <section class="pb-12 md:pb-20">
             <div class="container mx-auto px-6">
                 <div class="max-w-3xl mx-auto">
-                    <livewire:blog.comments :post="$post" lazy />
+                    <livewire:blog.comments :post="$post" />
                 </div>
             </div>
         </section>
