@@ -157,23 +157,6 @@ new class extends Component {
     <!-- Daftar Komentar yang Sudah Ada -->
     <div class="space-y-4">
         @forelse ($comments as $comment)
-            {{-- GANTI KODE DEBUG LAMA DENGAN INI --}}
-            @php
-                if ($loop->first) {
-                    dd(
-                        "DATA USER LOGIN",
-                        "Tipe Data:" . gettype(Auth::id()),
-                        "Nilai:" . Auth::id(),
-                        "--- VS ---",
-                        "DATA PEMILIK KOMENTAR",
-                        "Tipe Data:" . gettype($comment->user_id),
-                        "Nilai:" . $comment->user_id,
-                    );
-                }
-            @endphp
-
-            {{-- AKHIR DARI KODE DEBUG --}}
-
             <div
                 class="flex items-start space-x-4 p-4 border-b border-slate-800"
                 wire:key="comment-{{ $comment->id }}"
@@ -196,7 +179,7 @@ new class extends Component {
                         </div>
 
                         {{-- Tombol Edit hanya muncul untuk pemilik komentar --}}
-                        @if (auth()->id() === $comment->user_id && ! $editing?->is($comment))
+                        @if (auth()->id() == $comment->user_id && ! $editing?->is($comment))
                             <div
                                 class="flex items-center space-x-2 flex-shrink-0"
                             >
