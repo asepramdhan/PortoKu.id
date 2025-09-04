@@ -157,6 +157,14 @@ new class extends Component {
     <!-- Daftar Komentar yang Sudah Ada -->
     <div class="space-y-4">
         @forelse ($comments as $comment)
+            {{-- TAMBAHKAN KODE DEBUG INI SEMENTARA --}}
+            @if ($loop->first)
+                <div class="bg-red-500 text-white p-2 text-xs">
+                    DEBUG: ID User Login = {{ auth()->id() ?? "TIDAK LOGIN" }}
+                    || ID Pemilik Komentar = {{ $comment->user_id }}
+                </div>
+            @endif
+
             <div
                 class="flex items-start space-x-4 p-4 border-b border-slate-800"
                 wire:key="comment-{{ $comment->id }}"
