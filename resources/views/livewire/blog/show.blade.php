@@ -138,6 +138,15 @@ new class extends Component {
             </div>
         </article>
 
+        <!-- KOMPONEN KOMENTAR DI SINI -->
+        <section class="pb-12 md:pb-20">
+            <div class="container mx-auto px-6">
+                <div class="max-w-3xl mx-auto">
+                    <livewire:blog.comments :post="$post" lazy />
+                </div>
+            </div>
+        </section>
+
         <!-- Related Posts Section -->
         @if ($this->relatedPosts->isNotEmpty())
             <section class="py-20">

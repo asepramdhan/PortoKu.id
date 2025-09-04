@@ -34,4 +34,10 @@ class Post extends Model
     {
         return $this->hasMany(PostView::class);
     }
+
+    // Di dalam class Post
+    public function comments()
+    {
+        return $this->hasMany(Comment::class)->orderBy('created_at', 'desc');
+    }
 }

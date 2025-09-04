@@ -54,4 +54,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Message::class);
     }
+
+    // Di dalam class User
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
 }
