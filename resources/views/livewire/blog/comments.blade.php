@@ -185,7 +185,7 @@ new class extends Component {
                         </div>
 
                         {{-- Tombol Edit hanya muncul untuk pemilik komentar --}}
-                        @if (Auth::id() === $comment->user_id || (Auth::user()?->is_admin && ! $editing?->is($comment)))
+                        @if (Auth::id() === $comment->user_id && ! $editing?->is($comment))
                             <div
                                 class="flex items-center space-x-2 flex-shrink-0"
                             >
