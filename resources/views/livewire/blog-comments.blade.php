@@ -41,7 +41,7 @@ new class extends Component {
     public function edit(Comment $comment): void
     {
         // Keamanan: Pastikan hanya pemilik komentar yang bisa mengedit
-        if (auth()->id() !== $comment->user_id) {
+        if (auth()->id() != $comment->user_id) {
             abort(403); // Akses ditolak
         }
 
@@ -55,7 +55,7 @@ new class extends Component {
         if (! $this->editing) {
             return;
         }
-        if (auth()->id() !== $this->editing->user_id) {
+        if (auth()->id() != $this->editing->user_id) {
             abort(403);
         }
 
@@ -82,7 +82,7 @@ new class extends Component {
     public function delete(Comment $comment): void
     {
         // Keamanan: Pastikan hanya pemilik komentar yang bisa menghapus
-        if (auth()->id() !== $comment->user_id) {
+        if (auth()->id() != $comment->user_id) {
             abort(403);
         }
         $comment->delete();
