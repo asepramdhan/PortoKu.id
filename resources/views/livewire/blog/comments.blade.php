@@ -3,7 +3,6 @@
 use App\Models\Comment;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
-use Illuminate\Support\Facades\Auth;
 
 new class extends Component {
     use WithPagination;
@@ -17,7 +16,7 @@ new class extends Component {
     public function addComment(): void
     {
         // Pastikan user sudah login
-        if (! Auth::check()) {
+        if (! auth()->check()) {
             $this->redirect("/login", navigation: true);
             return;
         }
@@ -28,7 +27,7 @@ new class extends Component {
 
         // Buat komentar baru
         $this->post->comments()->create([
-            "user_id" => Auth::id(),
+            "user_id" => auth()->id(),
             "content" => $validated["commentContent"],
         ]);
 
@@ -42,7 +41,7 @@ new class extends Component {
     public function edit(Comment $comment): void
     {
         // Keamanan: Pastikan hanya pemilik komentar yang bisa mengedit
-        if (Auth::id() !== $comment->user_id) {
+        if (auth()->id() !== $comment->user_id) {
             abort(403); // Akses ditolak
         }
 
@@ -180,7 +179,7 @@ new class extends Component {
                         </div>
 
                         {{-- Tombol Edit hanya muncul untuk pemilik komentar --}}
-                        @if (Auth::id() === $comment->user_id && ! $editing?->is($comment))
+                        @if (auth()->id() === $comment->user_id && ! $editing?->is($comment))
                             <div
                                 class="flex items-center space-x-2 flex-shrink-0"
                             >
