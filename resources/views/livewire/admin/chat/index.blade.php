@@ -6,7 +6,6 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Volt\Component;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Str;
 
 new class extends Component {
     public Collection $conversations;
@@ -37,7 +36,7 @@ new class extends Component {
 
     public function loadConversations(): void
     {
-        $this->conversations = Conversation::with("user")
+        $this->conversations = Conversation::with(["user", "latestMessage"])
             ->withCount([
                 "messages as unread_count" => function ($q) {
                     $q->whereNull("read_at")->whereHas(
@@ -218,7 +217,7 @@ new class extends Component {
                                 {{ $conv->user->name }}
                             </p>
                             <p class="text-sm text-slate-400 truncate">
-                                {{ $conv->messages->last()->content ?? "Belum ada pesan." }}
+                                {{ Str::limit($conv->latestMessage?->content, 25) ?? "Belum ada pesan." }}
                             </p>
                             <p class="text-xs text-slate-500 mt-1">
                                 {{ $conv->last_message_at->diffForHumans() }}
