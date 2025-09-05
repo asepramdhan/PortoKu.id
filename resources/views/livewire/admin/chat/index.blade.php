@@ -218,7 +218,7 @@ new class extends Component {
                                 {{ $conv->user->name }}
                             </p>
                             <p class="text-sm text-slate-400 truncate">
-                                {{ Str::limit($conv->messages->last()->content, 50) ?? "Belum ada pesan." }}
+                                {{ $conv->messages->last()->content ?? "Belum ada pesan." }}
                             </p>
                             <p class="text-xs text-slate-500 mt-1">
                                 {{ $conv->last_message_at->diffForHumans() }}
