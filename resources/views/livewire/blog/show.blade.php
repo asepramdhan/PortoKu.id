@@ -4,6 +4,7 @@ use App\Models\Post;
 use Livewire\Volt\Component;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
+use Symfony\Component\DomCrawler\Crawler;
 
 new class extends Component {
     public $post;
@@ -34,6 +35,50 @@ new class extends Component {
 
             // Lalu, simpan jejaknya ke cache selama 24 jam (1440 menit)
             Cache::put($cacheKey, true, now()->addMinutes(1440));
+        }
+    }
+
+    public function getProcessedContentProperty(): string
+    {
+        $content = $this->post->content;
+
+        // Kode iklan AdSense Anda (bagian <ins> dan <script> kedua)
+        $adCode = <<<'HTML'
+                    <div class="my-8"> <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8728220555344178"
+             crossorigin="anonymous"></script>
+        <ins class="adsbygoogle"
+             style="display:block; text-align:center;"
+             data-ad-layout="in-article"
+             data-ad-format="fluid"
+             data-ad-client="ca-pub-8728220555344178"
+             data-ad-slot="5273485627"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+        </div>
+        HTML;
+
+        try {
+            // Jangan sisipkan iklan jika artikel terlalu pendek
+            if (substr_count($content, "<p>") < 4) {
+                return $content;
+            }
+
+            $crawler = new Crawler($content);
+
+            // Cari semua paragraf. Kita akan sisipkan iklan setelah paragraf ke-3.
+            $paragraphs = $crawler->filter("p");
+
+            if ($paragraphs->count() >= 3) {
+                $paragraphs
+                    ->getNode(2)
+                    ->insertAdjacentHTML("afterend", $adCode);
+            }
+
+            return $crawler->html();
+        } catch (\Exception $e) {
+            // Jika terjadi error saat parsing, kembalikan konten asli agar halaman tidak rusak
+            return $content;
         }
     }
 }; ?>
@@ -96,7 +141,7 @@ new class extends Component {
 
                     <!-- Post Content -->
                     <div class="prose prose-lg prose-custom max-w-none">
-                        {!! $this->post->content !!}
+                        {!! $this->processedContent !!}
                     </div>
 
                     <!-- Tags -->
