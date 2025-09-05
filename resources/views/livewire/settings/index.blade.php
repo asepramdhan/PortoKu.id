@@ -14,6 +14,7 @@ new class extends Component {
     // Properti untuk form profil
     public string $name = "";
     public string $email = "";
+    public $phone_number;
     public $photo;
     public ?TemporaryUploadedFile $previous_photo = null;
 
@@ -29,6 +30,7 @@ new class extends Component {
     {
         $this->name = Auth::user()->name;
         $this->email = Auth::user()->email;
+        $this->phone_number = Auth::user()->phone_number;
     }
 
     public function updatedPhoto(TemporaryUploadedFile $value): void
@@ -49,6 +51,12 @@ new class extends Component {
                 "unique:users,email," . Auth::id(),
             ],
             "photo" => ["nullable", "image", "max:1024"],
+            "phone_number" => [
+                "nullable",
+                "numeric",
+                "unique:users,phone_number," . Auth::id(),
+                // "regex:/^62\d{9,13}$/",
+            ],
         ]);
 
         $user = Auth::user();
@@ -241,6 +249,23 @@ new class extends Component {
                         class="form-input @error("email") input-error @enderror"
                     />
                     @error("email")
+                        <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <label
+                        for="phone_number"
+                        class="block text-sm font-medium text-slate-300 mb-2"
+                    >
+                        Nomor Whatsapp
+                    </label>
+                    <input
+                        type="text"
+                        id="phone_number"
+                        wire:model="phone_number"
+                        class="form-input @error("phone_number") input-error @enderror"
+                    />
+                    @error("phone_number")
                         <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
                     @enderror
                 </div>

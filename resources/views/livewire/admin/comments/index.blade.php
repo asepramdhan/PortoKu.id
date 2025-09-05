@@ -173,7 +173,7 @@ new class extends Component {
                                 <td class="truncate">
                                     @if($comment->parent_id)
                                         <div class="pl-4 border-l-2 border-sky-500">
-                                            <p class="text-xs text-slate-400 italic mb-1">Membalas: "{{ Str::limit($comment->parent->content, 20) }}"</p>
+                                            <p class="text-xs text-slate-400 italic mb-1">Membalas: "{{ Str::limit($comment->parent->content, 30) }}"</p>
                                     @endif
                                     @if ($editing?->is($comment))
                                         <div class="space-y-2">
@@ -201,7 +201,7 @@ new class extends Component {
                                         </div>
                                     @else
                                         <p class="text-slate-300">
-                                            {{ Str::limit($comment->content, 80) }}
+                                            {{ Str::limit($comment->content, 35) }}
                                         </p>
 
                                         @if(!$comment->parent_id && $comment->replies->isNotEmpty())

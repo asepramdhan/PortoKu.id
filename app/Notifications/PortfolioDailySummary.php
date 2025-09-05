@@ -30,7 +30,7 @@ class PortfolioDailySummary extends Notification
      */
     public function via($notifiable): array
     {
-        return ['mail', 'database']; // Kirim notifikasi melalui email dan Simpan notifikasi ke database
+        return ['mail', 'database'];
     }
 
     /**
