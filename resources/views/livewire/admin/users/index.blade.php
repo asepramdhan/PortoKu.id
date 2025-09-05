@@ -260,7 +260,7 @@ new class extends Component {
                                         <img
                                             src="{{ $user->profile_photo_path ? asset("storage/" . $user->profile_photo_path) : "https://placehold.co/48x48/0EA5E9/FFFFFF?text=" . substr($user->name, 0, 1) }}"
                                             alt="Avatar"
-                                            class="w-12 h-auto rounded-full"
+                                            class="w-12 h-12 rounded-full"
                                         />
                                     @endif
                                 </td>
