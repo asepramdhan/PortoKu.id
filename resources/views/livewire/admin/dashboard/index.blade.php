@@ -12,6 +12,8 @@ new class extends Component {
     public int $views7Days;
     public int $views30Days;
 
+    public int $siteVisitorsToday;
+
     // Card Bawah (Statistik Total)
     public int $totalUsers;
     public int $totalPosts;
@@ -41,6 +43,12 @@ new class extends Component {
             "created_at",
             ">=",
             now()->subDays(30),
+        )->count();
+
+        // Hitung pengunjung
+        $this->siteVisitorsToday = \App\Models\SiteVisitor::whereDate(
+            "created_at",
+            today(),
         )->count();
 
         // 2. Hitung data untuk 3 kartu bawah
@@ -88,6 +96,7 @@ new class extends Component {
             "views7Days" => $this->views7Days,
             "views30Days" => $this->views30Days,
             "chartData" => $this->chartData,
+            "siteVisitorsToday" => $this->siteVisitorsToday,
         ];
     }
 }; ?>
@@ -98,7 +107,22 @@ new class extends Component {
         <h1 class="text-3xl font-bold text-white mb-6">Dashboard Admin</h1>
 
         <!-- Summary Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-center">
+        <div
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 text-center"
+        >
+            <!-- Total Pengunjung Website Hari Ini -->
+            <div class="card p-6 flex items-center gap-6">
+                <div class="bg-teal-500/10 p-4 rounded-lg">
+                    <x-icon name="lucide.globe" class="w-8 h-8 text-teal-400" />
+                </div>
+                <div>
+                    <p class="text-slate-400 font-medium">Website (Hari Ini)</p>
+                    <p class="text-3xl font-bold text-white text-center">
+                        {{ number_format($siteVisitorsToday) }}
+                    </p>
+                </div>
+            </div>
+
             <div class="card p-6 flex items-center gap-6">
                 <div class="bg-indigo-500/10 p-4 rounded-lg">
                     <x-icon name="lucide.eye" class="w-8 h-8 text-indigo-400" />

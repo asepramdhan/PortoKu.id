@@ -11,7 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // TAMBAHKAN INI UNTUK MENDAFTARKAN 'SATPAM' PENGUNJUNG
+        $middleware->web(append: [
+            \App\Http\Middleware\LogSiteVisitor::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
