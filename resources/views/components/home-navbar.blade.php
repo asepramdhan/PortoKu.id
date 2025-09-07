@@ -33,6 +33,18 @@
                 Cara Kerja
             </a>
             <a
+                href="/web-apps"
+                wire:navigate
+                class="{{ request()->is("web-apps*") ? "text-sky-400 font-semibold" : "text-slate-300 hover:text-sky-400 transition-colors" }}"
+            >
+                Aplikasi Web
+                <span
+                    class="text-xs font-bold text-amber-900 bg-amber-400 px-1.5 py-0.5 rounded-full"
+                >
+                    Pro
+                </span>
+            </a>
+            <a
                 href="/blog"
                 wire:navigate
                 class="{{ request()->is("blog*") ? "text-sky-400 font-semibold" : "text-slate-300 hover:text-sky-400 transition-colors" }}"
@@ -110,6 +122,20 @@
                 class="block {{ request()->is("workflow") ? "text-sky-400 rounded-md px-3 py-2 font-semibold" : "text-slate-300 hover:text-sky-400 rounded-md px-3 py-2 font-medium" }}"
             >
                 Cara Kerja
+            </a>
+
+            <a
+                href="/web-apps"
+                wire:navigate
+                @click="isMenuOpen = false"
+                class="block {{ request()->is("web-apps*") ? "text-sky-400 rounded-md px-3 py-2 font-semibold" : "text-slate-300 hover:text-sky-400 rounded-md px-3 py-2 font-medium" }}"
+            >
+                Aplikasi Web
+                <span
+                    class="text-xs font-bold text-amber-900 bg-amber-400 px-1.5 py-0.5 rounded-full"
+                >
+                    Pro
+                </span>
             </a>
             <a
                 href="/blog"

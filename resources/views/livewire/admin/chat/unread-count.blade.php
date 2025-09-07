@@ -54,7 +54,7 @@ new class extends Component {
         <source src="/sounds/notify.mp3" type="audio/mpeg" />
     </audio>
 
-    Kelola Chat
+    Chat
     @if ($this->unreadCount > 0)
         <span
             class="px-2 py-1 ms-2 text-xs font-bold text-white bg-slate-700 rounded"

@@ -2,6 +2,11 @@
 <html
     lang="{{ str_replace("_", "-", app()->getLocale()) }}"
     class="scroll-smooth"
+    style="
+        scroll-behavior: smooth;
+        scrollbar-width: thin;
+        scrollbar-color: #475569 #1e293b;
+    "
 >
     <head>
         <link

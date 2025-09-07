@@ -155,214 +155,210 @@ new class extends Component {
 
 <div>
     <!-- Page Content -->
-    <main class="flex-1 p-6 md:p-8">
-        <div
-            class="flex flex-col md:flex-row justify-between md:items-center mb-6"
-        >
-            <h1 class="text-3xl font-bold text-white">Kelola Pengguna</h1>
-        </div>
+    <div class="flex flex-col md:flex-row justify-between md:items-center mb-6">
+        <h1 class="text-3xl font-bold text-white">Kelola Pengguna</h1>
+    </div>
 
-        <!-- Search Input -->
-        <div class="mb-6">
-            <input
-                type="search"
-                wire:model.live.debounce.300ms="search"
-                placeholder="Cari pengguna berdasarkan nama atau email..."
-                class="form-input w-full md:w-1/3"
-            />
-        </div>
+    <!-- Search Input -->
+    <div class="mb-6">
+        <input
+            type="search"
+            wire:model.live.debounce.300ms="search"
+            placeholder="Cari pengguna berdasarkan nama atau email..."
+            class="form-input w-full md:w-1/3"
+        />
+    </div>
 
-        <x-notification />
+    <x-notification />
 
-        <!-- Users Table -->
-        <div class="card">
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Foto</th>
-                            <th>Nama</th>
-                            <th>Email</th>
-                            <th>Peran</th>
-                            <th>Tanggal Bergabung</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($users as $user)
-                            <tr wire:key="{{ $user->id }}">
-                                <td class="truncate">
-                                    @if ($user->id === Auth::id())
-                                        <label
-                                            for="photo-upload-{{ $user->id }}"
-                                            class="cursor-pointer relative"
-                                            wire:click="$set('userIdForPhotoUpload', {{ $user->id }})"
-                                        >
-                                            @if ($userIdForPhotoUpload === $user->id)
-                                                <div
-                                                    wire:loading
-                                                    wire:target="photoUpload"
-                                                    class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                                                >
-                                                    <x-loading
-                                                        class="loading-dots text-sky-400"
-                                                    />
-                                                </div>
-                                            @endif
-
-                                            @if ($user->profile_photo_path)
-                                                <div
-                                                    class="group hover:opacity-75 relative"
-                                                >
-                                                    <img
-                                                        src="{{ asset("storage/" . $user->profile_photo_path) }}"
-                                                        alt="Foto Profil"
-                                                        class="w-12 h-auto object-cover rounded-full"
-                                                    />
-                                                    <div
-                                                        wire:loading.remove
-                                                        wire:target="photoUpload"
-                                                        class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden group-hover:block"
-                                                    >
-                                                        <x-icon
-                                                            name="lucide.upload-cloud"
-                                                            class="text-sky-400"
-                                                        />
-                                                    </div>
-                                                </div>
-                                            @else
-                                                <div
-                                                    class="group hover:opacity-75 relative"
-                                                >
-                                                    <img
-                                                        src="https://placehold.co/48x48/0EA5E9/FFFFFF?text={{ substr($user->name, 0, 1) }}"
-                                                        alt="Avatar"
-                                                        class="w-12 h-auto rounded-full"
-                                                    />
-                                                    <div
-                                                        class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden group-hover:block"
-                                                    >
-                                                        <x-icon
-                                                            name="lucide.upload-cloud"
-                                                            class="text-orange-400"
-                                                        />
-                                                    </div>
-                                                </div>
-                                            @endif
-                                        </label>
-                                        <input
-                                            type="file"
-                                            id="photo-upload-{{ $user->id }}"
-                                            wire:model="photoUpload"
-                                            class="hidden"
-                                        />
-                                    @else
-                                        <img
-                                            src="{{ $user->profile_photo_path ? asset("storage/" . $user->profile_photo_path) : "https://placehold.co/48x48/0EA5E9/FFFFFF?text=" . substr($user->name, 0, 1) }}"
-                                            alt="Avatar"
-                                            class="w-12 h-12 rounded-full"
-                                        />
-                                    @endif
-                                </td>
-                                <td class="truncate">
-                                    @if ($editingId === $user->id && $editingField === "name")
-                                        <input
-                                            type="text"
-                                            wire:model="editingValue"
-                                            wire:keydown.enter="saveField"
-                                            wire:keydown.escape="cancelEdit"
-                                            class="form-input text-sm p-1"
-                                            x-init="$nextTick(() => $el.focus())"
-                                            x-ref="editInput{{ $user->id }}_name"
-                                            @click.away="$wire.cancelEdit()"
-                                            x-trap.noscroll
-                                        />
-                                    @else
-                                        <p
-                                            @if($user->id === Auth::id()) wire:click="editField({{ $user->id }}, 'name')" class="font-semibold text-white cursor-pointer hover:bg-slate-700 p-1 rounded" @else class="font-semibold text-white p-1" @endif
-                                        >
-                                            {{ $user->name }}
-                                        </p>
-                                    @endif
-                                </td>
-                                <td class="text-slate-300">
-                                    {{ $user->email }}
-                                </td>
-                                <td class="truncate">
-                                    @if ($editingId === $user->id && $editingField === "is_admin")
-                                        <select
-                                            wire:model="editingValue"
-                                            wire:change="saveField"
-                                            class="form-input bg-slate-800 text-white appearance-none text-sm p-1"
-                                            x-init="$nextTick(() => $el.focus())"
-                                            x-ref="editInput{{ $user->id }}_is_admin"
-                                            @click.away="$wire.cancelEdit()"
-                                            x-trap.noscroll
-                                        >
-                                            <option value="1">Admin</option>
-                                            <option value="0">Pengguna</option>
-                                        </select>
-                                    @else
-                                        <div
-                                            wire:click="editField({{ $user->id }}, 'is_admin')"
-                                            class="{{ $user->id !== Auth::id() ? "cursor-pointer" : "cursor-not-allowed" }}"
-                                        >
-                                            @if ($user->is_admin)
-                                                <span
-                                                    class="status-badge bg-sky-500/20 text-sky-400"
-                                                >
-                                                    Admin
-                                                </span>
-                                            @else
-                                                <span
-                                                    class="status-badge bg-slate-500/20 text-slate-400"
-                                                >
-                                                    Pengguna
-                                                </span>
-                                            @endif
-                                        </div>
-                                    @endif
-                                </td>
-                                <td class="text-slate-300 truncate">
-                                    {{ $user->created_at->format("d M Y") }}
-                                </td>
-                                <td>
-                                    <div class="flex space-x-2">
-                                        {{-- Mencegah tombol hapus muncul untuk admin yang sedang login --}}
-                                        @if ($user->id !== Auth::id())
-                                            <button
-                                                wire:click="prepareToDelete({{ $user->id }})"
-                                                class="text-slate-400 hover:text-red-500 cursor-pointer"
+    <!-- Users Table -->
+    <div class="card">
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Foto</th>
+                        <th>Nama</th>
+                        <th>Email</th>
+                        <th>Peran</th>
+                        <th>Tanggal Bergabung</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($users as $user)
+                        <tr wire:key="{{ $user->id }}">
+                            <td class="truncate">
+                                @if ($user->id === Auth::id())
+                                    <label
+                                        for="photo-upload-{{ $user->id }}"
+                                        class="cursor-pointer relative"
+                                        wire:click="$set('userIdForPhotoUpload', {{ $user->id }})"
+                                    >
+                                        @if ($userIdForPhotoUpload === $user->id)
+                                            <div
+                                                wire:loading
+                                                wire:target="photoUpload"
+                                                class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
                                             >
-                                                <x-icon
-                                                    name="lucide.trash-2"
-                                                    class="w-5 h-5"
+                                                <x-loading
+                                                    class="loading-dots text-sky-400"
                                                 />
-                                            </button>
+                                            </div>
+                                        @endif
+
+                                        @if ($user->profile_photo_path)
+                                            <div
+                                                class="group hover:opacity-75 relative"
+                                            >
+                                                <img
+                                                    src="{{ asset("storage/" . $user->profile_photo_path) }}"
+                                                    alt="Foto Profil"
+                                                    class="w-12 h-auto object-cover rounded-full"
+                                                />
+                                                <div
+                                                    wire:loading.remove
+                                                    wire:target="photoUpload"
+                                                    class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden group-hover:block"
+                                                >
+                                                    <x-icon
+                                                        name="lucide.upload-cloud"
+                                                        class="text-sky-400"
+                                                    />
+                                                </div>
+                                            </div>
+                                        @else
+                                            <div
+                                                class="group hover:opacity-75 relative"
+                                            >
+                                                <img
+                                                    src="https://placehold.co/48x48/0EA5E9/FFFFFF?text={{ substr($user->name, 0, 1) }}"
+                                                    alt="Avatar"
+                                                    class="w-12 h-auto rounded-full"
+                                                />
+                                                <div
+                                                    class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden group-hover:block"
+                                                >
+                                                    <x-icon
+                                                        name="lucide.upload-cloud"
+                                                        class="text-orange-400"
+                                                    />
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </label>
+                                    <input
+                                        type="file"
+                                        id="photo-upload-{{ $user->id }}"
+                                        wire:model="photoUpload"
+                                        class="hidden"
+                                    />
+                                @else
+                                    <img
+                                        src="{{ $user->profile_photo_path ? asset("storage/" . $user->profile_photo_path) : "https://placehold.co/48x48/0EA5E9/FFFFFF?text=" . substr($user->name, 0, 1) }}"
+                                        alt="Avatar"
+                                        class="w-12 h-12 rounded-full"
+                                    />
+                                @endif
+                            </td>
+                            <td class="truncate">
+                                @if ($editingId === $user->id && $editingField === "name")
+                                    <input
+                                        type="text"
+                                        wire:model="editingValue"
+                                        wire:keydown.enter="saveField"
+                                        wire:keydown.escape="cancelEdit"
+                                        class="form-input text-sm p-1"
+                                        x-init="$nextTick(() => $el.focus())"
+                                        x-ref="editInput{{ $user->id }}_name"
+                                        @click.away="$wire.cancelEdit()"
+                                        x-trap.noscroll
+                                    />
+                                @else
+                                    <p
+                                        @if($user->id === Auth::id()) wire:click="editField({{ $user->id }}, 'name')" class="font-semibold text-white cursor-pointer hover:bg-slate-700 p-1 rounded" @else class="font-semibold text-white p-1" @endif
+                                    >
+                                        {{ $user->name }}
+                                    </p>
+                                @endif
+                            </td>
+                            <td class="text-slate-300">
+                                {{ $user->email }}
+                            </td>
+                            <td class="truncate">
+                                @if ($editingId === $user->id && $editingField === "is_admin")
+                                    <select
+                                        wire:model="editingValue"
+                                        wire:change="saveField"
+                                        class="form-input bg-slate-800 text-white appearance-none text-sm p-1"
+                                        x-init="$nextTick(() => $el.focus())"
+                                        x-ref="editInput{{ $user->id }}_is_admin"
+                                        @click.away="$wire.cancelEdit()"
+                                        x-trap.noscroll
+                                    >
+                                        <option value="1">Admin</option>
+                                        <option value="0">Pengguna</option>
+                                    </select>
+                                @else
+                                    <div
+                                        wire:click="editField({{ $user->id }}, 'is_admin')"
+                                        class="{{ $user->id !== Auth::id() ? "cursor-pointer" : "cursor-not-allowed" }}"
+                                    >
+                                        @if ($user->is_admin)
+                                            <span
+                                                class="status-badge bg-sky-500/20 text-sky-400"
+                                            >
+                                                Admin
+                                            </span>
+                                        @else
+                                            <span
+                                                class="status-badge bg-slate-500/20 text-slate-400"
+                                            >
+                                                Pengguna
+                                            </span>
                                         @endif
                                     </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td
-                                    colspan="5"
-                                    class="text-center py-8 text-slate-400"
-                                >
-                                    Tidak ada pengguna yang cocok dengan
-                                    pencarian Anda.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-            <!-- Pagination -->
-            <div class="p-4 border-t border-slate-800">
-                {{ $users->links("livewire.tailwind-custom") }}
-            </div>
+                                @endif
+                            </td>
+                            <td class="text-slate-300 truncate">
+                                {{ $user->created_at->format("d M Y") }}
+                            </td>
+                            <td>
+                                <div class="flex space-x-2">
+                                    {{-- Mencegah tombol hapus muncul untuk admin yang sedang login --}}
+                                    @if ($user->id !== Auth::id())
+                                        <button
+                                            wire:click="prepareToDelete({{ $user->id }})"
+                                            class="text-slate-400 hover:text-red-500 cursor-pointer"
+                                        >
+                                            <x-icon
+                                                name="lucide.trash-2"
+                                                class="w-5 h-5"
+                                            />
+                                        </button>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td
+                                colspan="5"
+                                class="text-center py-8 text-slate-400"
+                            >
+                                Tidak ada pengguna yang cocok dengan pencarian
+                                Anda.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
-    </main>
+        <!-- Pagination -->
+        <div class="p-4 border-t border-slate-800">
+            {{ $users->links("livewire.tailwind-custom") }}
+        </div>
+    </div>
 
     <!-- Delete Modal -->
     <div

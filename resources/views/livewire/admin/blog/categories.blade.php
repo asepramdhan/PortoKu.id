@@ -92,136 +92,134 @@ new class extends Component {
 
 <div>
     <!-- Page Content -->
-    <main class="flex-1 p-6 md:p-8">
-        <div class="flex items-center justify-between mb-6">
-            <h1 class="text-3xl font-bold text-white">Kelola Kategori</h1>
-        </div>
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-3xl font-bold text-white">Kelola Kategori</h1>
+    </div>
 
-        <x-notification />
+    <x-notification />
 
-        <!-- Add Category Form -->
-        <div class="card p-6 mb-8">
-            <form
-                wire:submit.prevent="addCategory"
-                class="flex flex-col md:flex-row gap-4 items-start"
+    <!-- Add Category Form -->
+    <div class="card p-6 mb-8">
+        <form
+            wire:submit.prevent="addCategory"
+            class="flex flex-col md:flex-row gap-4 items-start"
+        >
+            <div class="flex-grow w-full">
+                <label for="name" class="sr-only">Nama Kategori</label>
+                <input
+                    type="text"
+                    id="name"
+                    wire:model="name"
+                    class="form-input"
+                    placeholder="Nama kategori baru..."
+                />
+                @error("name")
+                    <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
+                @enderror
+            </div>
+            <button
+                type="submit"
+                wire:loading.attr="disabled"
+                wire:target="addCategory"
+                class="bg-sky-500 hover:bg-sky-600 text-white font-semibold px-5 py-2.5 rounded-lg w-full md:w-auto cursor-pointer transition-colors"
             >
-                <div class="flex-grow w-full">
-                    <label for="name" class="sr-only">Nama Kategori</label>
-                    <input
-                        type="text"
-                        id="name"
-                        wire:model="name"
-                        class="form-input"
-                        placeholder="Nama kategori baru..."
+                <div class="flex items-center justify-center">
+                    <x-loading
+                        wire:loading
+                        wire:target="addCategory"
+                        class="loading-dots mr-2"
                     />
-                    @error("name")
-                        <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
-                    @enderror
+                    <x-icon
+                        name="lucide.plus"
+                        wire:loading.remove
+                        wire:target="addCategory"
+                        class="mr-2"
+                    />
+                    Tambah
                 </div>
-                <button
-                    type="submit"
-                    wire:loading.attr="disabled"
-                    wire:target="addCategory"
-                    class="bg-sky-500 hover:bg-sky-600 text-white font-semibold px-5 py-2.5 rounded-lg w-full md:w-auto cursor-pointer transition-colors"
-                >
-                    <div class="flex items-center justify-center">
-                        <x-loading
-                            wire:loading
-                            wire:target="addCategory"
-                            class="loading-dots mr-2"
-                        />
-                        <x-icon
-                            name="lucide.plus"
-                            wire:loading.remove
-                            wire:target="addCategory"
-                            class="mr-2"
-                        />
-                        Tambah
-                    </div>
-                </button>
-            </form>
-        </div>
+            </button>
+        </form>
+    </div>
 
-        <!-- Categories Table -->
-        <div class="card">
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Nama</th>
-                            <th>Slug</th>
-                            <th>Jumlah Postingan</th>
-                            <th>Dilihat</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($categories as $category)
-                            <tr wire:key="{{ $category->id }}">
-                                <td class="truncate">
-                                    @if ($editing?->id === $category->id)
-                                        <input
-                                            type="text"
-                                            wire:model="editingName"
-                                            wire:keydown.enter="update"
-                                            wire:keydown.escape="cancelEdit"
-                                            class="form-input text-sm p-1"
-                                            x-init="$nextTick(() => $el.focus())"
-                                            x-ref="editInput{{ $category->id }}_name"
-                                            @click.away="$wire.cancelEdit()"
-                                            x-trap.noscroll
+    <!-- Categories Table -->
+    <div class="card">
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nama</th>
+                        <th>Slug</th>
+                        <th>Jumlah Postingan</th>
+                        <th>Dilihat</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($categories as $category)
+                        <tr wire:key="{{ $category->id }}">
+                            <td class="truncate">
+                                @if ($editing?->id === $category->id)
+                                    <input
+                                        type="text"
+                                        wire:model="editingName"
+                                        wire:keydown.enter="update"
+                                        wire:keydown.escape="cancelEdit"
+                                        class="form-input text-sm p-1"
+                                        x-init="$nextTick(() => $el.focus())"
+                                        x-ref="editInput{{ $category->id }}_name"
+                                        @click.away="$wire.cancelEdit()"
+                                        x-trap.noscroll
+                                    />
+                                @else
+                                    <p
+                                        wire:click="edit({{ $category->id }})"
+                                        class="font-semibold text-white cursor-pointer hover:bg-slate-700 p-1 rounded"
+                                    >
+                                        {{ Str::title($category->name) }}
+                                    </p>
+                                @endif
+                            </td>
+                            <td class="text-slate-400 truncate">
+                                {{ $category->slug }}
+                            </td>
+                            <td class="text-slate-400">
+                                {{ $category->posts_count }}
+                            </td>
+                            <td class="text-slate-400 font-mono">
+                                {{ number_format($category->views_count, 0, ",", ".") }}
+                            </td>
+                            <td>
+                                <div>
+                                    <button
+                                        wire:click="prepareToDelete({{ $category->id }})"
+                                        class="text-slate-400 hover:text-red-500 cursor-pointer"
+                                    >
+                                        <x-icon
+                                            name="lucide.trash-2"
+                                            class="w-5 h-5"
                                         />
-                                    @else
-                                        <p
-                                            wire:click="edit({{ $category->id }})"
-                                            class="font-semibold text-white cursor-pointer hover:bg-slate-700 p-1 rounded"
-                                        >
-                                            {{ Str::title($category->name) }}
-                                        </p>
-                                    @endif
-                                </td>
-                                <td class="text-slate-400 truncate">
-                                    {{ $category->slug }}
-                                </td>
-                                <td class="text-slate-400">
-                                    {{ $category->posts_count }}
-                                </td>
-                                <td class="text-slate-400 font-mono">
-                                    {{ number_format($category->views_count, 0, ",", ".") }}
-                                </td>
-                                <td>
-                                    <div>
-                                        <button
-                                            wire:click="prepareToDelete({{ $category->id }})"
-                                            class="text-slate-400 hover:text-red-500 cursor-pointer"
-                                        >
-                                            <x-icon
-                                                name="lucide.trash-2"
-                                                class="w-5 h-5"
-                                            />
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td
-                                    colspan="4"
-                                    class="text-center py-8 text-slate-400"
-                                >
-                                    Belum ada kategori.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-            <!-- Pagination -->
-            <div class="p-4 border-t border-slate-800">
-                {{ $categories->links("livewire.tailwind-custom") }}
-            </div>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td
+                                colspan="4"
+                                class="text-center py-8 text-slate-400"
+                            >
+                                Belum ada kategori.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
-    </main>
+        <!-- Pagination -->
+        <div class="p-4 border-t border-slate-800">
+            {{ $categories->links("livewire.tailwind-custom") }}
+        </div>
+    </div>
 
     <!-- Delete Modal -->
     <div

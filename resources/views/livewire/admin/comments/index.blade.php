@@ -136,172 +136,170 @@ new class extends Component {
 }; ?>
 
 <div>
-    <main class="flex-1 p-6 md:p-8">
-        <div class="flex items-center justify-between mb-6">
-            <h1 class="text-3xl font-bold text-white">Kelola Komentar</h1>
-        </div>
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-3xl font-bold text-white">Kelola Komentar</h1>
+    </div>
 
-        <x-notification />
+    <x-notification />
 
-        <div class="card p-4 mb-8">
-            <input
-                type="search"
-                wire:model.live.debounce.300ms="search"
-                placeholder="Cari berdasarkan isi komentar, nama user, atau judul postingan..."
-                class="form-input"
-            />
-        </div>
+    <div class="card p-4 mb-8">
+        <input
+            type="search"
+            wire:model.live.debounce.300ms="search"
+            placeholder="Cari berdasarkan isi komentar, nama user, atau judul postingan..."
+            class="form-input"
+        />
+    </div>
 
-        <div class="card">
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Komentar</th>
-                            <th>Pengguna</th>
-                            <th>Pada Postingan</th>
-                            <th>Tanggal</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($comments as $comment)
-                            <tr
-                                wire:key="comment-{{ $comment->id }}"
-                                class="{{ $comment->parent_id ? "bg-slate-800/50" : "" }}"
-                            >
-                                <td class="truncate">
-                                    @if($comment->parent_id)
-                                        <div class="pl-4 border-l-2 border-sky-500">
-                                            <p class="text-xs text-slate-400 italic mb-1">Membalas: "{{ Str::limit($comment->parent->content, 30) }}"</p>
-                                    @endif
-                                    @if ($editing?->is($comment))
-                                        <div class="space-y-2">
-                                            <textarea
-                                                wire:model="editingContent"
-                                                rows="3"
-                                                class="form-input text-sm"
-                                            ></textarea>
-                                            <div
-                                                class="flex items-center gap-2"
+    <div class="card">
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Komentar</th>
+                        <th>Pengguna</th>
+                        <th>Pada Postingan</th>
+                        <th>Tanggal</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($comments as $comment)
+                        <tr
+                            wire:key="comment-{{ $comment->id }}"
+                            class="{{ $comment->parent_id ? "bg-slate-800/50" : "" }}"
+                        >
+                            <td class="truncate">
+                                @if($comment->parent_id)
+                                    <div class="pl-4 border-l-2 border-sky-500">
+                                        <p class="text-xs text-slate-400 italic mb-1">Membalas: "{{ Str::limit($comment->parent->content, 30) }}"</p>
+                                @endif
+                                @if ($editing?->is($comment))
+                                    <div class="space-y-2">
+                                        <textarea
+                                            wire:model="editingContent"
+                                            rows="3"
+                                            class="form-input text-sm"
+                                        ></textarea>
+                                        <div
+                                            class="flex items-center gap-2"
+                                        >
+                                            <button
+                                                wire:click="update"
+                                                class="text-xs bg-sky-500 hover:bg-sky-600 text-white font-semibold px-3 py-1 rounded-md cursor-pointer"
                                             >
-                                                <button
-                                                    wire:click="update"
-                                                    class="text-xs bg-sky-500 hover:bg-sky-600 text-white font-semibold px-3 py-1 rounded-md cursor-pointer"
-                                                >
-                                                    Simpan
-                                                </button>
-                                                <button
-                                                    wire:click="cancelEdit"
-                                                    class="text-xs text-slate-400 hover:underline cursor-pointer"
-                                                >
-                                                    Batal
-                                                </button>
-                                            </div>
+                                                Simpan
+                                            </button>
+                                            <button
+                                                wire:click="cancelEdit"
+                                                class="text-xs text-slate-400 hover:underline cursor-pointer"
+                                            >
+                                                Batal
+                                            </button>
                                         </div>
-                                    @else
-                                        <p class="text-slate-300">
-                                            {{ Str::limit($comment->content, 35) }}
-                                        </p>
-
-                                        @if(!$comment->parent_id && $comment->replies->isNotEmpty())
-                                            <span class="text-xs mt-1 inline-block bg-green-500/20 text-green-400 px-2 py-0.5 rounded-md">
-                                                <x-icon name="lucide.check-circle" class="inline-block w-3 h-3 mr-1" />
-                                                Sudah Dibalas
-                                            </span>
-                                        @endif
-                                    @endif
-                                    @if($comment->parent_id)
-                                        </div>
-                                    @endif
-                                </td>
-                               <td class="text-slate-300 truncate">
-                                    <a href="#" class="hover:text-sky-400 inline-flex items-center">
-                                        <span>{{ $comment->user->name }}</span>
-
-                                        {{-- Tambahkan badge jika user adalah admin --}}
-                                        @if ($comment->user->is_admin)
-                                            <span class="ml-2 text-xs font-semibold px-2 py-0.5 bg-sky-500/20 text-sky-400 rounded-md">
-                                                Admin
-                                            </span>
-                                        @endif
-                                    </a>
-                                </td>
-                                <td class="text-slate-400 truncate">
-                                    <a
-                                        href="{{ url("blog/show", $comment->post->slug) }}"
-                                        target="_blank"
-                                        class="hover:text-sky-400"
-                                    >
-                                        {{ Str::limit($comment->post->title, 30) }}
-                                    </a>
-                                </td>
-                                <td class="text-slate-400 whitespace-nowrap">
-                                    {{ $comment->created_at->format("d M Y") }}
-                                </td>
-                                <td>
-                                   <div class="flex items-center space-x-2">
-                                        @if(!$comment->parent_id)
-                                        <button wire:click="startReply({{ $comment->id }})" class="text-slate-400 hover:text-green-400 cursor-pointer" title="Balas">
-                                            <x-icon name="lucide.reply" class="w-5 h-5" />
-                                        </button>
-                                        @endif
-                                        <button
-                                            wire:click="edit({{ $comment->id }})"
-                                            class="text-slate-400 hover:text-sky-400 cursor-pointer"
-                                            title="Edit"
-                                        >
-                                            <x-icon
-                                                name="lucide.square-pen"
-                                                class="w-5 h-5"
-                                            />
-                                        </button>
-                                        <button
-                                            wire:click="prepareToDelete({{ $comment->id }})"
-                                            class="text-slate-400 hover:text-red-500 cursor-pointer"
-                                            title="Hapus"
-                                        >
-                                            <x-icon
-                                                name="lucide.trash-2"
-                                                class="w-5 h-5"
-                                            />
-                                        </button>
                                     </div>
-                                </td>
-                            </tr>
-                            @if($replying?->is($comment))
-                                <tr>
-                                    <td colspan="5" class="p-4 bg-slate-800">
-                                        <form wire:submit.prevent="addReply">
-                                            <h4 class="text-white font-semibold text-sm mb-2">Balas Komentar:</h4>
-                                            <textarea wire:model="replyContent" rows="3" class="form-input text-sm" placeholder="Tulis balasan Anda sebagai admin..."></textarea>
-                                            @error('replyContent') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
-                                            <div class="flex items-center gap-2 mt-2">
-                                                <button type="submit" class="text-xs bg-sky-500 hover:bg-sky-600 text-white font-semibold px-3 py-1 rounded-md cursor-pointer">Kirim Balasan</button>
-                                                <button type="button" wire:click="cancelReply" class="text-xs text-slate-400 hover:underline cursor-pointer">Batal</button>
-                                            </div>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endif
-                        @empty
-                            <tr>
-                                <td
-                                    colspan="5"
-                                    class="text-center py-8 text-slate-400"
+                                @else
+                                    <p class="text-slate-300">
+                                        {{ Str::limit($comment->content, 35) }}
+                                    </p>
+
+                                    @if(!$comment->parent_id && $comment->replies->isNotEmpty())
+                                        <span class="text-xs mt-1 inline-block bg-green-500/20 text-green-400 px-2 py-0.5 rounded-md">
+                                            <x-icon name="lucide.check-circle" class="inline-block w-3 h-3 mr-1" />
+                                            Sudah Dibalas
+                                        </span>
+                                    @endif
+                                @endif
+                                @if($comment->parent_id)
+                                    </div>
+                                @endif
+                            </td>
+                            <td class="text-slate-300 truncate">
+                                <a href="#" class="hover:text-sky-400 inline-flex items-center">
+                                    <span>{{ $comment->user->name }}</span>
+
+                                    {{-- Tambahkan badge jika user adalah admin --}}
+                                    @if ($comment->user->is_admin)
+                                        <span class="ml-2 text-xs font-semibold px-2 py-0.5 bg-sky-500/20 text-sky-400 rounded-md">
+                                            Admin
+                                        </span>
+                                    @endif
+                                </a>
+                            </td>
+                            <td class="text-slate-400 truncate">
+                                <a
+                                    href="{{ url("blog/show", $comment->post->slug) }}"
+                                    target="_blank"
+                                    class="hover:text-sky-400"
                                 >
-                                    Tidak ada komentar ditemukan.
+                                    {{ Str::limit($comment->post->title, 30) }}
+                                </a>
+                            </td>
+                            <td class="text-slate-400 whitespace-nowrap">
+                                {{ $comment->created_at->format("d M Y") }}
+                            </td>
+                            <td>
+                                <div class="flex items-center space-x-2">
+                                    @if(!$comment->parent_id)
+                                    <button wire:click="startReply({{ $comment->id }})" class="text-slate-400 hover:text-green-400 cursor-pointer" title="Balas">
+                                        <x-icon name="lucide.reply" class="w-5 h-5" />
+                                    </button>
+                                    @endif
+                                    <button
+                                        wire:click="edit({{ $comment->id }})"
+                                        class="text-slate-400 hover:text-sky-400 cursor-pointer"
+                                        title="Edit"
+                                    >
+                                        <x-icon
+                                            name="lucide.square-pen"
+                                            class="w-5 h-5"
+                                        />
+                                    </button>
+                                    <button
+                                        wire:click="prepareToDelete({{ $comment->id }})"
+                                        class="text-slate-400 hover:text-red-500 cursor-pointer"
+                                        title="Hapus"
+                                    >
+                                        <x-icon
+                                            name="lucide.trash-2"
+                                            class="w-5 h-5"
+                                        />
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        @if($replying?->is($comment))
+                            <tr>
+                                <td colspan="5" class="p-4 bg-slate-800">
+                                    <form wire:submit.prevent="addReply">
+                                        <h4 class="text-white font-semibold text-sm mb-2">Balas Komentar:</h4>
+                                        <textarea wire:model="replyContent" rows="3" class="form-input text-sm" placeholder="Tulis balasan Anda sebagai admin..."></textarea>
+                                        @error('replyContent') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
+                                        <div class="flex items-center gap-2 mt-2">
+                                            <button type="submit" class="text-xs bg-sky-500 hover:bg-sky-600 text-white font-semibold px-3 py-1 rounded-md cursor-pointer">Kirim Balasan</button>
+                                            <button type="button" wire:click="cancelReply" class="text-xs text-slate-400 hover:underline cursor-pointer">Batal</button>
+                                        </div>
+                                    </form>
                                 </td>
                             </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-            <div class="p-4 border-t border-slate-800">
-                {{ $comments->links("livewire.tailwind-custom") }}
-            </div>
+                        @endif
+                    @empty
+                        <tr>
+                            <td
+                                colspan="5"
+                                class="text-center py-8 text-slate-400"
+                            >
+                                Tidak ada komentar ditemukan.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
-    </main>
+        <div class="p-4 border-t border-slate-800">
+            {{ $comments->links("livewire.tailwind-custom") }}
+        </div>
+    </div>
 
     <div
         x-data="{ show: @entangle("showDeleteModal") }"
