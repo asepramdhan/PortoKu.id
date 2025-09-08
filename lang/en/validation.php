@@ -201,6 +201,10 @@ return [
         'quantity' => 'Jumlah Aset',
         'price_per_unit' => 'Harga per Unit',
         'income' => 'Pemasukan',
+
+        // Atribut untuk Kontak
+        'subject' => 'Subjek',
+        'message' => 'Pesan',
     ],
 
 ];
