@@ -59,7 +59,7 @@ new class extends Component {
                                         <span
                                             class="absolute top-2 right-2 text-xs text-slate-400 bg-slate-800 px-2 py-1 rounded-full opacity-70"
                                         >
-                                            Masih tahap pengembangan
+                                            Masih dalam pengembangan
                                         </span>
                                     @endif
                                 </div>
