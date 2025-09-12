@@ -16,10 +16,12 @@ new class extends Component {
     public string $title = "",
         $slug = "",
         $description = "",
+        $demo_link = "",
         $shopee_link = "",
         $tags = "";
     public $image_path;
     public bool $is_published = false;
+    public bool $is_demo = false;
 
     public function create(): void
     {
@@ -36,13 +38,15 @@ new class extends Component {
                 "required|string|unique:web_apps,slug," .
                 $this->editingWebApp?->id,
             "description" => "required|string",
-            "shopee_link" => "required|url",
+            "demo_link" => "required|url",
+            "shopee_link" => "nullable|url",
             "tags" => "nullable|string",
             "image_path" =>
                 $this->image_path && ! is_string($this->image_path)
                     ? "required|image|max:1024"
                     : "nullable",
             "is_published" => "required|boolean",
+            "is_demo" => "required|boolean",
         ];
 
         $validated = $this->validate($rules);
@@ -84,10 +88,12 @@ new class extends Component {
         $this->editingWebApp = $webApp;
         $this->title = $webApp->title;
         $this->description = $webApp->description;
+        $this->demo_link = $webApp->demo_link;
         $this->shopee_link = $webApp->shopee_link;
         $this->tags = $webApp->tags ? implode(", ", $webApp->tags) : "";
         $this->image_path = $webApp->image_path;
         $this->is_published = $webApp->is_published;
+        $this->is_demo = $webApp->is_demo;
         $this->showWebAppModal = true;
     }
 
@@ -100,6 +106,11 @@ new class extends Component {
         }
         $webApp->delete();
         session()->flash("message", "Aplikasi web berhasil dihapus.");
+    }
+
+    public function toggleDemo(WebApp $webApp): void
+    {
+        $webApp->update(["is_demo" => ! $webApp->is_demo]);
     }
 
     public function togglePublished(WebApp $webApp): void
@@ -117,7 +128,7 @@ new class extends Component {
 
 <div>
     <!-- Page Content -->
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col md:flex-row justify-between md:items-center mb-6">
         <h1 class="text-3xl font-bold text-white">Kelola Aplikasi Web</h1>
         <button
             wire:click="create"
@@ -138,8 +149,9 @@ new class extends Component {
                     <tr>
                         <th>Gambar</th>
                         <th>Judul</th>
+                        <th>Link Demo</th>
                         <th>Link Shopee</th>
-                        <th>Status</th>
+                        <th>Status | Demo</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -153,19 +165,47 @@ new class extends Component {
                                     class="w-20 h-12 object-cover rounded-md"
                                 />
                             </td>
-                            <td class="font-semibold text-white">
-                                {{ Str::limit($app->title, 30) }}
+                            <td class="font-semibold text-white truncate">
+                                {{ Str::limit($app->title, 20) }}
                             </td>
                             <td class="truncate">
                                 <a
-                                    href="{{ $app->shopee_link }}"
+                                    href="{{ $app->demo_link }}"
                                     target="_blank"
                                     class="text-sky-400 hover:underline"
                                 >
-                                    Lihat di Shopee
+                                    Lihat Demo
                                 </a>
                             </td>
+                            <td class="truncate">
+                                @if ($app->shopee_link)
+                                    <a
+                                        href="{{ $app->shopee_link }}"
+                                        target="_blank"
+                                        class="text-sky-400 hover:underline"
+                                    >
+                                        Lihat di Shopee
+                                    </a>
+                                @else
+                                    <div class="text-center">-</div>
+                                @endif
+                            </td>
                             <td>
+                                <button
+                                    wire:click="toggleDemo({{ $app->id }})"
+                                    class="flex items-center gap-2 mb-2 text-sm cursor-pointer {{ $app->is_demo ? "text-blue-400" : "text-slate-400" }}"
+                                >
+                                    <div
+                                        class="relative w-10 h-5 rounded-full {{ $app->is_demo ? "bg-blue-500/30" : "bg-slate-700" }}"
+                                    >
+                                        <div
+                                            class="absolute w-3.5 h-3.5 bg-white rounded-full top-0.5 transition-transform {{ $app->is_demo ? "translate-x-5" : "translate-x-1" }}"
+                                        ></div>
+                                    </div>
+                                    <span>
+                                        {{ $app->is_demo ? "Demo" : "Produksi" }}
+                                    </span>
+                                </button>
                                 <button
                                     wire:click="togglePublished({{ $app->id }})"
                                     class="flex items-center gap-2 text-sm cursor-pointer {{ $app->is_published ? "text-green-400" : "text-slate-400" }}"
@@ -283,6 +323,22 @@ new class extends Component {
                     @enderror
                 </div>
                 <div>
+                    <label for="demo_link" class="form-label">Link Demo</label>
+                    <input
+                        type="url"
+                        id="demo_link"
+                        wire:model="demo_link"
+                        class="form-input @error("demo_link") input-error @enderror"
+                        placeholder="https://gofutsal.portoku.id"
+                        required
+                    />
+                    @error("demo_link")
+                        <p class="mt-2 text-sm text-red-500">
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
+                <div>
                     <label for="shopee_link" class="form-label">
                         Link Shopee
                     </label>
@@ -345,14 +401,22 @@ new class extends Component {
                         />
                     @endif
                 </div>
-                <div>
+                <div class="flex gap-4">
                     <label class="form-label flex items-center gap-2">
                         <input
                             type="checkbox"
                             wire:model="is_published"
                             class="form-checkbox"
                         />
-                        Publikasikan di Halaman Galeri
+                        Publish
+                    </label>
+                    <label class="form-label flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            wire:model="is_demo"
+                            class="form-checkbox"
+                        />
+                        Demo
                     </label>
                 </div>
             </form>

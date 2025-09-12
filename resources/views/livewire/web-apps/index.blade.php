@@ -45,15 +45,24 @@ new class extends Component {
                     @foreach ($webApps as $app)
                         <div class="card flex flex-col group overflow-hidden">
                             <a
-                                href="{{ $app->shopee_link }}"
-                                target="_blank"
+                                href="/web-apps/show/{{ $app->slug }}"
+                                wire:navigate
                                 class="block"
                             >
-                                <img
-                                    src="{{ $app->image_path ?? "https://placehold.co/600x400/1E293B/FFFFFF?text=" . urlencode($app->title) }}"
-                                    alt="Gambar thumbnail untuk {{ $app->title }}"
-                                    class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                                />
+                                <div class="relative">
+                                    <img
+                                        src="{{ $app->image_path ?? "https://placehold.co/600x400/1E293B/FFFFFF?text=" . urlencode($app->title) }}"
+                                        alt="Gambar thumbnail untuk {{ $app->title }}"
+                                        class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                                    />
+                                    @if ($app->is_demo)
+                                        <span
+                                            class="absolute top-2 right-2 text-xs text-slate-400 bg-slate-800 px-2 py-1 rounded-full opacity-70"
+                                        >
+                                            Masih tahap pengembangan
+                                        </span>
+                                    @endif
+                                </div>
                             </a>
                             <div class="p-6 flex flex-col flex-grow">
                                 @if ($app->tags)
@@ -62,7 +71,7 @@ new class extends Component {
                                             <span
                                                 class="text-xs font-semibold text-sky-400 bg-sky-500/10 px-2 py-1 rounded-full"
                                             >
-                                                {{ $tag }}
+                                                {{ Str::title($tag) }}
                                             </span>
                                         @endforeach
                                     </div>
@@ -84,19 +93,37 @@ new class extends Component {
                                 >
                                     {{ $app->description }}
                                 </p>
+                                @if (! $app->is_demo)
+                                    <a
+                                        href="{{ $app->shopee_link }}"
+                                        target="_blank"
+                                        class="mt-6 inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-3 rounded-lg transition-colors text-center"
+                                    >
+                                        <div
+                                            class="flex items-center justify-center gap-2"
+                                        >
+                                            <x-icon
+                                                name="lucide.shopping-cart"
+                                                class="w-5 h-5"
+                                            />
+                                            <span>Lihat di Shopee</span>
+                                        </div>
+                                    </a>
+                                @endif
+
                                 <a
-                                    href="{{ $app->shopee_link }}"
+                                    href="{{ $app->demo_link }}"
                                     target="_blank"
-                                    class="mt-6 inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-3 rounded-lg transition-colors text-center"
+                                    class="mt-6 inline-block bg-sky-500 hover:bg-sky-600 text-white font-bold px-6 py-3 rounded-lg transition-colors text-center"
                                 >
                                     <div
                                         class="flex items-center justify-center gap-2"
                                     >
                                         <x-icon
-                                            name="lucide.shopping-cart"
+                                            name="lucide.eye"
                                             class="w-5 h-5"
                                         />
-                                        <span>Lihat di Shopee</span>
+                                        <span>Lihat Demo</span>
                                     </div>
                                 </a>
                             </div>

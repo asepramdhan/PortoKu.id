@@ -17,8 +17,10 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->text('description');
             $table->string('image_path')->nullable();
-            $table->string('shopee_link');
+            $table->string('demo_link');
+            $table->string('shopee_link')->nullable();
             $table->json('tags')->nullable(); // Untuk menyimpan tags seperti 'Laravel', 'Livewire'
+            $table->boolean('is_demo')->default(false);
             $table->boolean('is_published')->default(false);
             $table->timestamps();
         });
