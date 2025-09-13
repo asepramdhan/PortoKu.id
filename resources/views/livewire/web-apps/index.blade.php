@@ -78,8 +78,8 @@ new class extends Component {
                                 @endif
 
                                 <a
-                                    href="{{ $app->shopee_link }}"
-                                    target="_blank"
+                                    href="/web-apps/show/{{ $app->slug }}"
+                                    wire:navigate
                                     class="block"
                                 >
                                     <h2
@@ -91,7 +91,7 @@ new class extends Component {
                                 <p
                                     class="mt-3 text-slate-400 text-sm flex-grow"
                                 >
-                                    {{ $app->description }}
+                                    {{ Str::limit(strip_tags($app->description), 120) }}
                                 </p>
                                 @if (! $app->is_demo)
                                     <a

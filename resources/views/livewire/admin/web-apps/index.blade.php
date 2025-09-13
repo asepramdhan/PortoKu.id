@@ -23,14 +23,35 @@ new class extends Component {
     public bool $is_published = false;
     public bool $is_demo = false;
 
+    // public function mount(): void
+    // {
+    //     $this->description = WebApp::first()->description;
+    //     dd($this->description);
+    //     if ($webApp->exists) {
+    //         $this->editingWebApp = $webApp;
+    //         $this->title = $webApp->title;
+    //         $this->slug = $webApp->slug;
+    //         $this->description = $webApp->description;
+    //         $this->demo_link = $webApp->demo_link;
+    //         $this->shopee_link = $webApp->shopee_link;
+    //         $this->tags = $webApp->tags ? implode(", ", $webApp->tags) : "";
+    //         $this->image_path = $webApp->image_path;
+    //         $this->is_published = $webApp->is_published;
+    //         $this->is_demo = $webApp->is_demo;
+    //     }
+    // }
+
     public function create(): void
     {
         $this->reset();
+        $this->isEditMode = false;
+        $this->dispatch("trix-clear", id: "description-editor");
         $this->showWebAppModal = true;
     }
 
     public function saveWebApp(): void
     {
+        // dd($this->description);
         $this->slug = Str::slug($this->title);
         $rules = [
             "title" => "required|string|max:255",
@@ -88,12 +109,19 @@ new class extends Component {
         $this->editingWebApp = $webApp;
         $this->title = $webApp->title;
         $this->description = $webApp->description;
+        // dd($this->description);
         $this->demo_link = $webApp->demo_link;
         $this->shopee_link = $webApp->shopee_link;
         $this->tags = $webApp->tags ? implode(", ", $webApp->tags) : "";
         $this->image_path = $webApp->image_path;
         $this->is_published = $webApp->is_published;
         $this->is_demo = $webApp->is_demo;
+
+        $this->dispatch(
+            "trix-set-content",
+            id: "description-editor",
+            content: $this->description,
+        );
         $this->showWebAppModal = true;
     }
 
@@ -306,20 +334,15 @@ new class extends Component {
                     @enderror
                 </div>
                 <div>
-                    <label for="description" class="form-label">
-                        Deskripsi Singkat
+                    <label for="description-editor" class="label">
+                        Deskripsi Aplikasi
                     </label>
-                    <textarea
-                        id="description"
+                    <x-trix-web-apps
+                        id="description-editor"
                         wire:model="description"
-                        rows="3"
-                        class="form-input @error("description") input-error @enderror"
-                        required
-                    ></textarea>
+                    />
                     @error("description")
-                        <p class="mt-2 text-sm text-red-500">
-                            {{ $message }}
-                        </p>
+                        <p class="text-error text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
                 <div>

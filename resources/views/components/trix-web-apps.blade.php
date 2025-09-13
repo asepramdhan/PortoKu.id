@@ -7,11 +7,28 @@
         isFocused: false,
         init() {
             let trix = this.$refs.trix;
-            trix.editor.loadHTML(this.value);
+            {{-- trix.editor.loadHTML(this.value); --}}
+
+             // --- TAMBAHKAN DUA LISTENER INI ---
+    // 1. Untuk mengisi konten saat mode edit
+    window.addEventListener('trix-set-content', event => {
+        // Cek apakah event ini untuk editor yang benar
+        if (event.detail.id === trix.id) {
+            trix.editor.loadHTML(event.detail.content);
+        }
+    });
+
+    // 2. Untuk membersihkan konten saat mode tambah baru
+    window.addEventListener('trix-clear', event => {
+        if (event.detail.id === trix.id) {
+            trix.editor.loadHTML('');
+        }
+    });
+    // --- AKHIR TAMBAHAN ---
 
             trix.addEventListener('trix-change', (event) => {
                 // Don't sync immediately, wait for the submit event
-                // this.value = trix.value;
+                 this.value = trix.value;
             });
 
             trix.addEventListener('trix-focus', () => { this.isFocused = true; });

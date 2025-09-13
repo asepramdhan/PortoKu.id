@@ -25,11 +25,9 @@ new class extends Component {
                     class="mt-6 flex items-center justify-center space-x-4 text-slate-400"
                 >
                     @if (! $this->webApp->is_demo)
-                        <span>Published</span>
+                        <span>Production</span>
                     @else
-                        <span class="text-red-400">
-                            Masih dalam pengembangan
-                        </span>
+                        <span class="text-red-400">Development</span>
                     @endif
                     <span>&bull;</span>
                     <time
@@ -53,7 +51,7 @@ new class extends Component {
 
             <!-- Post Content -->
             <div class="prose prose-lg prose-custom max-w-none">
-                {{ $this->webApp->description }}
+                {!! $this->webApp->description !!}
             </div>
 
             <!-- Tombol Demo dan Shopee -->
