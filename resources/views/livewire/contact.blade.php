@@ -43,7 +43,7 @@ new class extends Component {
 }; ?>
 
 <div class="py-12 md:py-20">
-    <div class="container mx-auto px-6">
+    <div class="container mx-auto px-2 lg:px-6">
         <div class="max-w-3xl mx-auto">
             <header class="text-center mb-12">
                 <h1

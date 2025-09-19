@@ -208,11 +208,11 @@
     <section
         class="py-20 {{ auth()->check() && auth()->user()->is_admin ? "hidden" : "" }}"
     >
-        <div class="container mx-auto px-6">
+        <div class="container mx-auto px-2 lg:px-6">
             <div
                 class="bg-slate-800 rounded-2xl p-10 md:p-16 text-center shadow-2xl"
             >
-                <h2 class="text-3xl md:text-4xl font-bold text-white">
+                <h2 class="text-2xl lg:text-4xl font-bold text-white">
                     Mulai Kelola Aset Anda Hari Ini
                 </h2>
                 <p class="text-slate-300 mt-4 mb-8 max-w-2xl mx-auto">
@@ -222,9 +222,9 @@
                 <a
                     href="{{ auth()->check() ? "/dashboard" : "/register" }}"
                     wire:navigate
-                    class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-4 px-10 rounded-lg text-xl transition-transform hover:scale-105 inline-block"
+                    class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-4 px-10 rounded-lg text-lg lg:text-xl transition-transform hover:scale-105 inline-block"
                 >
-                    {{ auth()->check() ? "Periksa Portofolio" : "Daftar Sekarang - Gratis!" }}
+                    {!! auth()->check() ? "Periksa Portofolio" : "Daftar Sekarang <span class='hidden lg:inline-block'>- Gratis!</span>" !!}
                 </a>
             </div>
         </div>

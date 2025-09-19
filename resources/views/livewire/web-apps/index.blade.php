@@ -22,7 +22,7 @@ new class extends Component {
 <div>
     <!-- Page Header -->
     <section class="py-20 text-center">
-        <div class="container mx-auto px-6">
+        <div class="container mx-auto px-2 lg:px-6">
             <h1 class="text-4xl md:text-5xl font-extrabold text-white">
                 Galeri Aplikasi Web
             </h1>
@@ -37,7 +37,7 @@ new class extends Component {
 
     <!-- Apps Grid Section -->
     <section class="py-20">
-        <div class="container mx-auto px-6">
+        <div class="container mx-auto px-2 lg:px-6">
             @if ($webApps->isNotEmpty())
                 <div
                     class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"

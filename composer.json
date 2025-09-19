@@ -17,6 +17,7 @@
         "mallardduck/blade-lucide-icons": "^1.23",
         "openai-php/client": "^0.15.0",
         "openai-php/laravel": "^0.15.0",
+        "owenvoke/blade-fontawesome": "^2.9",
         "robsontenorio/mary": "^2.4",
         "spatie/laravel-sitemap": "^7.3",
         "symfony/dom-crawler": "^7.3"

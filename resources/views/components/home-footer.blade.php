@@ -21,6 +21,41 @@
                     mengoptimalkan aset digital serta keuangan Anda di satu
                     tempat yang aman.
                 </p>
+                <p class="mt-6 flex gap-6">
+                    <!-- Social Media Icons -->
+                    <a
+                        href="https://tiktok.com/@portoku.id"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-slate-400 hover:text-sky-400 transition-colors"
+                    >
+                        <x-icon name="fab.tiktok" class="w-6 h-6" />
+                    </a>
+                    <a
+                        href="https://instagram.com/portoku.id"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-slate-400 hover:text-sky-400 transition-colors"
+                    >
+                        <x-icon name="fab.instagram" class="w-6 h-6" />
+                    </a>
+                    <a
+                        href="https://facebook.com/portoku.id"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-slate-400 hover:text-sky-400 transition-colors"
+                    >
+                        <x-icon name="fab.facebook" class="w-6 h-6" />
+                    </a>
+                    <a
+                        href="https://wa.me/6285117688832"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-slate-400 hover:text-sky-400 transition-colors"
+                    >
+                        <x-icon name="fab.whatsapp" class="w-6 h-6" />
+                    </a>
+                </p>
             </div>
 
             {{-- Kolom 2: Link Navigasi --}}

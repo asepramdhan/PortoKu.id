@@ -117,6 +117,13 @@
       0 => 'OpenAI\\Laravel\\ServiceProvider',
     ),
   ),
+  'owenvoke/blade-fontawesome' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'OwenVoke\\BladeFontAwesome\\BladeFontAwesomeServiceProvider',
+    ),
+  ),
   'robsontenorio/mary' => 
   array (
     'aliases' => 

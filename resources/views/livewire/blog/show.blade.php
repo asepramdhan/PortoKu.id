@@ -88,7 +88,7 @@ new class extends Component {
 <div>
     <main>
         <article class="py-12 md:py-20">
-            <div class="container mx-auto px-6">
+            <div class="container mx-auto px-2 lg:px-6">
                 <div class="max-w-3xl mx-auto">
                     <!-- Post Header -->
                     <header class="text-center mb-12">
@@ -187,7 +187,7 @@ new class extends Component {
 
         <!-- KOMPONEN KOMENTAR DI SINI -->
         <section class="pb-12 md:pb-20">
-            <div class="container mx-auto px-6">
+            <div class="container mx-auto px-2 lg:px-6">
                 <div class="max-w-3xl mx-auto">
                     <livewire:blog.comments :post="$post" lazy />
                 </div>
@@ -197,7 +197,7 @@ new class extends Component {
         <!-- Related Posts Section -->
         @if ($this->relatedPosts->isNotEmpty())
             <section class="py-20">
-                <div class="container mx-auto px-6">
+                <div class="container mx-auto px-2 lg:px-6">
                     <h2 class="text-3xl font-bold text-center text-white mb-12">
                         Baca Juga
                     </h2>
@@ -257,7 +257,7 @@ new class extends Component {
 
         <!-- Web Apps is prodution -->
         <section class="py-20">
-            <div class="container mx-auto px-6">
+            <div class="container mx-auto px-2 lg:px-6">
                 <h2 class="text-3xl font-bold text-center text-white mb-12">
                     <x-icon
                         name="lucide.rocket"

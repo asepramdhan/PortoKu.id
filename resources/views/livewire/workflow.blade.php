@@ -1,8 +1,8 @@
 <div>
     <!-- ===== Page Header ===== -->
     <section class="py-20 text-center">
-        <div class="container mx-auto px-6">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-white">
+        <div class="container mx-auto px-2 lg:px-6">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white">
                 Sederhana, Cepat, dan Efektif
             </h1>
             <p class="mt-4 text-lg md:text-xl text-slate-400 max-w-3xl mx-auto">
@@ -14,7 +14,7 @@
 
     <!-- ===== Steps Section ===== -->
     <section class="py-20">
-        <div class="container mx-auto px-6">
+        <div class="container mx-auto px-2 lg:px-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <!-- Step 1 -->
                 <div
@@ -93,7 +93,7 @@
     <section
         class="py-20 {{ auth()->check() && auth()->user()->is_admin ? "hidden" : "" }}"
     >
-        <div class="container mx-auto px-6">
+        <div class="container mx-auto px-2 lg:px-6">
             <div
                 class="bg-slate-800 rounded-2xl p-10 md:p-16 text-center shadow-2xl"
             >
@@ -108,9 +108,9 @@
                 <a
                     href="{{ auth()->check() ? "/dashboard" : "/register" }}"
                     wire:navigate
-                    class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-4 px-10 rounded-lg text-xl transition-transform hover:scale-105 inline-block"
+                    class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-4 px-10 rounded-lg text-lg lg:text-xl transition-transform hover:scale-105 inline-block"
                 >
-                    {{ auth()->check() ? "Periksa Portofolio" : "Daftar Sekarang - Gratis!" }}
+                    {!! auth()->check() ? "Periksa Portofolio" : "Daftar Sekarang <span class='hidden lg:inline-block'>- Gratis!</span>" !!}
                 </a>
             </div>
         </div>

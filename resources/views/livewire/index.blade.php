@@ -3,7 +3,7 @@
     <section
         class="relative text-center py-20 md:py-32 overflow-hidden hero-gradient"
     >
-        <div class="container mx-auto px-6 z-10 relative">
+        <div class="container mx-auto px-2 lg:px-6 z-10 relative">
             <div class="max-w-3xl mx-auto">
                 <span
                     class="bg-sky-500/10 text-sky-400 border border-sky-500/30 rounded-full px-4 py-1 text-sm font-semibold"
@@ -11,7 +11,7 @@
                     Solusi Cerdas Keuangan Anda
                 </span>
                 <h1
-                    class="text-4xl md:text-6xl font-extrabold text-white mt-6 mb-4 leading-tight"
+                    class="text-3xl md:text-6xl font-extrabold text-white mt-6 mb-4 leading-tight"
                 >
                     Visualisasikan
                     <span class="text-sky-400">Portofolio Bitcoin</span>
@@ -58,7 +58,7 @@
 
     <!-- ===== Fitur Utama Section ===== -->
     <section id="fitur" class="py-20">
-        <div class="container mx-auto px-6">
+        <div class="container mx-auto px-2 lg:px-6">
             <div class="text-center mb-12">
                 <h2 class="text-3xl md:text-4xl font-bold text-white">
                     Fitur Unggulan PortoKu.id
@@ -183,7 +183,7 @@
 
     <!-- ===== Cara Kerja Section ===== -->
     <section id="cara-kerja" class="py-20">
-        <div class="container mx-auto px-6">
+        <div class="container mx-auto px-2 lg:px-6">
             <div class="text-center mb-12">
                 <h2 class="text-3xl md:text-4xl font-bold text-white">
                     Hanya 3 Langkah Mudah
@@ -251,11 +251,11 @@
     <section
         class="py-20 {{ auth()->check() && auth()->user()->is_admin ? "hidden" : "" }}"
     >
-        <div class="container mx-auto px-6">
+        <div class="container mx-auto px-2 lg:px-6">
             <div
                 class="bg-slate-800 rounded-2xl p-10 md:p-16 text-center shadow-2xl"
             >
-                <h2 class="text-3xl md:text-4xl font-bold text-white">
+                <h2 class="text-xl lg:text-4xl font-bold text-white">
                     Siap Mengambil Kendali Penuh Atas Keuangan Anda?
                 </h2>
                 <p class="text-slate-300 mt-4 mb-8 max-w-2xl mx-auto">
@@ -265,9 +265,9 @@
                 <a
                     href="{{ auth()->check() ? "/dashboard" : "/register" }}"
                     wire:navigate
-                    class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-4 px-10 rounded-lg text-xl transition-transform hover:scale-105 inline-block"
+                    class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-4 px-10 rounded-lg text-lg lg:text-xl transition-transform hover:scale-105 inline-block"
                 >
-                    {{ auth()->check() ? "Periksa Portofolio" : "Daftar Sekarang - Gratis!" }}
+                    {!! auth()->check() ? "Periksa Portofolio" : "Daftar Sekarang <span class='hidden lg:inline-block'>- Gratis!</span>" !!}
                 </a>
             </div>
         </div>
