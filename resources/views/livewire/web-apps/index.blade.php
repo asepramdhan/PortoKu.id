@@ -93,6 +93,21 @@ new class extends Component {
                                 >
                                     {{ Str::limit(strip_tags($app->description), 120) }}
                                 </p>
+                                <a
+                                    href="{{ $app->demo_link }}"
+                                    target="_blank"
+                                    class="mt-6 inline-block bg-sky-500 hover:bg-sky-600 text-white font-bold px-6 py-3 rounded-lg transition-colors text-center"
+                                >
+                                    <div
+                                        class="flex items-center justify-center gap-2"
+                                    >
+                                        <x-icon
+                                            name="lucide.eye"
+                                            class="w-5 h-5"
+                                        />
+                                        <span>Lihat Demo</span>
+                                    </div>
+                                </a>
                                 @if (! $app->is_demo)
                                     <a
                                         href="{{ $app->shopee_link }}"
@@ -110,22 +125,6 @@ new class extends Component {
                                         </div>
                                     </a>
                                 @endif
-
-                                <a
-                                    href="{{ $app->demo_link }}"
-                                    target="_blank"
-                                    class="mt-6 inline-block bg-sky-500 hover:bg-sky-600 text-white font-bold px-6 py-3 rounded-lg transition-colors text-center"
-                                >
-                                    <div
-                                        class="flex items-center justify-center gap-2"
-                                    >
-                                        <x-icon
-                                            name="lucide.eye"
-                                            class="w-5 h-5"
-                                        />
-                                        <span>Lihat Demo</span>
-                                    </div>
-                                </a>
                             </div>
                         </div>
                     @endforeach

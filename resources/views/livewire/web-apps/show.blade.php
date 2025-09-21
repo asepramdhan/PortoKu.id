@@ -55,7 +55,19 @@ new class extends Component {
             </div>
 
             <!-- Tombol Demo dan Shopee -->
-            <div class="flex items-center justify-center gap-4 mt-12">
+            <div
+                class="lg:flex lg:items-center lg:justify-center text-center gap-4 mt-8 lg:mt-12"
+            >
+                <a
+                    href="{{ $this->webApp->demo_link }}"
+                    target="_blank"
+                    class="mt-6 inline-block bg-sky-500 hover:bg-sky-600 text-white font-bold px-6 py-3 rounded-lg transition-colors text-center"
+                >
+                    <div class="flex items-center justify-center gap-2">
+                        <x-icon name="lucide.eye" class="w-5 h-5" />
+                        <span>Lihat Demo</span>
+                    </div>
+                </a>
                 @if (! $this->webApp->is_demo)
                     <a
                         href="{{ $this->webApp->shopee_link }}"
@@ -68,17 +80,6 @@ new class extends Component {
                                 class="w-5 h-5"
                             />
                             <span>Lihat di Shopee</span>
-                        </div>
-                    </a>
-                @else
-                    <a
-                        href="{{ $this->webApp->demo_link }}"
-                        target="_blank"
-                        class="mt-6 inline-block bg-sky-500 hover:bg-sky-600 text-white font-bold px-6 py-3 rounded-lg transition-colors text-center"
-                    >
-                        <div class="flex items-center justify-center gap-2">
-                            <x-icon name="lucide.eye" class="w-5 h-5" />
-                            <span>Lihat Demo</span>
                         </div>
                     </a>
                 @endif
