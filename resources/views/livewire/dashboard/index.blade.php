@@ -403,13 +403,20 @@ new class extends Component {
                                 {{ ($transaction->transaction_date ?? $transaction->updated_at)?->format('d M Y') ?? '-' }}
                             </p>
                         </div>
+
                         @if ($transaction->type == "buy" || $transaction->type == "sell")
-                            <p
-                                class="font-semibold {{ $transaction->type == "buy" ? "text-green-500" : "text-red-500" }}"
-                            >
-                                {{ $transaction->type == "buy" ? "+" : "-" }}{{ rtrim(rtrim(number_format($transaction->quantity, 8, ".", "."), "0"), ".") }}
-                                {{ $transaction->asset->symbol }}
-                            </p>
+                            <div>
+                                <p
+                                    class="font-semibold {{ $transaction->type == "buy" ? "text-green-500" : "text-red-500" }}"
+                                >
+                                    {{ $transaction->type == "buy" ? "+" : "-" }}{{ rtrim(rtrim(number_format($transaction->quantity, 8, ".", "."), "0"), ".") }}
+                                    {{ $transaction->asset->symbol }}
+                                </p>
+                                <p class="text-xs text-slate-400">
+                                    ~ Rp
+                                    {{ number_format($transaction->amount, 0, ",", ".") }}
+                                </p>
+                            </div>
                         @else
                             <p class="font-semibold text-white">
                                 {{ $transaction->type == "income" ? "+" : "-" }}Rp

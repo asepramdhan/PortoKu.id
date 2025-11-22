@@ -278,12 +278,12 @@ new class extends Component {
                                     <p
                                         @if($user->id === Auth::id()) wire:click="editField({{ $user->id }}, 'name')" class="font-semibold text-white cursor-pointer hover:bg-slate-700 p-1 rounded" @else class="font-semibold text-white p-1" @endif
                                     >
-                                        {{ $user->name }}
+                                        {{ Str::limit($user->name, 10) }}
                                     </p>
                                 @endif
                             </td>
                             <td class="text-slate-300">
-                                {{ $user->email }}
+                                {{ Str::limit($user->email, 10) }}
                             </td>
                             <td class="truncate">
                                 @if ($editingId === $user->id && $editingField === "is_admin")
