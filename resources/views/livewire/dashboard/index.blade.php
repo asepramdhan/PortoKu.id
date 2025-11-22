@@ -189,12 +189,16 @@ new class extends Component {
         <!-- Card 1: Harga BTC Saat Ini -->
         <div class="card p-6">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-slate-400 font-medium">Harga BTC Saat Ini</h3>
+                <h3 class="text-slate-400 font-medium">
+                    Harga BTC Saat Ini
+                    <i class="text-xs">{{ now()->format("d M Y") }}</i>
+                </h3>
                 <x-icon name="lucide.bitcoin" class="text-slate-500" />
             </div>
             <p class="text-3xl font-bold text-white">
                 Rp {{ number_format($this->currentBtcPrice, 0, ",", ".") }}
             </p>
+            <p class="mt-1 text-sm text-slate-400">Update real-time</p>
         </div>
         <!-- Card 2: Total Aset -->
         <div class="card p-6">
@@ -254,14 +258,17 @@ new class extends Component {
                 {{ $summaryData->total_pnl >= 0 ? "+" : "" }} Rp
                 {{ number_format($summaryData->total_pnl, 0, ",", ".") }}
             </p>
-            <p class="mt-1 text-sm text-slate-400">Sejak bergabung</p>
+            <p class="mt-1 text-sm text-slate-400">
+                Sejak bergabung ~
+                {{ auth()->user()->created_at->diffForHumans() }}
+            </p>
         </div>
     </div>
 
     <!-- Chart & Recent Transactions -->
-    <div class="grid grid-cols-1 gap-8 xl:grid-cols-3">
+    <div class="grid grid-cols-1 gap-8">
         <!-- Chart -->
-        <div class="card p-6 xl:col-span-2">
+        <div class="card p-6">
             <h3 class="mb-4 text-xl font-bold text-white">
                 Portofolio (30 Hari Terakhir)
             </h3>

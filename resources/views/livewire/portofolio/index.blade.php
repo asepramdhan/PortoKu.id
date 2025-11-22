@@ -284,13 +284,15 @@ new class extends Component {
     <!-- Page Content -->
     <div class="mb-6 flex flex-col justify-between md:flex-row md:items-center">
         <h1 class="text-3xl font-bold text-white">Portofolio Aset</h1>
-        <button
+        {{--
+            <button
             @click="isAddModalOpen = true"
             class="mt-4 flex cursor-pointer items-center gap-2 rounded-lg bg-sky-500 px-4 py-2 font-semibold text-white transition-colors hover:bg-sky-600 md:mt-0"
-        >
+            >
             <x-icon name="lucide.plus-circle" class="h-5 w-5" />
             Tambah Transaksi
-        </button>
+            </button>
+        --}}
     </div>
 
     <!-- Summary Cards -->
@@ -337,7 +339,7 @@ new class extends Component {
                         <th>Harga Beli Rata-rata</th>
                         <th>Nilai Saat Ini</th>
                         <th>Laba/Rugi</th>
-                        <th>Aksi</th>
+                        {{-- <th>Aksi</th> --}}
                     </tr>
                 </thead>
                 <tbody>
@@ -387,31 +389,33 @@ new class extends Component {
                                     {{ number_format($asset->pnl_percentage, 2, ",", ".") }}%
                                 </p>
                             </td>
-                            <td>
+                            {{--
+                                <td>
                                 <div class="flex space-x-4">
-                                    @if ($asset->last_transaction_id)
-                                        <button
-                                            wire:click="prepareToEdit({{ $asset->last_transaction_id }})"
-                                            class="cursor-pointer text-slate-400 hover:text-sky-400"
-                                        >
-                                            <x-icon
-                                                name="lucide.edit-3"
-                                                class="h-5 w-5"
-                                            />
-                                        </button>
-                                    @endif
-
-                                    <button
-                                        wire:click="prepareToDelete({{ $asset->asset_id }})"
-                                        class="cursor-pointer text-slate-400 hover:text-red-500"
-                                    >
-                                        <x-icon
-                                            name="lucide.trash-2"
-                                            class="h-5 w-5"
-                                        />
-                                    </button>
+                                @if ($asset->last_transaction_id)
+                                <button
+                                wire:click="prepareToEdit({{ $asset->last_transaction_id }})"
+                                class="cursor-pointer text-slate-400 hover:text-sky-400"
+                                >
+                                <x-icon
+                                name="lucide.edit-3"
+                                class="h-5 w-5"
+                                />
+                                </button>
+                                @endif
+                                
+                                <button
+                                wire:click="prepareToDelete({{ $asset->asset_id }})"
+                                class="cursor-pointer text-slate-400 hover:text-red-500"
+                                >
+                                <x-icon
+                                name="lucide.trash-2"
+                                class="h-5 w-5"
+                                />
+                                </button>
                                 </div>
-                            </td>
+                                </td>
+                            --}}
                         </tr>
                     @empty
                         <tr>
