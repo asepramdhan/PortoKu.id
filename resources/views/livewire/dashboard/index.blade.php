@@ -22,6 +22,21 @@ new class extends Component {
         $this->loadRecentTransactions();
     }
 
+    public function getGreeting(): string
+    {
+        $hour = now()->hour;
+
+        if ($hour >= 3 && $hour < 11) {
+            return "Pagi";
+        } elseif ($hour >= 11 && $hour < 15) {
+            return "Siang";
+        } elseif ($hour >= 15 && $hour < 18) {
+            return "Sore";
+        } else {
+            return "Malam";
+        }
+    }
+
     // FIX: Gabungkan semua kalkulasi ke dalam satu metode
     public function updateData(): void
     {
@@ -181,7 +196,7 @@ new class extends Component {
 <div wire:poll.60s="updateData">
     <!-- Page Content -->
     <h1 class="mb-6 text-2xl lg:text-3xl font-bold text-white">
-        Selamat Datang Kembali! 👋
+        {{ $this->getGreeting() }}, {{ auth()->user()->name }}! 👋
     </h1>
 
     <!-- Summary Cards -->
