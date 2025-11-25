@@ -117,9 +117,13 @@ new class extends Component {
                 ? ($totalProfitLoss / $totalInvestment) * 100
                 : 0;
 
+        // 1 BTC = 100.000.000 Satoshi
+        $totalSatoshi = $totalBtcQuantity * 100000000;
+
         $this->summary = (object) [
             "total_asset_value" => $cryptoPortfolioValue,
             "total_btc_quantity" => $totalBtcQuantity,
+            "total_satoshi" => $totalSatoshi, // Masukkan ke object summary
             "total_pnl" => $totalProfitLoss,
             "overall_pnl_percentage" => $overallPnlPercentage,
         ];
@@ -245,13 +249,18 @@ new class extends Component {
                 <h3 class="font-medium text-slate-400">Portofolio Bitcoin</h3>
                 <x-icon name="lucide.bitcoin" class="text-slate-500" />
             </div>
-            <p class="text-3xl font-bold text-white">
+            <p class="text-3xl font-bold text-green-500">
                 {{ rtrim(rtrim(number_format($summaryData->total_btc_quantity, 8, ".", "."), "0"), ".") }}
                 BTC
             </p>
             <p class="mt-1 text-sm text-slate-400">
                 ~ Rp
                 {{ number_format($summaryData->total_asset_value, 0, ",", ".") }}
+                =
+                <span class="text-green-600 font-bold">
+                    {{ number_format($summaryData->total_satoshi, 0, ",", ".") }}
+                </span>
+                Satoshi
             </p>
         </div>
         <!-- Card 4: Laba / Rugi -->
@@ -427,9 +436,14 @@ new class extends Component {
                                     {{ $transaction->type == "buy" ? "+" : "-" }}{{ rtrim(rtrim(number_format($transaction->quantity, 8, ".", "."), "0"), ".") }}
                                     {{ $transaction->asset->symbol }}
                                 </p>
-                                <p class="text-xs text-slate-400">
+                                <p class="text-xs text-slate-400 text-end">
                                     ~ Rp
                                     {{ number_format($transaction->amount, 0, ",", ".") }}
+                                    <br />
+                                    <span class="text-green-600">
+                                        {{ number_format($transaction->quantity * 100000000, 0, ",", ".") }}
+                                        Sats
+                                    </span>
                                 </p>
                             </div>
                         @else
