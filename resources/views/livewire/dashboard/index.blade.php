@@ -495,13 +495,24 @@ new class extends Component {
                                 </a>
                             </div>
                             <div class="flex-1">
-                                <p class="font-semibold text-white">
+                                <p
+                                    class="font-semibold text-white lg:block hidden"
+                                >
                                     <a
                                         href="/blog/show/{{ $post->slug }}"
                                         target="_blank"
                                         class="hover:text-sky-400"
                                     >
-                                        {{ Str::title(Str::limit($post->title, 20)) }}
+                                        {{ Str::limit($post->title, 20) }}
+                                    </a>
+                                </p>
+                                <p class="font-semibold text-white lg:hidden">
+                                    <a
+                                        href="/blog/show/{{ $post->slug }}"
+                                        target="_blank"
+                                        class="hover:text-sky-400"
+                                    >
+                                        {{ Str::limit($post->title, 25) }}
                                     </a>
                                 </p>
                                 <p class="text-sm text-slate-400">
