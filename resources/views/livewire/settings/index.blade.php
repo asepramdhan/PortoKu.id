@@ -104,7 +104,7 @@ new class extends Component {
 
     public function deleteAccount(): void
     {
-        dd("delete account");
+        // dd("delete account");
         // Logika untuk menghapus akun
         // Contoh: Auth::user()->delete();
         // Redirect ke halaman utama setelahnya
@@ -138,7 +138,7 @@ new class extends Component {
                 <a
                     @click.prevent="activeTab = 'preferensi'"
                     :class="{ 'active': activeTab === 'preferensi' }"
-                    class="tab-link cursor-pointer"
+                    class="tab-link cursor-pointer hidden"
                 >
                     Preferensi
                 </a>
@@ -398,7 +398,11 @@ new class extends Component {
         </div>
 
         <!-- Tab Content: Preferensi -->
-        <div x-show="activeTab === 'preferensi'" x-cloak class="p-6 md:p-8">
+        <div
+            x-show="activeTab === 'preferensi'"
+            x-cloak
+            class="p-6 md:p-8 hidden"
+        >
             <h2 class="text-xl font-bold text-white mb-2">
                 Preferensi Tampilan
             </h2>
@@ -462,6 +466,7 @@ new class extends Component {
                     </p>
                 </div>
                 <button
+                    disabled
                     @click="$wire.set('showDeleteModal', true)"
                     class="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg transition-colors w-full md:w-auto cursor-pointer"
                 >

@@ -143,7 +143,7 @@ new class extends Component {
 
     public function loadRecentPost(): void
     {
-        $this->recentPosts = Post::inRandomOrder()
+        $this->recentPosts = Post::orderBy("created_at", "desc")
             ->limit(5)
             ->get();
     }
@@ -250,7 +250,6 @@ new class extends Component {
                         <x-icon name="lucide.arrow-down" class="mr-1 h-4 w-4" />
                     @endif
                     {{ number_format($summaryData->overall_pnl_percentage, 2, ",", ".") }}%
-                    Sejak Awal
                 </p>
             @endif
         </div>
@@ -476,7 +475,7 @@ new class extends Component {
             </div>
             <div class="card p-6">
                 <h3 class="mb-4 text-xl font-bold text-white">
-                    Berita Terkini
+                    Artikel Terkini
                 </h3>
                 <div class="space-y-4">
                     @forelse ($latestPosts as $post)
