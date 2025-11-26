@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\FinancialEntry;
+use App\Models\Post;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Volt\Component;
 use Illuminate\Support\Collection;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Cache;
 new class extends Component {
     public $summary;
     public Collection $recentTransactions;
+    public Collection $recentPosts;
     public array $chartData = [
         "labels" => [],
         "data" => [],
@@ -20,6 +22,7 @@ new class extends Component {
     {
         $this->updateData();
         $this->loadRecentTransactions();
+        $this->loadRecentPost();
     }
 
     public function getGreeting(): string
@@ -138,6 +141,13 @@ new class extends Component {
             ->get();
     }
 
+    public function loadRecentPost(): void
+    {
+        $this->recentPosts = Post::inRandomOrder()
+            ->limit(5)
+            ->get();
+    }
+
     public function loadChartData(): void
     {
         $entries = FinancialEntry::where("user_id", Auth::id())
@@ -192,6 +202,7 @@ new class extends Component {
         return [
             "summaryData" => $this->summary,
             "latestTransactions" => $this->recentTransactions,
+            "latestPosts" => $this->recentPosts,
             "chartData" => $this->chartData,
         ];
     }
@@ -249,7 +260,7 @@ new class extends Component {
                 <h3 class="font-medium text-slate-400">Portofolio Bitcoin</h3>
                 <x-icon name="lucide.bitcoin" class="text-slate-500" />
             </div>
-            <p class="text-3xl font-bold text-green-500">
+            <p class="text-3xl font-bold text-white">
                 {{ rtrim(rtrim(number_format($summaryData->total_btc_quantity, 8, ".", "."), "0"), ".") }}
                 BTC
             </p>
@@ -388,76 +399,122 @@ new class extends Component {
         </div>
 
         <!-- Recent Transactions -->
-        <div class="card p-6">
-            <h3 class="mb-4 text-xl font-bold text-white">Aktivitas Terkini</h3>
-            <div class="space-y-4">
-                @forelse ($latestTransactions as $transaction)
-                    <!-- Transaction Item 1 -->
-                    <div class="flex items-center">
-                        <div
-                            class="mr-4 flex h-10 w-10 items-center justify-center rounded-full @if ($transaction->type == 'buy') bg-green-500/10 @elseif($transaction->type == 'sell') bg-red-500/10 @elseif($transaction->type == 'income') bg-sky-500/10 @else bg-orange-500/10 @endif"
-                        >
-                            @if ($transaction->type == "buy")
-                                <x-icon
-                                    name="lucide.arrow-down-left"
-                                    class="h-5 w-5 text-green-500"
-                                />
-                            @elseif ($transaction->type == "sell")
-                                <x-icon
-                                    name="lucide.arrow-up-right"
-                                    class="h-5 w-5 text-red-500"
-                                />
-                            @elseif ($transaction->type == "income")
-                                <x-icon
-                                    name="lucide.wallet"
-                                    class="h-5 w-5 text-sky-500"
-                                />
-                            @else
-                                <x-icon
-                                    name="lucide.minus"
-                                    class="h-5 w-5 text-orange-500"
-                                />
-                            @endif
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-semibold text-white">
-                                {{ Str::title($transaction->asset->name ?? $transaction->category) }}
-                            </p>
-                            <p class="text-sm text-slate-400">
-                                {{ ($transaction->transaction_date ?? $transaction->updated_at)?->format('d M Y') ?? '-' }}
-                            </p>
-                        </div>
-
-                        @if ($transaction->type == "buy" || $transaction->type == "sell")
-                            <div>
-                                <p
-                                    class="font-semibold {{ $transaction->type == "buy" ? "text-green-500" : "text-red-500" }}"
-                                >
-                                    {{ $transaction->type == "buy" ? "+" : "-" }}{{ rtrim(rtrim(number_format($transaction->quantity, 8, ".", "."), "0"), ".") }}
-                                    {{ $transaction->asset->symbol }}
+        <div class="grid lg:grid-cols-3 lg:gap-6 grid-cols-1">
+            <div class="card p-6 mb-8 lg:mb-0 lg:col-span-2">
+                <h3 class="mb-4 text-xl font-bold text-white">
+                    Aktivitas Terkini
+                </h3>
+                <div class="space-y-4">
+                    @forelse ($latestTransactions as $transaction)
+                        <!-- Transaction Item 1 -->
+                        <div class="flex items-center">
+                            <div
+                                class="mr-4 flex h-10 w-10 items-center justify-center rounded-full @if ($transaction->type == 'buy') bg-green-500/10 @elseif($transaction->type == 'sell') bg-red-500/10 @elseif($transaction->type == 'income') bg-sky-500/10 @else bg-orange-500/10 @endif"
+                            >
+                                @if ($transaction->type == "buy")
+                                    <x-icon
+                                        name="lucide.arrow-down-left"
+                                        class="h-5 w-5 text-green-500"
+                                    />
+                                @elseif ($transaction->type == "sell")
+                                    <x-icon
+                                        name="lucide.arrow-up-right"
+                                        class="h-5 w-5 text-red-500"
+                                    />
+                                @elseif ($transaction->type == "income")
+                                    <x-icon
+                                        name="lucide.wallet"
+                                        class="h-5 w-5 text-sky-500"
+                                    />
+                                @else
+                                    <x-icon
+                                        name="lucide.minus"
+                                        class="h-5 w-5 text-orange-500"
+                                    />
+                                @endif
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-semibold text-white">
+                                    {{ Str::title($transaction->asset->name ?? $transaction->category) }}
                                 </p>
-                                <p class="text-xs text-slate-400 text-end">
-                                    ~ Rp
-                                    {{ number_format($transaction->amount, 0, ",", ".") }}
-                                    <br />
-                                    <span class="text-green-600">
-                                        {{ number_format($transaction->quantity * 100000000, 0, ",", ".") }}
-                                        Sats
-                                    </span>
+                                <p class="text-sm text-slate-400">
+                                    {{ ($transaction->transaction_date ?? $transaction->updated_at)?->format('d M Y') ?? '-' }}
                                 </p>
                             </div>
-                        @else
-                            <p class="font-semibold text-white">
-                                {{ $transaction->type == "income" ? "+" : "-" }}Rp
-                                {{ number_format($transaction->amount, 0, ",", ".") }}
-                            </p>
-                        @endif
-                    </div>
-                @empty
-                    <p class="py-4 text-center text-slate-400">
-                        Belum ada aktivitas.
-                    </p>
-                @endforelse
+
+                            @if ($transaction->type == "buy" || $transaction->type == "sell")
+                                <div>
+                                    <p
+                                        class="font-semibold {{ $transaction->type == "buy" ? "text-green-500" : "text-red-500" }}"
+                                    >
+                                        {{ $transaction->type == "buy" ? "+" : "-" }}{{ rtrim(rtrim(number_format($transaction->quantity, 8, ".", "."), "0"), ".") }}
+                                        {{ $transaction->asset->symbol }}
+                                    </p>
+                                    <p class="text-xs text-slate-400 text-end">
+                                        ~ Rp
+                                        {{ number_format($transaction->amount, 0, ",", ".") }}
+                                        <br />
+                                        <span class="text-green-600">
+                                            {{ number_format($transaction->quantity * 100000000, 0, ",", ".") }}
+                                            Sats
+                                        </span>
+                                    </p>
+                                </div>
+                            @else
+                                <p class="font-semibold text-white">
+                                    {{ $transaction->type == "income" ? "+" : "-" }}Rp
+                                    {{ number_format($transaction->amount, 0, ",", ".") }}
+                                </p>
+                            @endif
+                        </div>
+                    @empty
+                        <p class="py-4 text-center text-slate-400">
+                            Belum ada aktivitas.
+                        </p>
+                    @endforelse
+                </div>
+            </div>
+            <div class="card p-6">
+                <h3 class="mb-4 text-xl font-bold text-white">
+                    Berita Terkini
+                </h3>
+                <div class="space-y-4">
+                    @forelse ($latestPosts as $post)
+                        <!-- Berita Item 1 -->
+                        <div class="flex items-center">
+                            <div class="mr-4">
+                                <a
+                                    href="/blog/show/{{ $post->slug }}"
+                                    target="_blank"
+                                >
+                                    <img
+                                        src="{{ $post->featured_image_path ?? "https://placehold.co/600x400/1E293B/FFFFFF?text=PortoKu.id" }}"
+                                        alt="berita"
+                                        class="w-15 h-15 object-cover"
+                                    />
+                                </a>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-semibold text-white">
+                                    <a
+                                        href="/blog/show/{{ $post->slug }}"
+                                        target="_blank"
+                                        class="hover:text-sky-400"
+                                    >
+                                        {{ Str::title(Str::limit($post->title, 20)) }}
+                                    </a>
+                                </p>
+                                <p class="text-sm text-slate-400">
+                                    {{ $post->created_at->diffForHumans() }}
+                                </p>
+                            </div>
+                        </div>
+                    @empty
+                        <p class="py-4 text-center text-slate-400">
+                            Belum ada berita.
+                        </p>
+                    @endforelse
+                </div>
             </div>
         </div>
     </div>
