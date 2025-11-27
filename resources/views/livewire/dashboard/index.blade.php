@@ -450,7 +450,10 @@ new class extends Component {
                                         {{ $transaction->asset->symbol }}
                                     </p>
                                     <p class="text-xs text-slate-400 text-end">
-                                        ~ Rp
+                                        {{ $transaction->type == "buy" ? "Beli" : "Jual" }}
+                                        :
+                                        {{ number_format($transaction->price_per_unit, 0, ",", ".") }}
+                                        <br />
                                         {{ number_format($transaction->amount, 0, ",", ".") }}
                                         <br />
                                         <span class="text-green-600">

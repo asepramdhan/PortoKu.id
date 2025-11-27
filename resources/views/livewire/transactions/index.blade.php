@@ -1180,6 +1180,15 @@ new class extends Component {
                                         >
                                             {{ rtrim(rtrim(number_format($transaction->quantity, 8, ".", ","), "0"), ".") }}
                                             {{ $transaction->asset->symbol }}
+                                            <br />
+                                            <span
+                                                class="text-xs text-slate-400"
+                                            >
+                                                Harga
+                                                {{ $transaction->type == "buy" ? "Beli" : "Jual" }}
+                                                :
+                                                {{ number_format($transaction->price_per_unit, 0, ",", ".") }}
+                                            </span>
                                         </p>
                                     @endif
                                 @else
