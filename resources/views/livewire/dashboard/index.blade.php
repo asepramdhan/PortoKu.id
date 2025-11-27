@@ -477,7 +477,7 @@ new class extends Component {
                 </div>
             </div>
             <div class="card p-6">
-                <h3 class="mb-4 text-xl font-bold text-white">
+                <h3 class="mb-3 text-xl font-bold text-white">
                     Artikel Terkini
                 </h3>
                 <div class="space-y-4">
