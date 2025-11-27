@@ -144,7 +144,7 @@ new class extends Component {
     public function loadRecentPost(): void
     {
         $this->recentPosts = Post::orderBy("created_at", "desc")
-            ->limit(5)
+            ->limit(6)
             ->get();
     }
 
