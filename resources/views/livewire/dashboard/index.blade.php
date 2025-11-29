@@ -397,6 +397,57 @@ new class extends Component {
             </div>
         </div>
 
+        <!-- Aksi Cepat -->
+        <div class="card p-6">
+            <h3 class="mb-4 text-xl font-bold text-white">Aksi Cepat</h3>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <a
+                    href="/transactions"
+                    wire:navigate
+                    class="flex items-center justify-between gap-4 rounded-lg bg-slate-800/10 p-4 hover:bg-slate-800/20"
+                >
+                    <div class="flex items-center gap-4">
+                        <div class="rounded-lg bg-sky-500/10 p-3">
+                            <x-icon
+                                name="lucide.arrow-right-left"
+                                class="h-5 w-5 text-sky-500"
+                            />
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-white">
+                                Transaksi Baru
+                            </p>
+                            <p class="mt-1 text-xs text-slate-400">
+                                Lihat transaksi
+                            </p>
+                        </div>
+                    </div>
+                </a>
+                <a
+                    href="/portofolio"
+                    wire:navigate
+                    class="flex items-center justify-between gap-4 rounded-lg bg-slate-800/10 p-4 hover:bg-slate-800/20"
+                >
+                    <div class="flex items-center gap-4">
+                        <div class="rounded-lg bg-sky-500/10 p-3">
+                            <x-icon
+                                name="lucide.bitcoin"
+                                class="h-5 w-5 text-sky-500"
+                            />
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-white">
+                                Portofolio
+                            </p>
+                            <p class="mt-1 text-xs text-slate-400">
+                                Lihat portofolio
+                            </p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
         <!-- Recent Transactions -->
         <div class="grid lg:grid-cols-3 lg:gap-6 grid-cols-1">
             <div class="card p-6 mb-8 lg:mb-0 lg:col-span-2">
