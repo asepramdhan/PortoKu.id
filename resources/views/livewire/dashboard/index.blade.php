@@ -126,6 +126,7 @@ new class extends Component {
         $this->summary = (object) [
             "total_asset_value" => $cryptoPortfolioValue,
             "total_btc_quantity" => $totalBtcQuantity,
+            "total_investment" => $totalInvestment,
             "total_satoshi" => $totalSatoshi, // Masukkan ke object summary
             "total_pnl" => $totalProfitLoss,
             "overall_pnl_percentage" => $overallPnlPercentage,
@@ -251,7 +252,7 @@ new class extends Component {
                     @endif
                     {{ number_format($summaryData->overall_pnl_percentage, 2, ",", ".") }}%
                     @php
-                        $formattedNumber = number_format(2000000000000, 0, ",", ".");
+                        $formattedNumber = number_format($summaryData->total_investment, 0, ",", ".");
                         $limitedNumber = Str::limit($formattedNumber, 12);
                     @endphp
 
