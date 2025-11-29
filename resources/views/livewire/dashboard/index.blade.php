@@ -250,6 +250,19 @@ new class extends Component {
                         <x-icon name="lucide.arrow-down" class="mr-1 h-4 w-4" />
                     @endif
                     {{ number_format($summaryData->overall_pnl_percentage, 2, ",", ".") }}%
+                    @php
+                        $formattedNumber = number_format(2000000000000, 0, ",", ".");
+                        $limitedNumber = Str::limit($formattedNumber, 12);
+                    @endphp
+
+                    <span class="text-slate-400 ms-2 hidden lg:inline">
+                        Total Invest : Rp
+                        {{ $formattedNumber }}
+                    </span>
+                    <span class="text-slate-400 ms-2 lg:hidden">
+                        Total Invest : Rp
+                        {{ $limitedNumber }}
+                    </span>
                 </p>
             @endif
         </div>
