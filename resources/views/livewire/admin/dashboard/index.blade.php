@@ -379,21 +379,22 @@ new class extends Component {
                         <tbody>
                             @forelse ($latestTransactions as $transaction)
                                 <tr>
-                                    <td>
+                                    <td class="truncate">
                                         <img
-                                            src="{{ asset("storage/" . $transaction->user->profile_photo_path) ?? "https://placehold.co/48x48/0EA5E9/FFFFFF?text=" . substr($transaction->user->name, 0, 1) }}"
+                                            src="{{ $transaction->user->profile_photo_path ? asset("storage/" . $transaction->user->profile_photo_path) : "https://placehold.co/48x48/0EA5E9/FFFFFF?text=" . substr($transaction->user->name, 0, 1) }}"
                                             alt="{{ $transaction->user->name }}"
                                             class="w-10 h-10 object-cover rounded-full"
                                         />
                                     </td>
-                                    <td class="text-left">
-                                        {{ $transaction->user->name }}
+                                    <td class="text-left truncate">
+                                        {{ Str::limit($transaction->user->name, 15) }}
                                     </td>
                                     <td class="text-left">
                                         {{ $transaction->created_at->format("d M Y") }}
                                         <br />
-                                        <span class="text-slate-400 text-xs">
-                                            Update:
+                                        <span
+                                            class="text-slate-400 text-xs truncate"
+                                        >
                                             {{ $transaction->updated_at->format("d M Y H:i") }}
                                         </span>
                                     </td>
@@ -437,8 +438,9 @@ new class extends Component {
                                         </p>
                                     </td>
                                     <td class="text-left">
-                                        <p class="font-semibold text-white">
-                                            Rp
+                                        <p
+                                            class="font-semibold text-white truncate"
+                                        >
                                             {{ number_format($transaction->amount) }}
                                         </p>
                                     </td>
