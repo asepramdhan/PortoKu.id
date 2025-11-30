@@ -22,6 +22,9 @@ new class extends Component {
     // Data untuk Chart
     public array $chartData;
 
+    // Latest Transactions
+    public $latestTransactions;
+
     public function mount(): void
     {
         $this->updateData();
@@ -55,6 +58,13 @@ new class extends Component {
         $this->totalUsers = User::count();
         $this->totalPosts = Post::count();
         $this->totalTransactions = FinancialEntry::count();
+
+        // Latest Transactions
+        $this->latestTransactions = FinancialEntry::query()
+            ->with("asset", "user")
+            ->orderBy("created_at", "DESC")
+            ->limit(5)
+            ->get();
 
         // 3. Siapkan data untuk chart (pengunjung per hari selama 30 hari terakhir)
         $viewsData = \App\Models\PostView::query()
@@ -97,6 +107,7 @@ new class extends Component {
             "views30Days" => $this->views30Days,
             "chartData" => $this->chartData,
             "siteVisitorsToday" => $this->siteVisitorsToday,
+            "latestTransactions" => $this->latestTransactions,
         ];
     }
 }; ?>
@@ -283,7 +294,7 @@ new class extends Component {
     </div>
 
     <!-- Quick Actions -->
-    <div class="card p-6">
+    <div class="card p-6 mb-8">
         <h3 class="text-xl font-bold text-white mb-4">Aksi Cepat</h3>
         <div class="flex flex-wrap gap-4">
             <a
@@ -293,6 +304,14 @@ new class extends Component {
             >
                 <x-icon name="lucide.wallet" class="w-5 h-5" />
                 Kelola Aset
+            </a>
+            <a
+                href="#"
+                wire:navigate
+                class="bg-slate-700 hover:bg-slate-600 text-white font-semibold px-5 py-3 rounded-lg flex items-center gap-2 transition-colors"
+            >
+                <x-icon name="lucide.arrow-right-left" class="w-5 h-5" />
+                Kelola Transaksi
             </a>
             <a
                 href="/admin/blog"
@@ -334,6 +353,110 @@ new class extends Component {
                 <x-icon name="lucide.info" class="w-5 h-5" />
                 Tentang
             </a>
+        </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="grid grid-cols-1">
+        <div class="card p-6 mb-8">
+            <h3 class="mb-4 text-xl font-bold text-white">
+                Aktivitas Transaksi
+            </h3>
+            <div class="space-y-4">
+                <div class="table-wrapper">
+                    <table class="w-full">
+                        <thead>
+                            <tr>
+                                <th class="text-left">Foto</th>
+                                <th class="text-left">Nama</th>
+                                <th class="text-left">Tanggal</th>
+                                <th class="text-left">Type</th>
+                                <th class="text-left">Aset/Kategori</th>
+                                <th class="text-left">Jumlah</th>
+                                <th class="text-left">Nilai (IDR)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($latestTransactions as $transaction)
+                                <tr>
+                                    <td>
+                                        <img
+                                            src="{{ asset("storage/" . $transaction->user->profile_photo_path) ?? "https://placehold.co/48x48/0EA5E9/FFFFFF?text=" . substr($transaction->user->name, 0, 1) }}"
+                                            alt="{{ $transaction->user->name }}"
+                                            class="w-10 h-10 object-cover rounded-full"
+                                        />
+                                    </td>
+                                    <td class="text-left">
+                                        {{ $transaction->user->name }}
+                                    </td>
+                                    <td class="text-left">
+                                        {{ $transaction->created_at->format("d M Y") }}
+                                        <br />
+                                        <span class="text-slate-400 text-xs">
+                                            Update:
+                                            {{ $transaction->updated_at->format("d M Y H:i") }}
+                                        </span>
+                                    </td>
+                                    <td class="text-left">
+                                        @if ($transaction->type == "buy")
+                                            <p
+                                                class="font-semibold text-green-400"
+                                            >
+                                                Beli
+                                            </p>
+                                        @elseif ($transaction->type == "sell")
+                                            <p
+                                                class="font-semibold text-red-400"
+                                            >
+                                                Jual
+                                            </p>
+                                        @elseif ($transaction->type == "income")
+                                            <p
+                                                class="font-semibold text-sky-400"
+                                            >
+                                                Pemasukan
+                                            </p>
+                                        @else
+                                            <p
+                                                class="font-semibold text-orange-400"
+                                            >
+                                                Pengeluaran
+                                            </p>
+                                        @endif
+                                    </td>
+                                    <td class="text-left">
+                                        <p
+                                            class="font-semibold text-white p-1 rounded"
+                                        >
+                                            {{ Str::title($transaction->asset->name ?? $transaction->category) }}
+                                        </p>
+                                    </td>
+                                    <td class="text-left">
+                                        <p class="font-semibold text-white">
+                                            {{ $transaction->quantity }}
+                                        </p>
+                                    </td>
+                                    <td class="text-left">
+                                        <p class="font-semibold text-white">
+                                            Rp
+                                            {{ number_format($transaction->amount) }}
+                                        </p>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td
+                                        colspan="3"
+                                        class="text-center py-8 text-slate-400"
+                                    >
+                                        Belum ada aktivitas.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>

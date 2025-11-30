@@ -263,7 +263,7 @@ new class extends Component {
                         name="lucide.rocket"
                         class="w-6 h-6 text-orange-400 inline-block mr-1"
                     />
-                    Web Apps
+                    Aplikasi Web
                 </h2>
                 <div
                     class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"

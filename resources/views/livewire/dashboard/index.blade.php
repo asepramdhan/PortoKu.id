@@ -432,7 +432,9 @@ new class extends Component {
                                 Transaksi Baru
                             </p>
                             <p class="mt-1 text-xs text-slate-400">
-                                Lihat transaksi
+                                Tambah, ubah,
+                                <span class="hidden sm:inline">dan</span>
+                                hapus transaksi
                             </p>
                         </div>
                     </div>
@@ -454,7 +456,51 @@ new class extends Component {
                                 Portofolio
                             </p>
                             <p class="mt-1 text-xs text-slate-400">
-                                Lihat portofolio
+                                Rincian portofolio kamu
+                            </p>
+                        </div>
+                    </div>
+                </a>
+                <a
+                    href="/reports"
+                    wire:navigate
+                    class="flex items-center justify-between gap-4 rounded-lg bg-slate-800/10 p-4 hover:bg-slate-800/20"
+                >
+                    <div class="flex items-center gap-4">
+                        <div class="rounded-lg bg-sky-500/10 p-3">
+                            <x-icon
+                                name="lucide.pie-chart"
+                                class="h-5 w-5 text-sky-500"
+                            />
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-white">
+                                Laporan
+                            </p>
+                            <p class="mt-1 text-xs text-slate-400">
+                                Unduh laporan keuangan
+                            </p>
+                        </div>
+                    </div>
+                </a>
+                <a
+                    href="/settings"
+                    wire:navigate
+                    class="flex items-center justify-between gap-4 rounded-lg bg-slate-800/10 p-4 hover:bg-slate-800/20"
+                >
+                    <div class="flex items-center gap-4">
+                        <div class="rounded-lg bg-sky-500/10 p-3">
+                            <x-icon
+                                name="lucide.settings"
+                                class="h-5 w-5 text-sky-500"
+                            />
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-white">
+                                Pengaturan
+                            </p>
+                            <p class="mt-1 text-xs text-slate-400">
+                                Ubah profil dan keamanan
                             </p>
                         </div>
                     </div>
@@ -543,9 +589,9 @@ new class extends Component {
             </div>
             <div class="card p-6">
                 <h3
-                    class="lg:mb-3 mb-4 lg:text-md text-xl font-bold text-white"
+                    class="lg:mb-3 mb-4 lg:text-md text-xl font-bold text-slate-300"
                 >
-                    Artikel Terkini
+                    Berita Terkini 🔥
                 </h3>
                 <div class="space-y-4">
                     @forelse ($latestPosts as $post)

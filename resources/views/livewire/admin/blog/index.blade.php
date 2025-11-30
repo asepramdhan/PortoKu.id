@@ -210,9 +210,8 @@ new class extends Component {
                     <tr>
                         <th>Gambar</th>
                         <th>Judul</th>
-                        <th>Penulis</th>
                         <th>Status</th>
-                        <th>Tanggal Publikasi</th>
+                        <th class="truncate">Tanggal Publikasi</th>
                         <th>Dilihat</th>
                         <th>Aksi</th>
                     </tr>
@@ -305,11 +304,13 @@ new class extends Component {
                                         class="font-semibold text-white cursor-pointer hover:bg-slate-700 p-1 rounded"
                                     >
                                         {{ Str::limit($post->title, 25) }}
+                                        <br />
+                                        <span class="text-slate-400 text-xs">
+                                            Penulis:
+                                            {{ Str::title($post->user->name ?? "N/A") }}
+                                        </span>
                                     </p>
                                 @endif
-                            </td>
-                            <td class="text-slate-300 truncate">
-                                {{ Str::title($post->user->name ?? "N/A") }}
                             </td>
                             <td class="whitespace-nowrap">
                                 @if ($editingId === $post->id && $editingField === "status")

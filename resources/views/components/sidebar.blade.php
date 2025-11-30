@@ -73,6 +73,15 @@
                         Aset
                     </a>
                     <a
+                        href="#"
+                        wire:navigate
+                        {{-- wire:current="active" --}}
+                        class="sidebar-link"
+                    >
+                        <x-icon name="lucide.arrow-right-left" class="mr-3" />
+                        Transaksi
+                    </a>
+                    <a
                         href="/admin/blog"
                         wire:navigate
                         wire:current.exact="active"
