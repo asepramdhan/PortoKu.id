@@ -63,7 +63,7 @@ new class extends Component {
         $this->latestTransactions = FinancialEntry::query()
             ->with("asset", "user")
             ->orderBy("created_at", "DESC")
-            ->limit(5)
+            ->limit(10)
             ->get();
 
         // 3. Siapkan data untuk chart (pengunjung per hari selama 30 hari terakhir)
@@ -367,7 +367,7 @@ new class extends Component {
                     <table class="w-full">
                         <thead>
                             <tr>
-                                <th class="text-left">Foto</th>
+                                <th class="text-left truncate">Profil</th>
                                 <th class="text-left">Nama</th>
                                 <th class="text-left">Tanggal</th>
                                 <th class="text-left">Type</th>

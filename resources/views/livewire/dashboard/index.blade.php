@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Cache;
 
 new class extends Component {
     public $summary;
+    public $avgBuyPrice;
     public Collection $recentTransactions;
     public Collection $recentPosts;
     public array $chartData = [
@@ -110,6 +111,11 @@ new class extends Component {
             }
         });
 
+        // AVG BUY PRICE
+        $totalBuyQuantity = $entries->where("type", "buy")->sum("quantity");
+        $totalCost = $entries->where("type", "buy")->sum("amount");
+        $this->avgBuyPrice = $totalCost / $totalBuyQuantity;
+
         $totalInvestment = $entries->where("type", "buy")->sum("amount");
         $totalSellValue = $entries->where("type", "sell")->sum("amount");
         $totalProfitLoss =
@@ -125,6 +131,7 @@ new class extends Component {
 
         $this->summary = (object) [
             "total_asset_value" => $cryptoPortfolioValue,
+            "avg_buy_price" => $this->avgBuyPrice,
             "total_btc_quantity" => $totalBtcQuantity,
             "total_investment" => $totalInvestment,
             "total_satoshi" => $totalSatoshi, // Masukkan ke object summary
@@ -202,6 +209,7 @@ new class extends Component {
     {
         return [
             "summaryData" => $this->summary,
+            "avgBuyPrice" => $this->avgBuyPrice,
             "latestTransactions" => $this->recentTransactions,
             "latestPosts" => $this->recentPosts,
             "chartData" => $this->chartData,
@@ -222,14 +230,20 @@ new class extends Component {
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-slate-400 font-medium">
                     Harga BTC Saat Ini
-                    <i class="text-xs">{{ now()->format("d M Y") }}</i>
+                    <span class="lg:hidden"><br /></span>
+                    <i class="text-xs text-slate-500">
+                        {{ now()->format("d M Y") }} ~Update setiap 5 menit
+                    </i>
                 </h3>
                 <x-icon name="lucide.bitcoin" class="text-slate-500" />
             </div>
             <p class="text-3xl font-bold text-white">
                 Rp {{ number_format($this->currentBtcPrice, 0, ",", ".") }}
             </p>
-            <p class="mt-1 text-sm text-slate-400">Update real-time</p>
+            <p class="mt-1 text-sm text-slate-400">
+                Rata-rata Beli : Rp
+                {{ number_format($this->avgBuyPrice, 0, ",", ".") }}
+            </p>
         </div>
         <!-- Card 2: Total Aset -->
         <div class="card p-6">
@@ -588,12 +602,63 @@ new class extends Component {
                 </div>
             </div>
             <div class="card p-6">
-                <h3
-                    class="lg:mb-3 mb-4 lg:text-md text-xl font-bold text-slate-300"
-                >
-                    Berita Terkini 🔥
+                <h3 class="lg:mb-3 mb-4 text-md font-bold text-slate-300">
+                    Berita Terkini
+                    <span class="animate-pulse">🔥</span>
                 </h3>
                 <div class="space-y-4">
+                    @foreach ($latestPosts->random(1) as $post)
+                        <!-- Berita Trending Item 1 -->
+                        @if ($post->views_count > 5)
+                            <div
+                                class="flex items-center bg-slate-600/10 p-2 rounded-lg"
+                            >
+                                <div class="mr-4">
+                                    <a
+                                        href="/blog/show/{{ $post->slug }}"
+                                        target="_blank"
+                                    >
+                                        <img
+                                            src="{{ $post->featured_image_path ?? "https://placehold.co/600x400/1E293B/FFFFFF?text=PortoKu.id" }}"
+                                            alt="berita"
+                                            class="w-15 h-15 object-cover"
+                                        />
+                                    </a>
+                                </div>
+                                <div class="flex-1">
+                                    <p
+                                        class="font-semibold text-white lg:block hidden"
+                                    >
+                                        <a
+                                            href="/blog/show/{{ $post->slug }}"
+                                            target="_blank"
+                                            class="hover:text-sky-400"
+                                        >
+                                            <span class="animate-pulse">
+                                                🔥
+                                            </span>
+                                            {{ Str::limit($post->title, 15) }}
+                                        </a>
+                                    </p>
+                                    <p
+                                        class="font-semibold text-white lg:hidden"
+                                    >
+                                        <a
+                                            href="/blog/show/{{ $post->slug }}"
+                                            target="_blank"
+                                            class="hover:text-sky-400"
+                                        >
+                                            {{ Str::limit($post->title, 25) }}
+                                        </a>
+                                    </p>
+                                    <p class="text-sm text-slate-400">
+                                        {{ $post->created_at->diffForHumans() }}
+                                    </p>
+                                </div>
+                            </div>
+                        @endif
+                    @endforeach
+
                     @forelse ($latestPosts as $post)
                         <!-- Berita Item 1 -->
                         <div class="flex items-center">

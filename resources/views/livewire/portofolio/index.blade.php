@@ -337,7 +337,7 @@ new class extends Component {
                         <th>Aset</th>
                         <th>Jumlah</th>
                         <th class="truncate">Harga Beli Rata-rata</th>
-                        <th>Nilai Saat Ini</th>
+                        <th class="truncate">Nilai Saat Ini</th>
                         <th>Laba/Rugi</th>
                         {{-- <th>Aksi</th> --}}
                     </tr>

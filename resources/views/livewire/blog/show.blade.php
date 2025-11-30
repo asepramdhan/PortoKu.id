@@ -236,6 +236,12 @@ new class extends Component {
                                         <h2
                                             class="mt-2 text-xl font-bold text-white group-hover:text-sky-400 transition-colors"
                                         >
+                                            @if ($relatedPost->views_count > 50)
+                                                <span class="animate-pulse">
+                                                    🔥
+                                                </span>
+                                            @endif
+
                                             {{ $relatedPost->title }}
                                         </h2>
                                     </a>
