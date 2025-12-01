@@ -424,7 +424,14 @@ new class extends Component {
                                 class="py-8 text-center text-slate-400"
                             >
                                 Anda belum memiliki aset. Silakan tambah
-                                transaksi pertama Anda.
+                                transaksi pertama Anda
+                                <a
+                                    href="/transactions"
+                                    class="text-sky-400 hover:underline"
+                                    wire:navigate
+                                >
+                                    disini
+                                </a>
                             </td>
                         </tr>
                     @endforelse

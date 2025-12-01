@@ -119,7 +119,9 @@ new class extends Component {
         // AVG BUY PRICE
         $totalBuyQuantity = $entries->where("type", "buy")->sum("quantity");
         $totalCost = $entries->where("type", "buy")->sum("amount");
-        $this->avgBuyPrice = $totalCost / $totalBuyQuantity;
+        // jika null, set avgBuyPrice menjadi 0
+        $this->avgBuyPrice =
+            $totalBuyQuantity > 0 ? $totalCost / $totalBuyQuantity : 0;
 
         $totalInvestment = $entries->where("type", "buy")->sum("amount");
         $totalSellValue = $entries->where("type", "sell")->sum("amount");
