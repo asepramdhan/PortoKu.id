@@ -188,7 +188,7 @@ new class extends Component {
                 <tbody>
                     @forelse ($users as $user)
                         <tr wire:key="{{ $user->id }}">
-                            <td class="text-centertruncate">
+                            <td class="text-center truncate">
                                 @if ($user->id === Auth::id())
                                     <label
                                         for="photo-upload-{{ $user->id }}"
