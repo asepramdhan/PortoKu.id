@@ -177,11 +177,11 @@ new class extends Component {
             <table>
                 <thead>
                     <tr>
-                        <th>Foto</th>
+                        <th>Profil</th>
                         <th>Nama</th>
                         <th>Email</th>
                         <th>Peran</th>
-                        <th>Tanggal Bergabung</th>
+                        <th class="truncate">Tanggal Bergabung</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
