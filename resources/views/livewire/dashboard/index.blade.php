@@ -19,11 +19,16 @@ new class extends Component {
         "data" => [],
     ];
 
+    // Properti BARU untuk tanggal transaksi pertama
+    public $firstTransactionDate = null;
+
     public function mount(): void
     {
         $this->updateData();
         $this->loadRecentTransactions();
         $this->loadRecentPost();
+        // Panggil metode BARU di mount
+        $this->loadFirstTransactionDate();
     }
 
     public function getGreeting(): string
@@ -156,6 +161,21 @@ new class extends Component {
             ->get();
     }
 
+    // Metode BARU untuk mengambil tanggal transaksi pertama
+    public function loadFirstTransactionDate(): void
+    {
+        // Ambil entri transaksi pertama pengguna, diurutkan berdasarkan tanggal.
+        $firstEntry = FinancialEntry::where("user_id", Auth::id())
+            ->whereIn("type", ["buy", "sell"])
+            ->orderBy("transaction_date", "asc")
+            ->first();
+
+        // Simpan tanggal transaksi pertama.
+        $this->firstTransactionDate = $firstEntry
+            ? $firstEntry->transaction_date
+            : null;
+    }
+
     public function loadChartData(): void
     {
         $entries = FinancialEntry::where("user_id", Auth::id())
@@ -213,6 +233,8 @@ new class extends Component {
             "latestTransactions" => $this->recentTransactions,
             "latestPosts" => $this->recentPosts,
             "chartData" => $this->chartData,
+            // Tambahkan properti BARU ke dalam with()
+            "firstTransactionDate" => $this->firstTransactionDate,
         ];
     }
 }; ?>
@@ -321,8 +343,8 @@ new class extends Component {
                 {{ number_format($summaryData->total_pnl, 0, ",", ".") }}
             </p>
             <p class="mt-1 text-sm text-slate-400">
-                Sejak bergabung ~
-                {{ auth()->user()->created_at->diffForHumans() }}
+                Sejak beli aset ~
+                {{ $firstTransactionDate ? $firstTransactionDate->diffForHumans() : "Belum ada" }}
             </p>
         </div>
     </div>

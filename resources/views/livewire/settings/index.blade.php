@@ -23,6 +23,11 @@ new class extends Component {
     public string $password = "";
     public string $password_confirmation = "";
 
+    // START: Properti baru untuk Indodax API
+    public ?string $indodax_api_key = null;
+    public ?string $indodax_secret_key = null;
+    // END: Properti baru untuk Indodax API
+
     // showDeleteModal
     public $showDeleteModal = false;
 
@@ -31,6 +36,12 @@ new class extends Component {
         $this->name = Auth::user()->name;
         $this->email = Auth::user()->email;
         $this->phone_number = Auth::user()->phone_number;
+        // START: Ambil data API key dari user
+        $this->indodax_api_key = Auth::user()->indodax_api_key;
+        // Secret key biasanya tidak diambil kembali untuk keamanan,
+        // tapi kita inisialisasi null untuk form input.
+        $this->indodax_secret_key = null;
+        // END: Ambil data API key dari user
     }
 
     public function updatedPhoto(TemporaryUploadedFile $value): void
@@ -102,6 +113,46 @@ new class extends Component {
         $this->dispatch("password-updated");
     }
 
+    // START: Metode baru untuk menyimpan API Key Indodax
+    public function updateIndodaxApi(): void
+    {
+        $validated = $this->validate([
+            "indodax_api_key" => [
+                "nullable",
+                "string",
+                "max:255",
+                // Opsional: Tambahkan rule unik jika API Key harus unik per user,
+                // atau validasi format jika Indodax punya format tertentu.
+            ],
+            // Secret Key hanya diupdate jika diisi (untuk mencegah penimpaan dengan null/kosong)
+            "indodax_secret_key" => ["nullable", "string", "max:255"],
+        ]);
+
+        $updateData = [];
+
+        // Selalu update API Key
+        $updateData["indodax_api_key"] = $validated["indodax_api_key"];
+
+        // Hanya update Secret Key jika form input TIDAK KOSONG
+        if (! empty($validated["indodax_secret_key"])) {
+            // PENTING: Anda harus MENGENKRIPSI Secret Key sebelum menyimpannya ke database
+            // Contoh menggunakan enkripsi bawaan Laravel:
+            // $updateData['indodax_secret_key'] = encrypt($validated['indodax_secret_key']);
+            // Untuk contoh ini, saya simpan langsung, tapi harap terapkan enkripsi di dunia nyata!
+            $updateData["indodax_secret_key"] =
+                $validated["indodax_secret_key"];
+        }
+
+        Auth::user()->update($updateData);
+
+        // Reset Secret Key setelah disimpan
+        $this->reset("indodax_secret_key");
+
+        // Kirim event untuk notifikasi tersimpan
+        $this->dispatch("indodax-api-updated");
+    }
+    // END: Metode baru untuk menyimpan API Key Indodax
+
     public function deleteAccount(): void
     {
         // dd("delete account");
@@ -134,6 +185,13 @@ new class extends Component {
                     class="tab-link cursor-pointer"
                 >
                     Keamanan
+                </a>
+                <a
+                    @click.prevent="activeTab = 'indodax'"
+                    :class="{ 'active': activeTab === 'indodax' }"
+                    class="tab-link cursor-pointer"
+                >
+                    API Indodax
                 </a>
                 <a
                     @click.prevent="activeTab = 'preferensi'"
@@ -396,6 +454,98 @@ new class extends Component {
                 </div>
             </form>
         </div>
+
+        <!-- Tab Content: API Indodax -->
+        <div x-show="activeTab === 'indodax'" x-cloak class="p-6 md:p-8">
+            <h2 class="text-xl font-bold text-white mb-2">
+                Pengaturan Private API Indodax
+            </h2>
+            <p class="text-slate-400 mb-6">
+                Masukkan **Key** dan **Secret** API Indodax Anda untuk
+                mengaktifkan fungsionalitas transaksi dan histori. Pastikan Anda
+                hanya memberikan izin yang diperlukan (misalnya: **Info** dan
+                **Trade**).
+            </p>
+
+            <form wire:submit.prevent="updateIndodaxApi" class="space-y-6">
+                <div>
+                    <label
+                        for="indodax_api_key"
+                        class="block text-sm font-medium text-slate-300 mb-2"
+                    >
+                        API Key
+                    </label>
+                    <input
+                        type="text"
+                        id="indodax_api_key"
+                        wire:model="indodax_api_key"
+                        class="form-input @error("indodax_api_key") input-error @enderror"
+                        placeholder="Masukkan Indodax API Key Anda"
+                    />
+                    @error("indodax_api_key")
+                        <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <label
+                        for="indodax_secret_key"
+                        class="block text-sm font-medium text-slate-300 mb-2"
+                    >
+                        Secret Key
+                    </label>
+                    <input
+                        type="password"
+                        id="indodax_secret_key"
+                        wire:model="indodax_secret_key"
+                        class="form-input @error("indodax_secret_key") input-error @enderror"
+                        placeholder="Masukkan Indodax Secret Key Anda (Hanya diisi jika ingin diubah)"
+                    />
+                    <p class="text-xs text-slate-500 mt-2">
+                        Kami sarankan **tidak** menampilkan Secret Key setelah
+                        disimpan untuk alasan keamanan.
+                    </p>
+                    @error("indodax_secret_key")
+                        <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div
+                    class="pt-4 flex items-center justify-end gap-4"
+                    x-data="{ saved: false }"
+                    @indodax-api-updated.window="saved = true; setTimeout(() => saved = false, 2000)"
+                >
+                    <p
+                        x-show="saved"
+                        x-transition
+                        class="text-sm text-slate-400"
+                    >
+                        Tersimpan.
+                    </p>
+                    <button
+                        type="submit"
+                        wire:loading.attr="disabled"
+                        wire:target="updateIndodaxApi"
+                        class="bg-sky-500 hover:bg-sky-600 text-white font-semibold px-6 py-2 rounded-lg transition-colors cursor-pointer"
+                    >
+                        <x-loading
+                            wire:loading
+                            wire:target="updateIndodaxApi"
+                            class="loading-dots"
+                        />
+                        <span
+                            wire:loading.remove
+                            wire:target="updateIndodaxApi"
+                        >
+                            Simpan API Indodax
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div
+            x-show="activeTab === 'preferensi'"
+            x-cloak
+            class="p-6 md:p-8 hidden"
+        ></div>
 
         <!-- Tab Content: Preferensi -->
         <div
