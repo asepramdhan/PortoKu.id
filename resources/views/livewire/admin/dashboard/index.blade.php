@@ -389,8 +389,8 @@ new class extends Component {
                                     <td class="text-left truncate">
                                         {{ Str::limit($transaction->user->name, 15) }}
                                     </td>
-                                    <td class="text-left">
-                                        {{ $transaction->created_at->format("d M Y") }}
+                                    <td class="text-left text-sm truncate">
+                                        {{ $transaction->created_at->format("d M Y H:i") }}
                                         <br />
                                         <span
                                             class="text-slate-400 text-xs truncate"
