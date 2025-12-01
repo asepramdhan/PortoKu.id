@@ -169,12 +169,12 @@ new class extends Component {
         // Ambil entri transaksi pertama pengguna, diurutkan berdasarkan tanggal.
         $firstEntry = FinancialEntry::where("user_id", Auth::id())
             ->whereIn("type", ["buy", "sell"])
-            ->orderBy("transaction_date", "asc")
+            ->orderBy("created_at", "asc")
             ->first();
 
         // Simpan tanggal transaksi pertama.
         $this->firstTransactionDate = $firstEntry
-            ? $firstEntry->transaction_date
+            ? $firstEntry->created_at
             : null;
     }
 
