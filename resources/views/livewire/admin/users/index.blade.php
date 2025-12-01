@@ -177,7 +177,7 @@ new class extends Component {
             <table>
                 <thead>
                     <tr>
-                        <th class="truncate">Gambar Profil</th>
+                        <th class="truncate">Foto Profil</th>
                         <th>Nama</th>
                         <th>Email</th>
                         <th>Peran</th>
