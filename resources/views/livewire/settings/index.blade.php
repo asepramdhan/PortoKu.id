@@ -189,9 +189,9 @@ new class extends Component {
                 <a
                     @click.prevent="activeTab = 'indodax'"
                     :class="{ 'active': activeTab === 'indodax' }"
-                    class="tab-link cursor-pointer truncate"
+                    class="tab-link cursor-pointer"
                 >
-                    API Indodax
+                    API
                 </a>
                 <a
                     @click.prevent="activeTab = 'preferensi'"
