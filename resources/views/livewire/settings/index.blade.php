@@ -28,6 +28,11 @@ new class extends Component {
     public ?string $indodax_secret_key = null;
     // END: Properti baru untuk Indodax API
 
+    // START: Properti baru untuk data Indodax
+    public ?string $indodax_error = null;
+    public array $account_info = []; // Untuk getInfo
+    public array $transaction_history = []; // Untuk transHistory
+
     // showDeleteModal
     public $showDeleteModal = false;
 
@@ -152,6 +157,43 @@ new class extends Component {
         $this->dispatch("indodax-api-updated");
     }
     // END: Metode baru untuk menyimpan API Key Indodax
+
+    // Ambil Saldo/Info Akun
+    public function loadAccountInfo(): void
+    {
+        $this->reset(["account_info", "indodax_error"]);
+
+        try {
+            $apiService = new \App\Services\IndodaxApiService(Auth::user());
+            $result = $apiService->getInfo();
+
+            $this->account_info = $result["return"]["balance"] ?? [];
+        } catch (\Exception $e) {
+            $this->indodax_error = "Info Akun Gagal: " . $e->getMessage();
+        }
+    }
+
+    // Ambil Histori Transaksi (transHistory)
+    public function loadTransactionHistory(): void
+    {
+        $this->reset(["transaction_history", "indodax_error"]);
+
+        try {
+            $apiService = new \App\Services\IndodaxApiService(Auth::user());
+
+            // Kita ambil riwayat BTC/IDR sebagai contoh
+            $result = $apiService->getTransactionHistory("btc");
+
+            // Data transHistory seringkali berada langsung di 'return' atau di key tertentu
+            // Sesuaikan struktur ini dengan hasil API yang sebenarnya
+            // $this->transaction_history = $result["return"] ?? [];
+            $this->transaction_history =
+                $result["return"]["transactions"] ?? [];
+        } catch (\Exception $e) {
+            $this->indodax_error =
+                "Histori Transaksi Gagal: " . $e->getMessage();
+        }
+    }
 
     public function deleteAccount(): void
     {
@@ -459,6 +501,9 @@ new class extends Component {
         <div x-show="activeTab === 'indodax'" x-cloak class="p-6 md:p-8">
             <h2 class="text-xl font-bold text-white mb-2">
                 Pengaturan Private API Indodax
+                <span class="text-slate-400 text-sm italic">
+                    masih dalam pengembangan
+                </span>
             </h2>
             <p class="text-slate-400 mb-6">
                 Masukkan **Key** dan **Secret** API Indodax Anda untuk
@@ -540,6 +585,108 @@ new class extends Component {
                     </button>
                 </div>
             </form>
+
+            <div class="mt-8 border-t border-slate-800 pt-6">
+                <h3 class="text-lg font-bold text-white mb-4">
+                    💳 Histori Transaksi (Deposit/Withdrawal)
+                </h3>
+
+                <button
+                    type="button"
+                    wire:click="loadTransactionHistory"
+                    wire:loading.attr="disabled"
+                    wire:target="loadTransactionHistory"
+                    class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg transition-colors cursor-pointer mb-6"
+                >
+                    <x-loading
+                        wire:loading
+                        wire:target="loadTransactionHistory"
+                        class="loading-dots"
+                    />
+                    <span
+                        wire:loading.remove
+                        wire:target="loadTransactionHistory"
+                    >
+                        Muat Histori (Deposit/Withdraw)
+                    </span>
+                </button>
+
+                {{-- Tampilkan Error --}}
+                @if ($indodax_error)
+                    <div class="p-4 bg-red-800/20 text-red-400 rounded-lg mb-4">
+                        {{ $indodax_error }}
+                    </div>
+                @endif
+
+                {{-- Tampilkan Data Histori Transaksi (Sesuaikan dengan struktur data Indodax) --}}
+                @if (! empty($transaction_history))
+                    <h4 class="text-slate-300 text-sm mb-2">
+                        Ditemukan {{ count($transaction_history) }} Riwayat:
+                    </h4>
+                    <div class="space-y-3">
+                        @foreach ($transaction_history as $tx)
+                            <div
+                                class="p-3 border border-slate-700 rounded-lg bg-slate-800/50"
+                            >
+                                <p class="text-sm font-semibold text-white">
+                                    Tipe: {{ $tx["type"] ?? "N/A" }}
+                                </p>
+                                <p class="text-xs text-slate-400">
+                                    Jumlah: {{ $tx["amount"] ?? "N/A" }}
+                                    {{ $tx["asset"] ?? "" }}
+                                </p>
+                                <p class="text-xs text-slate-400">
+                                    Waktu:
+                                    {{ isset($tx["datetime"]) ? date("Y-m-d H:i:s", strtotime($tx["datetime"])) : "N/A" }}
+                                </p>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
+            <hr class="my-8 border-slate-800" />
+
+            <div class="mt-8 pt-6">
+                <h3 class="text-lg font-bold text-white mb-4">
+                    💰 Info Saldo Akun
+                </h3>
+
+                <button
+                    type="button"
+                    wire:click="loadAccountInfo"
+                    wire:loading.attr="disabled"
+                    wire:target="loadAccountInfo"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition-colors cursor-pointer mb-6"
+                >
+                    <x-loading
+                        wire:loading
+                        wire:target="loadAccountInfo"
+                        class="loading-dots"
+                    />
+                    <span wire:loading.remove wire:target="loadAccountInfo">
+                        Muat Info Saldo
+                    </span>
+                </button>
+
+                {{-- Tampilkan Data Saldo (Dibutuhkan penyesuaian styling lebih lanjut) --}}
+                @if (! empty($account_info))
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        @foreach ($account_info as $currency => $balance)
+                            <div
+                                class="p-4 border border-slate-700 rounded-lg bg-slate-800 text-center"
+                            >
+                                <p class="text-xs text-slate-400 uppercase">
+                                    {{ $currency }}
+                                </p>
+                                <p class="text-lg font-bold text-white">
+                                    {{ number_format($balance, 4) }}
+                                </p>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
         </div>
         <div
             x-show="activeTab === 'preferensi'"
