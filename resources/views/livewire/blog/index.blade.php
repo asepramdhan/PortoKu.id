@@ -77,48 +77,44 @@ new class extends Component {
 
                 @if ($posts->count() > 0)
                     <div class="grid grid-cols-12 mb-12">
-                        @foreach ($posts->random(1) as $post)
-                            @if ($post->views_count > 50)
-                                <div
-                                    class="blog-card flex flex-col col-span-10 col-start-2"
+                        @foreach ($posts->sortByDesc("views_count")->take(1) as $post)
+                            <div
+                                class="blog-card flex flex-col col-span-10 col-start-2"
+                            >
+                                <a
+                                    href="/blog/show/{{ $post->slug }}"
+                                    wire:navigate
+                                    class="block"
                                 >
-                                    <a
-                                        href="/blog/show/{{ $post->slug }}"
-                                        wire:navigate
-                                        class="block"
-                                    >
-                                        <img
-                                            src="{{ $post->featured_image_path ?? "https://placehold.co/600x400/1E293B/FFFFFF?text=PortoKu.id" }}"
-                                            alt="Gambar thumbnail untuk {{ $post->title }}"
-                                            class="w-full h-48 lg:h-78 object-cover"
-                                        />
-                                    </a>
-                                    <div class="p-6 flex flex-col flex-grow">
-                                        @if ($post->category)
-                                            {{-- FIX: Tautan kategori sekarang bisa diklik --}}
-                                            <a
-                                                href="/blog/category/{{ $post->category->slug }}"
-                                                wire:navigate
-                                                class="text-sm font-semibold text-sky-400 uppercase hover:underline"
-                                            >
-                                                {{ $post->category->name }}
-                                            </a>
-                                        @endif
-
-                                        <h2
-                                            class="mt-2 text-xl font-bold text-white group-hover:text-sky-400 transition-colors"
+                                    <img
+                                        src="{{ $post->featured_image_path ?? "https://placehold.co/600x400/1E293B/FFFFFF?text=PortoKu.id" }}"
+                                        alt="Gambar thumbnail untuk {{ $post->title }}"
+                                        class="w-full h-48 lg:h-78 object-cover"
+                                    />
+                                </a>
+                                <div class="p-6 flex flex-col flex-grow">
+                                    @if ($post->category)
+                                        {{-- FIX: Tautan kategori sekarang bisa diklik --}}
+                                        <a
+                                            href="/blog/category/{{ $post->category->slug }}"
+                                            wire:navigate
+                                            class="text-sm font-semibold text-sky-400 uppercase hover:underline"
                                         >
-                                            <span class="animate-pulse">
-                                                🔥
-                                            </span>
-                                            {{ $post->title }}
-                                        </h2>
-                                        <p class="mt-3 text-slate-400 text-sm">
-                                            {{ Str::limit(strip_tags($post->content), 120) }}
-                                        </p>
-                                    </div>
+                                            {{ $post->category->name }}
+                                        </a>
+                                    @endif
+
+                                    <h2
+                                        class="mt-2 text-xl font-bold text-white group-hover:text-sky-400 transition-colors"
+                                    >
+                                        <span class="animate-pulse">🔥</span>
+                                        {{ $post->title }}
+                                    </h2>
+                                    <p class="mt-3 text-slate-400 text-sm">
+                                        {{ Str::limit(strip_tags($post->content), 120) }}
+                                    </p>
                                 </div>
-                            @endif
+                            </div>
                         @endforeach
                     </div>
 

@@ -158,9 +158,7 @@ new class extends Component {
 
     public function loadRecentPost(): void
     {
-        $this->recentPosts = Post::orderBy("created_at", "desc")
-            ->limit(6)
-            ->get();
+        $this->recentPosts = Post::all();
     }
 
     // Metode BARU untuk mengambil tanggal transaksi pertama
@@ -628,62 +626,62 @@ new class extends Component {
             <div class="card p-6">
                 <h3 class="lg:mb-3 mb-4 text-md font-bold text-slate-300">
                     Berita Terkini
-                    <span class="animate-pulse">🔥</span>
                 </h3>
                 <div class="space-y-4">
-                    @foreach ($latestPosts->random(1) as $post)
+                    <h4 class="text-sm font-semibold text-slate-400">
+                        Trending
+                        <span class="animate-pulse">🔥</span>
+                    </h4>
+
+                    @foreach ($latestPosts->sortByDesc("views_count")->take(2) as $post)
                         <!-- Berita Trending Item 1 -->
-                        @if ($post->views_count > 10)
-                            <div
-                                class="flex items-center bg-slate-600/10 p-2 rounded-lg"
-                            >
-                                <div class="mr-4">
+                        <div
+                            class="flex items-center bg-slate-600/10 p-2 rounded-lg"
+                        >
+                            <div class="mr-4">
+                                <a
+                                    href="/blog/show/{{ $post->slug }}"
+                                    target="_blank"
+                                >
+                                    <img
+                                        src="{{ $post->featured_image_path ?? "https://placehold.co/600x400/1E293B/FFFFFF?text=PortoKu.id" }}"
+                                        alt="berita"
+                                        class="w-15 h-15 object-cover"
+                                    />
+                                </a>
+                            </div>
+                            <div class="flex-1">
+                                <p
+                                    class="font-semibold text-white lg:block hidden"
+                                >
                                     <a
                                         href="/blog/show/{{ $post->slug }}"
                                         target="_blank"
+                                        class="hover:text-sky-400"
                                     >
-                                        <img
-                                            src="{{ $post->featured_image_path ?? "https://placehold.co/600x400/1E293B/FFFFFF?text=PortoKu.id" }}"
-                                            alt="berita"
-                                            class="w-15 h-15 object-cover"
-                                        />
+                                        {{ Str::limit($post->title, 15) }}
                                     </a>
-                                </div>
-                                <div class="flex-1">
-                                    <p
-                                        class="font-semibold text-white lg:block hidden"
+                                </p>
+                                <p class="font-semibold text-white lg:hidden">
+                                    <a
+                                        href="/blog/show/{{ $post->slug }}"
+                                        target="_blank"
+                                        class="hover:text-sky-400"
                                     >
-                                        <a
-                                            href="/blog/show/{{ $post->slug }}"
-                                            target="_blank"
-                                            class="hover:text-sky-400"
-                                        >
-                                            <span class="animate-pulse">
-                                                🔥
-                                            </span>
-                                            {{ Str::limit($post->title, 15) }}
-                                        </a>
-                                    </p>
-                                    <p
-                                        class="font-semibold text-white lg:hidden"
-                                    >
-                                        <a
-                                            href="/blog/show/{{ $post->slug }}"
-                                            target="_blank"
-                                            class="hover:text-sky-400"
-                                        >
-                                            {{ Str::limit($post->title, 25) }}
-                                        </a>
-                                    </p>
-                                    <p class="text-sm text-slate-400">
-                                        {{ $post->created_at->diffForHumans() }}
-                                    </p>
-                                </div>
+                                        {{ Str::limit($post->title, 25) }}
+                                    </a>
+                                </p>
+                                <p class="text-sm text-slate-400">
+                                    {{ $post->created_at->diffForHumans() }}
+                                </p>
                             </div>
-                        @endif
+                        </div>
                     @endforeach
 
-                    @forelse ($latestPosts as $post)
+                    <h4 class="text-sm font-semibold text-slate-400 mt-4">
+                        Terbaru
+                    </h4>
+                    @forelse ($latestPosts->sortByDesc("created_at")->take(4) as $post)
                         <!-- Berita Item 1 -->
                         <div class="flex items-center">
                             <div class="mr-4">
