@@ -633,7 +633,7 @@ new class extends Component {
                 <div class="space-y-4">
                     @foreach ($latestPosts->random(1) as $post)
                         <!-- Berita Trending Item 1 -->
-                        @if ($post->views_count > 50)
+                        @if ($post->views_count > 10)
                             <div
                                 class="flex items-center bg-slate-600/10 p-2 rounded-lg"
                             >
