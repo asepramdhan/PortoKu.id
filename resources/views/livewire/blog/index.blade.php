@@ -13,7 +13,16 @@ new class extends Component {
 
     public function with(): array
     {
+        // Ambil 2 postingan terpopuler, diurutkan descending
+        $trends = Post::orderByDesc("views_count")
+            ->take(2)
+            ->get();
+
+        // Ekstrak semua ID dari postingan yang sudah diambil (yang trending)
+        $trendIds = $trends->pluck("id")->toArray();
+
         $query = Post::whereNotNull("published_at")
+            ->whereNotIn("id", $trendIds)
             ->where("published_at", "<=", now())
             ->orderBy("published_at", "desc");
 
@@ -30,6 +39,7 @@ new class extends Component {
 
         return [
             "posts" => $query->paginate(6),
+            "trends" => $trends,
         ];
     }
 }; ?>
@@ -76,11 +86,16 @@ new class extends Component {
                 </div>
 
                 @if ($posts->count() > 0)
-                    <div class="grid grid-cols-12 mb-12">
-                        @foreach ($posts->sortByDesc("views_count")->take(1) as $post)
-                            <div
-                                class="blog-card flex flex-col col-span-10 col-start-2"
-                            >
+                    <h2
+                        class="text-2xl text-center md:text-3xl font-bold text-slate-700 mb-6"
+                    >
+                        Tranding
+                        <span class="animate-pulse">🔥</span>
+                    </h2>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                        @foreach ($trends as $post)
+                            <div class="blog-card flex flex-col">
                                 <a
                                     href="/blog/show/{{ $post->slug }}"
                                     wire:navigate
@@ -117,6 +132,12 @@ new class extends Component {
                             </div>
                         @endforeach
                     </div>
+
+                    <h2
+                        class="text-2xl text-center md:text-3xl font-bold text-slate-700 mb-6"
+                    >
+                        Terbaru
+                    </h2>
 
                     <div
                         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"

@@ -13,6 +13,7 @@ new class extends Component {
     public $summary;
     public $avgBuyPrice;
     public Collection $recentTransactions;
+    public Collection $trendPosts;
     public Collection $recentPosts;
     public array $chartData = [
         "labels" => [],
@@ -26,6 +27,7 @@ new class extends Component {
     {
         $this->updateData();
         $this->loadRecentTransactions();
+        $this->loadTrendPost();
         $this->loadRecentPost();
         // Panggil metode BARU di mount
         $this->loadFirstTransactionDate();
@@ -156,9 +158,24 @@ new class extends Component {
             ->get();
     }
 
+    public function loadTrendPost(): void
+    {
+        // Ambil 2 postingan terpopuler, diurutkan descending
+        $this->trendPosts = Post::orderByDesc("views_count")
+            ->take(2)
+            ->get();
+    }
+
     public function loadRecentPost(): void
     {
-        $this->recentPosts = Post::all();
+        // Ekstrak semua ID dari postingan yang sudah diambil (yang trending)
+        $trendIds = $this->trendPosts->pluck("id")->toArray();
+        $this->recentPosts = Post::whereNotNull("published_at")
+            ->whereNotIn("id", $trendIds)
+            ->where("published_at", "<=", now())
+            ->orderBy("published_at", "desc")
+            ->limit(5)
+            ->get();
     }
 
     // Metode BARU untuk mengambil tanggal transaksi pertama
@@ -231,6 +248,7 @@ new class extends Component {
             "summaryData" => $this->summary,
             "avgBuyPrice" => $this->avgBuyPrice,
             "latestTransactions" => $this->recentTransactions,
+            "trends" => $this->trendPosts,
             "latestPosts" => $this->recentPosts,
             "chartData" => $this->chartData,
             // Tambahkan properti BARU ke dalam with()
@@ -633,55 +651,42 @@ new class extends Component {
                         <span class="animate-pulse">🔥</span>
                     </h4>
 
-                    @foreach ($latestPosts->sortByDesc("views_count")->take(2) as $post)
+                    @foreach ($trends as $post)
                         <!-- Berita Trending Item 1 -->
-                        <div
-                            class="flex items-center bg-slate-600/10 p-2 rounded-lg"
-                        >
-                            <div class="mr-4">
-                                <a
-                                    href="/blog/show/{{ $post->slug }}"
-                                    target="_blank"
-                                >
+                        <a href="/blog/show/{{ $post->slug }}" target="_blank">
+                            <div
+                                class="flex items-center mb-2 p-2 bg-slate-600/20 hover:bg-slate-700/20 rounded-lg {{ $post->views_count > 24 ? "animate-pulse" : "" }}"
+                            >
+                                <div class="mr-4">
                                     <img
                                         src="{{ $post->featured_image_path ?? "https://placehold.co/600x400/1E293B/FFFFFF?text=PortoKu.id" }}"
                                         alt="berita"
                                         class="w-15 h-15 object-cover"
                                     />
-                                </a>
-                            </div>
-                            <div class="flex-1">
-                                <p
-                                    class="font-semibold text-white lg:block hidden"
-                                >
-                                    <a
-                                        href="/blog/show/{{ $post->slug }}"
-                                        target="_blank"
-                                        class="hover:text-sky-400"
+                                </div>
+                                <div class="flex-1">
+                                    <p
+                                        class="font-semibold text-white lg:block hidden hover:text-sky-400"
                                     >
                                         {{ Str::limit($post->title, 15) }}
-                                    </a>
-                                </p>
-                                <p class="font-semibold text-white lg:hidden">
-                                    <a
-                                        href="/blog/show/{{ $post->slug }}"
-                                        target="_blank"
-                                        class="hover:text-sky-400"
+                                    </p>
+                                    <p
+                                        class="font-semibold text-white lg:hidden hover:text-sky-400"
                                     >
                                         {{ Str::limit($post->title, 25) }}
-                                    </a>
-                                </p>
-                                <p class="text-sm text-slate-400">
-                                    {{ $post->created_at->diffForHumans() }}
-                                </p>
+                                    </p>
+                                    <p class="text-sm text-slate-400">
+                                        {{ $post->created_at->diffForHumans() }}
+                                    </p>
+                                </div>
                             </div>
-                        </div>
+                        </a>
                     @endforeach
 
                     <h4 class="text-sm font-semibold text-slate-400 mt-4">
                         Terbaru
                     </h4>
-                    @forelse ($latestPosts->sortByDesc("created_at")->take(4) as $post)
+                    @forelse ($latestPosts as $post)
                         <!-- Berita Item 1 -->
                         <div class="flex items-center">
                             <div class="mr-4">
