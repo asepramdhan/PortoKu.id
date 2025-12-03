@@ -655,7 +655,7 @@ new class extends Component {
                         <!-- Berita Trending Item 1 -->
                         <a href="/blog/show/{{ $post->slug }}" target="_blank">
                             <div
-                                class="flex items-center mb-2 p-2 bg-slate-600/20 hover:bg-slate-700/20 rounded-lg {{ $post->views_count > 24 ? "animate-pulse" : "" }}"
+                                class="flex items-center mb-2 p-2 bg-slate-600/20 hover:bg-slate-700/20 rounded-lg {{ $post->views_count > 100 ? "animate-pulse" : "" }}"
                             >
                                 <div class="mr-4">
                                     <img
