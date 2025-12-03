@@ -73,9 +73,9 @@
                         Aset
                     </a>
                     <a
-                        href="#"
+                        href="/admin/transactions"
                         wire:navigate
-                        {{-- wire:current="active" --}}
+                        wire:current="active"
                         class="sidebar-link"
                     >
                         <x-icon name="lucide.arrow-right-left" class="mr-3" />

@@ -306,7 +306,7 @@ new class extends Component {
                 Kelola Aset
             </a>
             <a
-                href="#"
+                href="/admin/transactions"
                 wire:navigate
                 class="bg-slate-700 hover:bg-slate-600 text-white font-semibold px-5 py-3 rounded-lg flex items-center gap-2 transition-colors"
             >
@@ -359,9 +359,32 @@ new class extends Component {
     <!-- Recent Transactions -->
     <div class="grid grid-cols-1">
         <div class="card p-6 mb-8">
-            <h3 class="mb-4 text-xl font-bold text-white">
-                Aktivitas Transaksi
-            </h3>
+            {{--
+                <div class="flex flex-col md:flex-row justify-between md:items-center mb-6">
+                <h1 class="text-3xl font-bold text-white">Kelola Postingan Blog</h1>
+                <a
+                href="/admin/blog/create"
+                wire:navigate
+                class="bg-sky-500 hover:bg-sky-600 text-white font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-colors mt-4 md:mt-0"
+                >
+                <x-icon name="lucide.plus-circle" class="h-5 w-5" />
+                Buat Postingan Baru
+                </a>
+                </div>
+            --}}
+            <div class="flex flex-row justify-between mb-4">
+                <h3 class="text-xl font-bold text-white">
+                    Aktivitas Transaksi
+                </h3>
+                <a
+                    href="/admin/transactions"
+                    wire:navigate
+                    class="text-sky-500 hover:text-sky-600 font-semibold"
+                >
+                    Semua
+                    <span class="hidden md:inline">Transaksi</span>
+                </a>
+            </div>
             <div class="space-y-4">
                 <div class="table-wrapper">
                     <table class="w-full">
