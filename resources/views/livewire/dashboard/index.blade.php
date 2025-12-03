@@ -154,7 +154,7 @@ new class extends Component {
         $this->recentTransactions = FinancialEntry::with("asset")
             ->where("user_id", Auth::id())
             ->orderBy("transaction_date", "desc")
-            ->limit(6)
+            ->limit(7)
             ->get();
     }
 
