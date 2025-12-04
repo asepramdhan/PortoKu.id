@@ -15,9 +15,9 @@ new class extends Component {
             ->first();
         // Default jika tidak ada nomor Admin di database
         $phoneNumber = "6285117688832"; // Ganti dengan nomor default Anda
-        if ($admin) {
+        if ($admin->phone_number) {
             // Format nomor: ganti '0' di depan dengan '62'
-            $phoneNumber = "62" . substr($admin->phone, 1);
+            $phoneNumber = "62" . substr($admin->phone_number, 1);
         }
         // Buat pesan default yang akan diisi otomatis di WhatsApp
         $message = urlencode(
@@ -48,9 +48,15 @@ new class extends Component {
                 >
                     <span class="hidden md:inline">
                         @if (! $this->webApp->is_demo)
-                            <span>Production</span>
+                            <span class="text-green-400">
+                                <x-icon name="lucide.check" class="w-6 h-6" />
+                                Production
+                            </span>
                         @else
-                            <span class="text-red-400">Development</span>
+                            <span class="text-red-400">
+                                <x-icon name="lucide.x" class="w-6 h-6" />
+                                Development
+                            </span>
                         @endif
                     </span>
                     <span class="hidden md:inline">&bull;</span>
@@ -64,6 +70,19 @@ new class extends Component {
                         {{ $this->webApp->updated_at->format("d M Y H:i") }}
                     </time>
                 </div>
+                <span class="lg:hidden">
+                    @if (! $this->webApp->is_demo)
+                        <span class="text-green-400">
+                            <x-icon name="lucide.check" class="w-6 h-6" />
+                            Production
+                        </span>
+                    @else
+                        <span class="text-red-400">
+                            <x-icon name="lucide.x" class="w-6 h-6" />
+                            Development
+                        </span>
+                    @endif
+                </span>
             </header>
 
             <!-- Feature Image -->

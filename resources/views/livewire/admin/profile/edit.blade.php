@@ -10,6 +10,7 @@ new class extends Component {
 
     public string $name = "";
     public string $email = "";
+    public $phone_number = "";
     public ?string $about = "";
     public $photo;
     public ?TemporaryUploadedFile $previous_photo = null;
@@ -19,6 +20,7 @@ new class extends Component {
         $user = Auth::user();
         $this->name = $user->name;
         $this->email = $user->email;
+        $this->phone_number = $user->phone_number;
         $this->about = $user->about;
     }
 
@@ -33,6 +35,11 @@ new class extends Component {
         $validated = $this->validate([
             "photo" => ["nullable", "image", "max:1024"],
             "name" => "required|string|max:255",
+            "email" =>
+                "required|email|max:255|unique:users,email," . Auth::id(),
+            "phone_number" =>
+                "nullable|string|max:20|unique:users,phone_number," .
+                Auth::id(),
             "about" => "nullable|string|max:200", // Batasi 200 karakter
         ]);
 
@@ -172,9 +179,27 @@ new class extends Component {
                             id="email"
                             wire:model="email"
                             class="form-input @error("email") input-error @enderror"
-                            readonly
                         />
                         @error("email")
+                            <p class="mt-2 text-sm text-red-500">
+                                {{ $message }}
+                            </p>
+                        @enderror
+                    </div>
+                    <div>
+                        <label
+                            for="phone"
+                            class="block text-sm font-medium text-slate-300 mb-2"
+                        >
+                            Nomor Telp (WhatsApp)
+                        </label>
+                        <input
+                            type="number"
+                            id="phone"
+                            wire:model="phone_number"
+                            class="form-input @error("phone_number") input-error @enderror"
+                        />
+                        @error("phone_number")
                             <p class="mt-2 text-sm text-red-500">
                                 {{ $message }}
                             </p>
