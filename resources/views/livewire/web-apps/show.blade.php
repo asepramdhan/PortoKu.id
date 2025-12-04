@@ -2,6 +2,7 @@
 
 use Livewire\Volt\Component;
 use App\Models\User;
+use App\Models\WebApp;
 
 new class extends Component {
     public $webApp;
@@ -27,8 +28,15 @@ new class extends Component {
         // Buat URL WhatsApp
         $this->whatsappUrl = "https://wa.me/{$phoneNumber}?text={$message}";
 
+        // menampilkan semua data web app dan skip web app ini, dan tampilkan 3 web app terkait secara acak
+        $relatedWebApps = WebApp::where("id", "!=", $this->webApp->id)
+            ->inRandomOrder()
+            ->limit(3)
+            ->get();
+
         return [
             "whatsappUrl" => $this->whatsappUrl,
+            "relatedWebApps" => $relatedWebApps,
         ];
     }
 }; ?>
@@ -130,6 +138,79 @@ new class extends Component {
                         </div>
                     </a>
                 @endif
+            </div>
+        </div>
+
+        {{-- pembatas --}}
+        <div class="mt-12 md:mt-20">
+            <hr class="border-slate-600 border-dashed" />
+        </div>
+
+        {{-- releted web apps --}}
+        <div>
+            <h2
+                class="text-xl font-bold text-center text-slate-400 mt-12 md:mt-20 mb-8"
+            >
+                Aplikasi Web Lainnya
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                @foreach ($relatedWebApps as $app)
+                    <div class="card flex flex-col group overflow-hidden">
+                        <a
+                            href="/web-apps/show/{{ $app->slug }}"
+                            wire:navigate
+                            class="block"
+                        >
+                            <div class="relative">
+                                <img
+                                    src="{{ $app->image_path ?? "https://placehold.co/600x400/1E293B/FFFFFF?text=" . urlencode($app->title) }}"
+                                    alt="Gambar thumbnail untuk {{ $app->title }}"
+                                    class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                                />
+                                @if ($app->is_demo)
+                                    <span
+                                        class="absolute top-2 right-2 text-xs text-slate-400 bg-slate-800 px-2 py-1 rounded-full opacity-70"
+                                    >
+                                        Masih dalam pengembangan
+                                    </span>
+                                @endif
+                            </div>
+                        </a>
+                        <div class="p-6 flex flex-col flex-grow">
+                            @if ($app->tags)
+                                <div class="flex flex-wrap gap-2 mb-2">
+                                    @foreach ($app->tags as $tag)
+                                        <span
+                                            class="text-xs font-semibold text-sky-400 bg-sky-500/10 px-2 py-1 rounded-full"
+                                        >
+                                            {{ Str::title($tag) }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            @endif
+
+                            <a
+                                href="/web-apps/show/{{ $app->slug }}"
+                                wire:navigate
+                                class="block"
+                            >
+                                <h2
+                                    class="mt-2 text-xl font-bold text-white group-hover:text-sky-400 transition-colors"
+                                >
+                                    {{ $app->title }}
+                                </h2>
+                            </a>
+                            <p class="mt-3 text-slate-400 text-sm flex-grow">
+                                {{ Str::limit(strip_tags($app->description), 120) }}
+                            </p>
+                            <p class="mt-4 text-xs text-slate-500">
+                                {{ $app->created_at->format("d M Y") }} |
+                                Updated
+                                {{ $app->updated_at->format("d M Y H:i") }}
+                            </p>
+                        </div>
+                    </div>
+                @endforeach
             </div>
         </div>
     </div>
