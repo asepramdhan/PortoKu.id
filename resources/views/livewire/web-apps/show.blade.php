@@ -1,13 +1,35 @@
 <?php
 
 use Livewire\Volt\Component;
+use App\Models\User;
 
 new class extends Component {
     public $webApp;
+    public string $whatsappUrl = ""; // <-- Properti untuk menampung URL WhatsApp
 
-    public function mount(): void
+    public function with(): array
     {
-        // dd($this->webApp);
+        // Ambil satu nomor Admin secara acak dari database
+        $admin = User::where("is_admin", 1)
+            ->inRandomOrder()
+            ->first();
+        // Default jika tidak ada nomor Admin di database
+        $phoneNumber = "6285117688832"; // Ganti dengan nomor default Anda
+        if ($admin) {
+            // Format nomor: ganti '0' di depan dengan '62'
+            $phoneNumber = "62" . substr($admin->phone, 1);
+        }
+        // Buat pesan default yang akan diisi otomatis di WhatsApp
+        $message = urlencode(
+            "Assalamualaikum, Kak. Saya tertarik dengan aplikasi '{$this->webApp->title}'. Apakah masih tersedia?",
+        );
+
+        // Buat URL WhatsApp
+        $this->whatsappUrl = "https://wa.me/{$phoneNumber}?text={$message}";
+
+        return [
+            "whatsappUrl" => $this->whatsappUrl,
+        ];
     }
 }; ?>
 
@@ -24,16 +46,22 @@ new class extends Component {
                 <div
                     class="mt-6 flex items-center justify-center space-x-4 text-slate-400"
                 >
-                    @if (! $this->webApp->is_demo)
-                        <span>Production</span>
-                    @else
-                        <span class="text-red-400">Development</span>
-                    @endif
-                    <span>&bull;</span>
+                    <span class="hidden md:inline">
+                        @if (! $this->webApp->is_demo)
+                            <span>Production</span>
+                        @else
+                            <span class="text-red-400">Development</span>
+                        @endif
+                    </span>
+                    <span class="hidden md:inline">&bull;</span>
                     <time
                         datetime="{{ $this->webApp->created_at->toIso8601String() }}"
                     >
-                        {{ $this->webApp->created_at->format("d M Y") }}
+                        <span class="hidden md:inline">
+                            {{ $this->webApp->created_at->format("d M Y") }} |
+                        </span>
+                        Updated
+                        {{ $this->webApp->updated_at->format("d M Y H:i") }}
                     </time>
                 </div>
             </header>
@@ -70,16 +98,16 @@ new class extends Component {
                 </a>
                 @if (! $this->webApp->is_demo)
                     <a
-                        href="{{ $this->webApp->shopee_link }}"
+                        href="{{ $whatsappUrl }}"
                         target="_blank"
-                        class="mt-6 inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-3 rounded-lg transition-colors text-center"
+                        class="mt-6 inline-block bg-green-500 hover:bg-green-600 text-white font-bold px-6 py-3 rounded-lg transition-colors text-center"
                     >
                         <div class="flex items-center justify-center gap-2">
                             <x-icon
-                                name="lucide.shopping-cart"
+                                name="lucide.message-circle"
                                 class="w-5 h-5"
                             />
-                            <span>Lihat di Shopee</span>
+                            <span>Chat Admin</span>
                         </div>
                     </a>
                 @endif

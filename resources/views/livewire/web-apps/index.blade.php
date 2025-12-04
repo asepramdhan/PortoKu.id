@@ -1,20 +1,15 @@
 <?php
 
 use App\Models\WebApp;
+use App\Models\User;
 use Livewire\Volt\Component;
 
 new class extends Component {
-    public $webApps;
-
-    public function mount(): void
-    {
-        $this->webApps = WebApp::all();
-    }
-
     public function with(): array
     {
+        $webProjects = WebApp::latest()->get();
         return [
-            "webApps" => $this->webApps,
+            "webApps" => $webProjects,
         ];
     }
 }; ?>
@@ -29,8 +24,7 @@ new class extends Component {
             <p class="mt-4 text-lg md:text-xl text-slate-400 max-w-3xl mx-auto">
                 Temukan koleksi aplikasi web siap pakai yang dibangun dengan
                 teknologi modern. Solusi instan untuk kebutuhan digital Anda
-                atau bisnis Anda. Aplikasi web yang tersedia eksklusif di
-                Shopee.
+                atau bisnis Anda.
             </p>
         </div>
     </section>
@@ -93,38 +87,11 @@ new class extends Component {
                                 >
                                     {{ Str::limit(strip_tags($app->description), 120) }}
                                 </p>
-                                <a
-                                    href="{{ $app->demo_link }}"
-                                    target="_blank"
-                                    class="mt-6 inline-block bg-sky-500 hover:bg-sky-600 text-white font-bold px-6 py-3 rounded-lg transition-colors text-center"
-                                >
-                                    <div
-                                        class="flex items-center justify-center gap-2"
-                                    >
-                                        <x-icon
-                                            name="lucide.eye"
-                                            class="w-5 h-5"
-                                        />
-                                        <span>Lihat Demo</span>
-                                    </div>
-                                </a>
-                                @if (! $app->is_demo)
-                                    <a
-                                        href="{{ $app->shopee_link }}"
-                                        target="_blank"
-                                        class="mt-6 inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-3 rounded-lg transition-colors text-center"
-                                    >
-                                        <div
-                                            class="flex items-center justify-center gap-2"
-                                        >
-                                            <x-icon
-                                                name="lucide.shopping-cart"
-                                                class="w-5 h-5"
-                                            />
-                                            <span>Lihat di Shopee</span>
-                                        </div>
-                                    </a>
-                                @endif
+                                <p class="mt-4 text-xs text-slate-500">
+                                    {{ $app->created_at->format("d M Y") }} |
+                                    Updated
+                                    {{ $app->updated_at->format("d M Y H:i") }}
+                                </p>
                             </div>
                         </div>
                     @endforeach

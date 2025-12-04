@@ -350,8 +350,8 @@ new class extends Component {
                 wire:navigate
                 class="bg-slate-700 hover:bg-slate-600 text-white font-semibold px-5 py-3 rounded-lg flex items-center gap-2 transition-colors"
             >
-                <x-icon name="lucide.info" class="w-5 h-5" />
-                Tentang
+                <x-icon name="lucide.settings" class="w-5 h-5" />
+                Pengaturan Profil
             </a>
         </div>
     </div>

@@ -69,7 +69,7 @@ new class extends Component {
 <div>
     <x-notification />
 
-    <main class="flex-1 p-6 md:p-8">
+    <main class="flex-1">
         <h1 class="text-3xl font-bold text-white mb-6">Edit Profil</h1>
         <form wire:submit.prevent="save">
             <div class="card p-6 md:p-8">
@@ -98,16 +98,16 @@ new class extends Component {
                                     @if ($photo)
                                         <img
                                             src="{{ $photo->temporaryUrl() }}"
-                                            class="w-20 h-20 rounded-full object-cover"
+                                            class="w-15 h-15 lg:w-20 lg:h-20 rounded-full object-cover"
                                         />
                                     @elseif (Auth::user()->profile_photo_path)
                                         <img
                                             src="{{ asset("storage/" . Auth::user()->profile_photo_path) }}"
-                                            class="w-20 h-20 rounded-full object-cover"
+                                            class="w-15 h-15 lg:w-20 lg:h-20 rounded-full object-cover"
                                         />
                                     @else
                                         <div
-                                            class="w-20 h-20 rounded-full bg-slate-700 flex items-center justify-center"
+                                            class="w-15 h-15 lg:w-20 lg:h-20 rounded-full bg-slate-700 flex items-center justify-center"
                                         >
                                             <x-icon
                                                 name="lucide.user"
