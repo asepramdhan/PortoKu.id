@@ -51,9 +51,17 @@ new class extends Component {
                                     />
                                     @if ($app->is_demo)
                                         <span
-                                            class="absolute top-2 right-2 text-xs text-slate-400 bg-slate-800 px-2 py-1 rounded-full opacity-70"
+                                            class="absolute top-2 right-2 text-xs font-semibold text-red-400 bg-slate-700 px-2 py-1 rounded-full"
                                         >
-                                            Masih dalam pengembangan
+                                            <div
+                                                class="flex items-center gap-1"
+                                            >
+                                                <x-icon
+                                                    name="lucide.file-terminal"
+                                                    class="w-4 h-4"
+                                                />
+                                                <span>Development</span>
+                                            </div>
                                         </span>
                                     @endif
                                 </div>

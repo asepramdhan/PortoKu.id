@@ -57,13 +57,23 @@ new class extends Component {
                     <span class="hidden md:inline">
                         @if (! $this->webApp->is_demo)
                             <span class="text-green-400">
-                                <x-icon name="lucide.check" class="w-6 h-6" />
-                                Production
+                                <div class="flex items-center gap-1">
+                                    <x-icon
+                                        name="lucide.rocket"
+                                        class="w-6 h-6"
+                                    />
+                                    <span>Production</span>
+                                </div>
                             </span>
                         @else
                             <span class="text-red-400">
-                                <x-icon name="lucide.x" class="w-6 h-6" />
-                                Development
+                                <div class="flex items-center gap-1">
+                                    <x-icon
+                                        name="lucide.file-terminal"
+                                        class="w-6 h-6"
+                                    />
+                                    <span>Development</span>
+                                </div>
                             </span>
                         @endif
                     </span>
@@ -81,13 +91,20 @@ new class extends Component {
                 <span class="lg:hidden">
                     @if (! $this->webApp->is_demo)
                         <span class="text-green-400">
-                            <x-icon name="lucide.check" class="w-6 h-6" />
-                            Production
+                            <div class="flex items-center gap-1">
+                                <x-icon name="lucide.rocket" class="w-6 h-6" />
+                                <span>Production</span>
+                            </div>
                         </span>
                     @else
                         <span class="text-red-400">
-                            <x-icon name="lucide.x" class="w-6 h-6" />
-                            Development
+                            <div class="flex items-center gap-1">
+                                <x-icon
+                                    name="lucide.file-terminal"
+                                    class="w-6 h-6"
+                                />
+                                <span>Development</span>
+                            </div>
                         </span>
                     @endif
                 </span>
@@ -169,9 +186,15 @@ new class extends Component {
                                 />
                                 @if ($app->is_demo)
                                     <span
-                                        class="absolute top-2 right-2 text-xs text-slate-400 bg-slate-800 px-2 py-1 rounded-full opacity-70"
+                                        class="absolute top-2 right-2 text-xs font-semibold text-red-400 bg-slate-700 px-2 py-1 rounded-full"
                                     >
-                                        Masih dalam pengembangan
+                                        <div class="flex items-center gap-1">
+                                            <x-icon
+                                                name="lucide.file-terminal"
+                                                class="w-4 h-4"
+                                            />
+                                            <span>Development</span>
+                                        </div>
                                     </span>
                                 @endif
                             </div>
