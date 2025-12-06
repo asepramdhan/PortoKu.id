@@ -23,6 +23,10 @@ new class extends Component {
     // Properti BARU untuk tanggal transaksi pertama
     public $firstTransactionDate = null;
 
+    // Tambahkan properti untuk menyimpan harga USD
+    public $currentBtcPrice; // Sekarang untuk IDR
+    public $currentUsdPrice; // Properti BARU untuk USD
+
     public function mount(): void
     {
         $this->updateData();
@@ -61,8 +65,8 @@ new class extends Component {
     public function calculateSummary(): void
     {
         // FIX: Gunakan Cache::remember() untuk menyimpan hasil API selama 5 menit
-        $currentPricePerUnit = Cache::remember(
-            "bitcoin_price_idr",
+        $prices = Cache::remember(
+            "bitcoin_prices_idr_usd",
             now()->addMinutes(5),
             function () {
                 try {
@@ -70,22 +74,33 @@ new class extends Component {
                         "https://api.coingecko.com/api/v3/simple/price",
                         [
                             "ids" => "bitcoin",
-                            "vs_currencies" => "idr",
+                            "vs_currencies" => "idr,usd", // MEMINTA IDR DAN USD
                         ],
                     )->json();
-                    // Kembalikan harga, atau null jika gagal
-                    return $response["bitcoin"]["idr"] ?? null;
+                    // Kembalikan array [idr_price, usd_price], atau null jika gagal
+                    return [
+                        "idr" => $response["bitcoin"]["idr"] ?? null,
+                        "usd" => $response["bitcoin"]["usd"] ?? null,
+                    ];
                 } catch (\Exception $e) {
                     // Jika API error, kembalikan null
-                    return null;
+                    return [
+                        "idr" => null,
+                        "usd" => null,
+                    ];
                 }
             },
         );
 
         // Gunakan harga statis sebagai fallback jika cache atau API gagal
-        $currentPricePerUnit = $currentPricePerUnit ?? 1950000000;
+        $idrPrice = $prices["idr"] ?? 1950000000;
+        $usdPrice = $prices["usd"] ?? 125000; // Tambahkan fallback harga USD (misalnya)
 
-        $this->currentBtcPrice = $currentPricePerUnit;
+        // Simpan ke properti
+        $this->currentBtcPrice = $idrPrice; // Ini adalah harga IDR
+        $this->currentUsdPrice = $usdPrice; // Ini adalah harga USD (BARU)
+
+        $currentPricePerUnit = $this->currentBtcPrice; // Gunakan harga IDR untuk perhitungan portofolio
 
         $entries = FinancialEntry::with("asset")
             ->where("user_id", Auth::id())
@@ -269,7 +284,7 @@ new class extends Component {
         <div class="card p-6">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-slate-400 font-medium">
-                    Harga BTC Saat Ini
+                    Harga BTC RP/USD
                     <span class="lg:hidden"><br /></span>
                     <i class="text-xs text-slate-500">
                         {{ now()->format("d M Y") }} ~Update setiap 5 menit
@@ -279,6 +294,10 @@ new class extends Component {
             </div>
             <p class="text-3xl font-bold text-white">
                 Rp {{ number_format($this->currentBtcPrice, 0, ",", ".") }}
+            </p>
+            <p class="text-xl font-bold text-slate-300">
+                {{ number_format($this->currentUsdPrice, 2, ",", ".") }}
+                USD
             </p>
             <p class="mt-1 text-sm text-slate-400">
                 Rata-rata Beli : Rp
