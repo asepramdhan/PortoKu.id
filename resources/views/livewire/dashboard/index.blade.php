@@ -284,7 +284,7 @@ new class extends Component {
         <div class="card p-6">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-slate-400 font-medium">
-                    Harga BTC IDR/USD
+                    Harga BTC IDR-USD
                     <span class="lg:hidden"><br /></span>
                     <i class="text-xs text-slate-500">
                         {{ now()->format("d M Y") }} ~Update setiap 5 menit
