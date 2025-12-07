@@ -91,6 +91,15 @@
                         Blog
                     </a>
                     <a
+                        href="/admin/ads"
+                        wire:navigate
+                        wire:current.exact="active"
+                        class="sidebar-link"
+                    >
+                        <x-icon name="lucide.megaphone" class="mr-3" />
+                        Iklan
+                    </a>
+                    <a
                         href="/admin/blog/categories"
                         wire:navigate
                         wire:current="active"

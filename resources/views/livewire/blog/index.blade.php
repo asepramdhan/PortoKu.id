@@ -1,9 +1,11 @@
 <?php
 
 use App\Models\Post;
+use App\Models\ShopeeAd;
 use Livewire\WithPagination;
 use Livewire\Volt\Component;
 use Livewire\Attributes\Url;
+use Illuminate\Pagination\LengthAwarePaginator; // Import ini untuk paginasi
 
 new class extends Component {
     use WithPagination; // Membuat pencarian muncul di URL
@@ -37,9 +39,21 @@ new class extends Component {
             });
         }
 
+        // buat iklan shopee secara random
+        // Ambil hanya iklan yang dipublikasikan
+        $ads = ShopeeAd::where("is_published", true)->get();
+        // Inisialisasi $ad sebagai null atau object kosong
+        $ad = null;
+        // Cek apakah ada iklan yang tersedia sebelum memanggil random()
+        if ($ads->isNotEmpty()) {
+            // Ambil iklan secara acak hanya jika ada data
+            $ad = $ads->random();
+        }
+
         return [
-            "posts" => $query->paginate(6),
+            "posts" => $query->paginate(10),
             "trends" => $trends,
+            "ad" => $ad,
         ];
     }
 }; ?>
@@ -133,6 +147,50 @@ new class extends Component {
                         @endforeach
                     </div>
 
+                    {{-- START: SLOT IKLAN AFFILIATE SHOPEE - POSISI 1 --}}
+
+                    @if ($ad)
+                        <div class="my-10 lg:p-6 text-center">
+                            <p class="text-lg font-bold text-sky-400 mb-4">
+                                Produk Tranding di Shopee
+                            </p>
+
+                            {{-- GANTI DENGAN KODE IKLAN SHOPEE AFFILIATE ANDA --}}
+
+                            <div class="p-4 lg:mx-65 rounded-lg blog-card">
+                                <img
+                                    src="{{ $ad->image_path ?? "https://placehold.co/600x400/1E293B/FFFFFF?text=PortoKu.id" }}"
+                                    alt="Gambar thumbnail untuk {{ $ad->product_name }}"
+                                    class="w-full h-48 lg:h-78 object-cover"
+                                />
+
+                                <h2
+                                    class="mt-2 text-xl font-bold text-white group-hover:text-sky-400 transition-colors"
+                                >
+                                    {{ $ad->product_name }}
+                                </h2>
+
+                                <p class="mt-3 text-slate-400 text-sm">
+                                    {{ Str::limit(strip_tags($ad->description), 120) }}
+                                </p>
+
+                                <a
+                                    href="{{ $ad->ad_link }}"
+                                    target="_blank"
+                                    class="inline-block px-6 py-3 my-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition duration-300 animate-pulse hover:animate-none"
+                                >
+                                    Order Sebelum Kehabisan
+                                </a>
+                                <p class="text-sm text-slate-400">
+                                    Stok Terbatas
+                                </p>
+                            </div>
+                            {{-- JIKA KODE SHOPEE ANDA ADALAH JS/IFRAME, MASUKKAN DI SINI --}}
+                        </div>
+                    @endif
+
+                    {{-- END: SLOT IKLAN AFFILIATE SHOPEE - POSISI 1 --}}
+
                     <h2
                         class="text-2xl text-center md:text-3xl font-bold text-slate-700 mb-6"
                     >
@@ -188,6 +246,46 @@ new class extends Component {
                                     </p>
                                 </div>
                             </div>
+                            {{-- START: SLOT IKLAN AFFILIATE SHOPEE - POSISI 2 (Setelah Postingan ke-3) --}}
+
+                            @if ($loop->index + 1 == 3)
+                                @if ($ad)
+                                    <div
+                                        class="blog-card flex flex-col md:col-span-2 lg:col-span-3"
+                                    >
+                                        {{-- Ini akan memakan lebar 3 kolom agar iklan banner lebih besar. --}}
+
+                                        <div
+                                            class="p-6 bg-yellow-900 rounded-lg shadow-xl text-center"
+                                        >
+                                            <p
+                                                class="text-xl font-bold text-white mb-4"
+                                            >
+                                                Diskon Khusus Hanya untuk Anda!
+                                            </p>
+
+                                            {{-- GANTI DENGAN KODE IKLAN SHOPEE AFFILIATE ANDA --}}
+                                            <a href="{{ $ad->ad_link }}">
+                                                <h3
+                                                    class="text-xl font-bold text-sky-400 hover:underline animate-pulse hover:animate-none mb-4 transition duration-300"
+                                                >
+                                                    {{ $ad->product_name }}
+                                                </h3>
+                                            </a>
+
+                                            <a
+                                                href="{{ $ad->ad_link }}"
+                                                target="_blank"
+                                                class="inline-block px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white text-lg font-semibold rounded-lg transition duration-300"
+                                            >
+                                                Cek Promonya Sekarang!
+                                            </a>
+                                        </div>
+                                    </div>
+                                @endif
+                            @endif
+
+                            {{-- END: SLOT IKLAN AFFILIATE SHOPEE - POSISI 2 --}}
                         @endforeach
                     </div>
 

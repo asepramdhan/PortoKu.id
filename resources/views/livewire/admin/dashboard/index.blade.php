@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use App\Models\Post;
+use App\Models\ShopeeAd;
 use App\Models\FinancialEntry;
 use Livewire\Volt\Component;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +18,7 @@ new class extends Component {
     // Card Bawah (Statistik Total)
     public int $totalUsers;
     public int $totalPosts;
+    public int $totalAds;
     public int $totalTransactions;
 
     // Data untuk Chart
@@ -57,6 +59,7 @@ new class extends Component {
         // 2. Hitung data untuk 3 kartu bawah
         $this->totalUsers = User::count();
         $this->totalPosts = Post::count();
+        $this->totalAds = ShopeeAd::count();
         $this->totalTransactions = FinancialEntry::count();
 
         // Latest Transactions
@@ -101,6 +104,7 @@ new class extends Component {
         return [
             "totalUsers" => $this->totalUsers,
             "totalPosts" => $this->totalPosts,
+            "totalAds" => $this->totalAds,
             "totalTransactions" => $this->totalTransactions,
             "viewsToday" => $this->viewsToday,
             "views7Days" => $this->views7Days,
@@ -251,46 +255,72 @@ new class extends Component {
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-center">
-        <div class="card p-6 flex items-center gap-6">
-            <div class="bg-sky-500/10 p-4 rounded-lg">
-                <x-icon name="lucide.users" class="w-8 h-8 text-sky-400" />
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 text-center">
+        {{-- Card Pengguna --}}
+        <a href="/admin/users" wire:navigate>
+            <div class="card p-6 flex items-center gap-6">
+                <div class="bg-sky-500/10 p-4 rounded-lg">
+                    <x-icon name="lucide.users" class="w-8 h-8 text-sky-400" />
+                </div>
+                <div>
+                    <p class="text-slate-400 font-medium">Total Pengguna</p>
+                    <p class="text-3xl font-bold text-white">
+                        {{ number_format($totalUsers) }}
+                    </p>
+                </div>
             </div>
-            <div>
-                <p class="text-slate-400 font-medium">Total Pengguna</p>
-                <p class="text-3xl font-bold text-white">
-                    {{ number_format($totalUsers) }}
-                </p>
+        </a>
+        {{-- Card Postingan --}}
+        <a href="/admin/blog" wire:navigate>
+            <div class="card p-6 flex items-center gap-6">
+                <div class="bg-green-500/10 p-4 rounded-lg">
+                    <x-icon
+                        name="lucide.file-text"
+                        class="w-8 h-8 text-green-400"
+                    />
+                </div>
+                <div>
+                    <p class="text-slate-400 font-medium">Total Postingan</p>
+                    <p class="text-3xl font-bold text-white">
+                        {{ number_format($totalPosts) }}
+                    </p>
+                </div>
             </div>
-        </div>
-        <div class="card p-6 flex items-center gap-6">
-            <div class="bg-green-500/10 p-4 rounded-lg">
-                <x-icon
-                    name="lucide.file-text"
-                    class="w-8 h-8 text-green-400"
-                />
+        </a>
+        {{-- Card Iklan --}}
+        <a href="/admin/ads" wire:navigate>
+            <div class="card p-6 flex items-center gap-6">
+                <div class="bg-pink-500/10 p-4 rounded-lg">
+                    <x-icon
+                        name="lucide.megaphone"
+                        class="w-8 h-8 text-pink-400"
+                    />
+                </div>
+                <div>
+                    <p class="text-slate-400 font-medium">Total Iklan</p>
+                    <p class="text-3xl font-bold text-white">
+                        {{ number_format($totalAds) }}
+                    </p>
+                </div>
             </div>
-            <div>
-                <p class="text-slate-400 font-medium">Total Postingan</p>
-                <p class="text-3xl font-bold text-white">
-                    {{ number_format($totalPosts) }}
-                </p>
+        </a>
+        {{-- Card Transaksi --}}
+        <a href="/admin/transactions" wire:navigate>
+            <div class="card p-6 flex items-center gap-6">
+                <div class="bg-orange-500/10 p-4 rounded-lg">
+                    <x-icon
+                        name="lucide.arrow-right-left"
+                        class="w-8 h-8 text-orange-400"
+                    />
+                </div>
+                <div>
+                    <p class="text-slate-400 font-medium">Total Transaksi</p>
+                    <p class="text-3xl font-bold text-white">
+                        {{ number_format($totalTransactions) }}
+                    </p>
+                </div>
             </div>
-        </div>
-        <div class="card p-6 flex items-center gap-6">
-            <div class="bg-orange-500/10 p-4 rounded-lg">
-                <x-icon
-                    name="lucide.arrow-right-left"
-                    class="w-8 h-8 text-orange-400"
-                />
-            </div>
-            <div>
-                <p class="text-slate-400 font-medium">Total Transaksi</p>
-                <p class="text-3xl font-bold text-white">
-                    {{ number_format($totalTransactions) }}
-                </p>
-            </div>
-        </div>
+        </a>
     </div>
 
     <!-- Quick Actions -->
@@ -320,6 +350,14 @@ new class extends Component {
             >
                 <x-icon name="lucide.book-open" class="w-5 h-5" />
                 Kelola Blog
+            </a>
+            <a
+                href="/admin/ads"
+                wire:navigate
+                class="bg-slate-700 hover:bg-slate-600 text-white font-semibold px-5 py-3 rounded-lg flex items-center gap-2 transition-colors"
+            >
+                <x-icon name="lucide.megaphone" class="w-5 h-5" />
+                Kelola Iklan
             </a>
             <a
                 href="/admin/blog/categories"
