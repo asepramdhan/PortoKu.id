@@ -274,21 +274,18 @@ new class extends Component {
                                             </p>
 
                                             {{-- GANTI DENGAN KODE IKLAN SHOPEE AFFILIATE ANDA --}}
-                                            <a href="{{ $ad->ad_link }}">
-                                                <h3
-                                                    class="text-xl font-bold text-sky-400 hover:underline animate-pulse hover:animate-none mb-4 transition duration-300"
-                                                >
-                                                    {{ $ad->product_name }}
-                                                </h3>
-                                            </a>
+                                            <h3
+                                                class="text-xl font-bold text-sky-400 hover:underline animate-pulse hover:animate-none mb-4 transition duration-300"
+                                            >
+                                                {{ $ad->product_name }}
+                                            </h3>
 
-                                            <a
-                                                href="{{ $ad->ad_link }}"
-                                                target="_blank"
-                                                class="inline-block px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white text-lg font-semibold rounded-lg transition duration-300"
+                                            <button
+                                                wire:click="recordClickAndRedirect({{ $ad->id }})"
+                                                class="inline-block px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white text-lg font-semibold rounded-lg transition duration-300 cursor-pointer"
                                             >
                                                 Cek Promonya Sekarang!
-                                            </a>
+                                            </button>
                                         </div>
                                     </div>
                                 @endif
