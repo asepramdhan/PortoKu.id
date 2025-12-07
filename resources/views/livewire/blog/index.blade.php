@@ -51,7 +51,7 @@ new class extends Component {
         }
 
         return [
-            "posts" => $query->paginate(10),
+            "posts" => $query->paginate(9),
             "trends" => $trends,
             "ad" => $ad,
         ];
@@ -248,7 +248,7 @@ new class extends Component {
                             </div>
                             {{-- START: SLOT IKLAN AFFILIATE SHOPEE - POSISI 2 (Setelah Postingan ke-3) --}}
 
-                            @if ($loop->index + 1 == 3)
+                            @if ($loop->index + 1 == 10)
                                 @if ($ad)
                                     <div
                                         class="blog-card flex flex-col md:col-span-2 lg:col-span-3"
