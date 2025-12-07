@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Post;
+use App\Models\ShopeeAd;
 use App\Models\WebApp;
 use Livewire\Volt\Component;
 use Illuminate\Database\Eloquent\Collection;
@@ -40,48 +41,30 @@ new class extends Component {
         }
     }
 
-    public function getProcessedContentProperty(): string
+    public function recordClickAndRedirect(ShopeeAd $ad): void
     {
-        $content = $this->post->content;
+        // Naikkan jumlah klik
+        $ad->increment("clicks_count");
 
-        // Kode iklan AdSense Anda (bagian <ins> dan <script> kedua)
-        $adCode = <<<'HTML'
-                    <div class="my-8"> <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8728220555344178"
-             crossorigin="anonymous"></script>
-        <ins class="adsbygoogle"
-             style="display:block; text-align:center;"
-             data-ad-layout="in-article"
-             data-ad-format="fluid"
-             data-ad-client="ca-pub-8728220555344178"
-             data-ad-slot="5273485627"></ins>
-        <script>
-             (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
-        </div>
-        HTML;
+        $this->redirect($ad->ad_link);
+    }
 
-        try {
-            // Jangan sisipkan iklan jika artikel terlalu pendek
-            if (substr_count($content, "<p>") < 4) {
-                return $content;
-            }
-
-            $crawler = new Crawler($content);
-
-            // Cari semua paragraf. Kita akan sisipkan iklan setelah paragraf ke-3.
-            $paragraphs = $crawler->filter("p");
-
-            if ($paragraphs->count() >= 3) {
-                $paragraphs
-                    ->getNode(2)
-                    ->insertAdjacentHTML("afterend", $adCode);
-            }
-
-            return $crawler->html();
-        } catch (\Exception $e) {
-            // Jika terjadi error saat parsing, kembalikan konten asli agar halaman tidak rusak
-            return $content;
+    public function with(): array
+    {
+        // buat iklan shopee secara random
+        // Ambil hanya iklan yang dipublikasikan
+        $ads = ShopeeAd::where("is_published", true)->get();
+        // Inisialisasi $ad sebagai null atau object kosong
+        $ad = null;
+        // Cek apakah ada iklan yang tersedia sebelum memanggil random()
+        if ($ads->isNotEmpty()) {
+            // Ambil iklan secara acak hanya jika ada data
+            $ad = $ads->random();
         }
+
+        return [
+            "ad" => $ad,
+        ];
     }
 }; ?>
 
@@ -108,6 +91,7 @@ new class extends Component {
                         >
                             {{ $this->post->title }}
                         </h1>
+
                         <div
                             class="mt-6 flex items-center justify-center space-x-4 text-slate-400"
                         >
@@ -141,10 +125,88 @@ new class extends Component {
                         </figure>
                     @endif
 
+                    {{-- START: SLOT IKLAN AFFILIATE SHOPEE - POSISI 1 --}}
+                    @if ($ad)
+                        <div class="my-10 text-center">
+                            <p class="text-lg font-bold text-sky-400 mb-4">
+                                Produk Tranding di Shopee
+                            </p>
+
+                            {{-- GANTI DENGAN KODE IKLAN SHOPEE AFFILIATE ANDA --}}
+
+                            <div
+                                class="p-4 rounded-lg blog-card cursor-pointer"
+                            >
+                                <img
+                                    wire:click="recordClickAndRedirect({{ $ad->id }})"
+                                    src="{{ $ad->image_path ?? "https://placehold.co/600x400/1E293B/FFFFFF?text=PortoKu.id" }}"
+                                    alt="Gambar thumbnail untuk {{ $ad->product_name }}"
+                                    class="w-full h-48 lg:h-78 object-cover"
+                                />
+
+                                <h2
+                                    class="mt-2 text-xl font-bold text-white group-hover:text-sky-400 transition-colors"
+                                >
+                                    {{ $ad->product_name }}
+                                </h2>
+
+                                <p class="mt-3 text-slate-400 text-sm">
+                                    {{ Str::limit(strip_tags($ad->description), 120) }}
+                                </p>
+
+                                <button
+                                    wire:click="recordClickAndRedirect({{ $ad->id }})"
+                                    class="inline-block px-6 py-3 my-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition duration-300 animate-pulse hover:animate-none cursor-pointer"
+                                >
+                                    Order Sebelum Kehabisan
+                                </button>
+                                <p class="text-sm text-slate-400">
+                                    Stok Terbatas
+                                </p>
+                            </div>
+                            {{-- JIKA KODE SHOPEE ANDA ADALAH JS/IFRAME, MASUKKAN DI SINI --}}
+                        </div>
+                    @endif
+
+                    {{-- END: SLOT IKLAN AFFILIATE SHOPEE - POSISI 1 --}}
+
                     <!-- Post Content -->
                     <div class="prose prose-lg prose-custom max-w-none">
-                        {!! $this->processedContent !!}
+                        {!! $this->post->content !!}
                     </div>
+
+                    {{-- START: SLOT IKLAN AFFILIATE SHOPEE - POSISI 2 (Setelah Postingan ke-3) --}}
+                    @if ($ad)
+                        <div
+                            class="blog-card flex flex-col md:col-span-2 lg:col-span-3 my-10"
+                        >
+                            {{-- Ini akan memakan lebar 3 kolom agar iklan banner lebih besar. --}}
+
+                            <div
+                                class="p-6 bg-yellow-900 rounded-lg shadow-xl text-center"
+                            >
+                                <p class="text-xl font-bold text-white mb-4">
+                                    Diskon Khusus Hanya untuk Anda!
+                                </p>
+
+                                {{-- GANTI DENGAN KODE IKLAN SHOPEE AFFILIATE ANDA --}}
+                                <h3
+                                    class="text-xl font-bold text-sky-400 animate-pulse hover:animate-none mb-4 transition duration-300"
+                                >
+                                    {{ $ad->product_name }}
+                                </h3>
+
+                                <button
+                                    wire:click="recordClickAndRedirect({{ $ad->id }})"
+                                    class="inline-block px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white text-lg font-semibold rounded-lg transition duration-300 cursor-pointer"
+                                >
+                                    Cek Promonya Sekarang!
+                                </button>
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- END: SLOT IKLAN AFFILIATE SHOPEE - POSISI 2 --}}
 
                     <!-- Tags -->
                     @if ($post->tags->isNotEmpty())
@@ -255,6 +317,43 @@ new class extends Component {
                                     </p>
                                 </div>
                             </div>
+
+                            {{-- START: SLOT IKLAN AFFILIATE SHOPEE - POSISI 2 (Setelah Postingan ke-3) --}}
+                            @if ($loop->index + 1 == 3)
+                                @if ($ad)
+                                    <div
+                                        class="blog-card flex flex-col md:col-span-2 lg:col-span-3"
+                                    >
+                                        {{-- Ini akan memakan lebar 3 kolom agar iklan banner lebih besar. --}}
+
+                                        <div
+                                            class="p-6 bg-yellow-900 rounded-lg shadow-xl text-center"
+                                        >
+                                            <p
+                                                class="text-xl font-bold text-white mb-4"
+                                            >
+                                                Diskon Khusus Hanya untuk Anda!
+                                            </p>
+
+                                            {{-- GANTI DENGAN KODE IKLAN SHOPEE AFFILIATE ANDA --}}
+                                            <h3
+                                                class="text-xl font-bold text-sky-400 animate-pulse hover:animate-none mb-4 transition duration-300"
+                                            >
+                                                {{ $ad->product_name }}
+                                            </h3>
+
+                                            <button
+                                                wire:click="recordClickAndRedirect({{ $ad->id }})"
+                                                class="inline-block px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white text-lg font-semibold rounded-lg transition duration-300 cursor-pointer"
+                                            >
+                                                Cek Promonya Sekarang!
+                                            </button>
+                                        </div>
+                                    </div>
+                                @endif
+                            @endif
+
+                            {{-- END: SLOT IKLAN AFFILIATE SHOPEE - POSISI 2 --}}
                         @endforeach
                     </div>
                 </div>

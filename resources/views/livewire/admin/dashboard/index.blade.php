@@ -19,6 +19,7 @@ new class extends Component {
     public int $totalUsers;
     public int $totalPosts;
     public int $totalAds;
+    public int $totalClickAds;
     public int $totalTransactions;
 
     // Data untuk Chart
@@ -61,6 +62,9 @@ new class extends Component {
         $this->totalPosts = Post::count();
         $this->totalAds = ShopeeAd::count();
         $this->totalTransactions = FinancialEntry::count();
+
+        // Hitung total click ads
+        $this->totalClickAds = ShopeeAd::sum("clicks_count");
 
         // Latest Transactions
         $this->latestTransactions = FinancialEntry::query()
@@ -105,6 +109,7 @@ new class extends Component {
             "totalUsers" => $this->totalUsers,
             "totalPosts" => $this->totalPosts,
             "totalAds" => $this->totalAds,
+            "totalClickAds" => $this->totalClickAds,
             "totalTransactions" => $this->totalTransactions,
             "viewsToday" => $this->viewsToday,
             "views7Days" => $this->views7Days,
@@ -299,7 +304,12 @@ new class extends Component {
                 <div>
                     <p class="text-slate-400 font-medium">Total Iklan</p>
                     <p class="text-3xl font-bold text-white">
-                        {{ number_format($totalAds) }}
+                        <span class="flex items-center gap-2">
+                            {{ number_format($totalAds) }}
+                            <span class="text-xs text-slate-400">
+                                ~ {{ number_format($totalClickAds) }} klik
+                            </span>
+                        </span>
                     </p>
                 </div>
             </div>

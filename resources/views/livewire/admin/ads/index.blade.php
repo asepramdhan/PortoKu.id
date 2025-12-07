@@ -133,8 +133,9 @@ new class extends Component {
                     <tr>
                         <th>Gambar</th>
                         <th>Judul</th>
-                        <th>Link Afiliasi</th>
+                        <th class="truncate">Link Afiliasi</th>
                         <th>Status</th>
+                        <th>Klik</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -180,6 +181,12 @@ new class extends Component {
                                         {{ $ad->is_published ? "Published" : "Draft" }}
                                     </span>
                                 </button>
+                            </td>
+                            <td>
+                                {{-- KOLOM KLIK BARU --}}
+                                <span class="font-bold text-lg text-sky-400">
+                                    {{ number_format($ad->clicks_count, 0, ",", ".") }}
+                                </span>
                             </td>
                             <td>
                                 <div class="flex space-x-2">

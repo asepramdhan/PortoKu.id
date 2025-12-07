@@ -13,6 +13,14 @@ new class extends Component {
     #[Url(as: "q")]
     public string $search = "";
 
+    public function recordClickAndRedirect(ShopeeAd $ad): void
+    {
+        // Naikkan jumlah klik
+        $ad->increment("clicks_count");
+
+        $this->redirect($ad->ad_link);
+    }
+
     public function with(): array
     {
         // Ambil 2 postingan terpopuler, diurutkan descending
@@ -157,8 +165,11 @@ new class extends Component {
 
                             {{-- GANTI DENGAN KODE IKLAN SHOPEE AFFILIATE ANDA --}}
 
-                            <div class="p-4 lg:mx-65 rounded-lg blog-card">
+                            <div
+                                class="p-4 lg:mx-65 rounded-lg blog-card cursor-pointer"
+                            >
                                 <img
+                                    wire:click="recordClickAndRedirect({{ $ad->id }})"
                                     src="{{ $ad->image_path ?? "https://placehold.co/600x400/1E293B/FFFFFF?text=PortoKu.id" }}"
                                     alt="Gambar thumbnail untuk {{ $ad->product_name }}"
                                     class="w-full h-48 lg:h-78 object-cover"
@@ -174,13 +185,12 @@ new class extends Component {
                                     {{ Str::limit(strip_tags($ad->description), 120) }}
                                 </p>
 
-                                <a
-                                    href="{{ $ad->ad_link }}"
-                                    target="_blank"
-                                    class="inline-block px-6 py-3 my-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition duration-300 animate-pulse hover:animate-none"
+                                <button
+                                    wire:click="recordClickAndRedirect({{ $ad->id }})"
+                                    class="inline-block px-6 py-3 my-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-full transition duration-300 animate-pulse hover:animate-none cursor-pointer"
                                 >
                                     Order Sebelum Kehabisan
-                                </a>
+                                </button>
                                 <p class="text-sm text-slate-400">
                                     Stok Terbatas
                                 </p>
@@ -247,7 +257,6 @@ new class extends Component {
                                 </div>
                             </div>
                             {{-- START: SLOT IKLAN AFFILIATE SHOPEE - POSISI 2 (Setelah Postingan ke-3) --}}
-
                             @if ($loop->index + 1 == 9)
                                 @if ($ad)
                                     <div
