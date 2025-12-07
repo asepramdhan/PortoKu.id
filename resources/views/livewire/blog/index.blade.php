@@ -275,7 +275,7 @@ new class extends Component {
 
                                             {{-- GANTI DENGAN KODE IKLAN SHOPEE AFFILIATE ANDA --}}
                                             <h3
-                                                class="text-xl font-bold text-sky-400 hover:underline animate-pulse hover:animate-none mb-4 transition duration-300"
+                                                class="text-xl font-bold text-sky-400 animate-pulse hover:animate-none mb-4 transition duration-300"
                                             >
                                                 {{ $ad->product_name }}
                                             </h3>
