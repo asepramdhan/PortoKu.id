@@ -5,7 +5,7 @@ use App\Models\ShopeeAd;
 use Livewire\WithPagination;
 use Livewire\Volt\Component;
 use Livewire\Attributes\Url;
-use Illuminate\Pagination\LengthAwarePaginator; // Import ini untuk paginasi
+// use Illuminate\Pagination\LengthAwarePaginator; // Import ini untuk paginasi
 
 new class extends Component {
     use WithPagination; // Membuat pencarian muncul di URL
@@ -13,8 +13,23 @@ new class extends Component {
     #[Url(as: "q")]
     public string $search = "";
 
+    // Properti untuk mengontrol status pop-up
+    public bool $showAdPopup = false;
+
+    // Gunakan fungsi mount() untuk menampilkan pop-up saat pertama kali dimuat
+    public function mount()
+    {
+        // Secara default, pop-up akan ditampilkan saat komponen dimuat
+        // Di sini Anda bisa menambahkan logika pengecekan cookie
+        // agar pop-up tidak muncul berulang kali (lihat poin 3)
+        $this->showAdPopup = true;
+    }
+
     public function recordClickAndRedirect(ShopeeAd $ad): void
     {
+        // Setelah diklik, tutup pop-up (walaupun redirect akan memuat ulang halaman)
+        $this->showAdPopup = false;
+
         // Naikkan jumlah klik
         $ad->increment("clicks_count");
 
@@ -23,6 +38,17 @@ new class extends Component {
 
     public function with(): array
     {
+        // FIX: Tambahkan logika untuk memfilter berdasarkan pencarian
+        // if ($this->search) {
+        //     $query->where(function ($q) {
+        //         $q->where("title", "like", "%" . $this->search . "%")->orWhere(
+        //             "content",
+        //             "like",
+        //             "%" . $this->search . "%",
+        //         );
+        //     });
+        // }
+
         // Ambil 2 postingan terpopuler, diurutkan descending
         $trends = Post::orderByDesc("views_count")
             ->take(2)
@@ -36,17 +62,6 @@ new class extends Component {
             ->where("published_at", "<=", now())
             ->orderBy("published_at", "desc");
 
-        // FIX: Tambahkan logika untuk memfilter berdasarkan pencarian
-        if ($this->search) {
-            $query->where(function ($q) {
-                $q->where("title", "like", "%" . $this->search . "%")->orWhere(
-                    "content",
-                    "like",
-                    "%" . $this->search . "%",
-                );
-            });
-        }
-
         // buat iklan shopee secara random
         // Ambil hanya iklan yang dipublikasikan
         $ads = ShopeeAd::where("is_published", true)->get();
@@ -58,6 +73,11 @@ new class extends Component {
             $ad = $ads->random();
         }
 
+        // buat pencarian berdasarkan judul
+        if ($this->search) {
+            $query->where("title", "like", "%" . $this->search . "%");
+        }
+
         return [
             "posts" => $query->paginate(9),
             "trends" => $trends,
@@ -66,7 +86,21 @@ new class extends Component {
     }
 }; ?>
 
-<div>
+<div
+    x-data="{
+        init() {
+            // Cek apakah cookie 'ad_shown' sudah ada
+            if (localStorage.getItem('ad_shown') !== 'true') {
+                this.$wire.showAdPopup = true
+                // Set Local Storage setelah 5 detik agar tidak muncul lagi
+                setTimeout(() => {
+                    localStorage.setItem('ad_shown', 'true')
+                }, 5000) // Tampilkan pop-up selama 5 detik, lalu set cookie
+            }
+        },
+    }"
+    x-init="init()"
+>
     <main>
         <!-- ===== Page Header ===== -->
         <section class="py-20 text-center">
@@ -87,26 +121,6 @@ new class extends Component {
         <!-- ===== Blog Grid Section ===== -->
         <section class="py-20">
             <div class="container mx-auto px-2 lg:px-6">
-                {{-- FIX: Tambahkan form pencarian --}}
-                <div class="mb-12 max-w-lg mx-auto">
-                    <div class="relative">
-                        <span
-                            class="absolute inset-y-0 left-0 flex items-center pl-3"
-                        >
-                            <i
-                                data-lucide="search"
-                                class="w-5 h-5 text-slate-400"
-                            ></i>
-                        </span>
-                        <input
-                            type="search"
-                            wire:model.live.debounce.300ms="search"
-                            placeholder="Cari artikel berdasarkan judul..."
-                            class="form-input w-full pl-10 !py-3"
-                        />
-                    </div>
-                </div>
-
                 @if ($posts->count() > 0)
                     <h2
                         class="text-2xl text-center md:text-3xl font-bold text-slate-700 mb-6"
@@ -206,6 +220,26 @@ new class extends Component {
                     >
                         Terbaru
                     </h2>
+
+                    {{-- FIX: Tambahkan form pencarian --}}
+                    <div class="mb-12 max-w-lg mx-auto">
+                        <div class="relative">
+                            <span
+                                class="absolute inset-y-0 left-0 flex items-center pl-3"
+                            >
+                                <i
+                                    data-lucide="search"
+                                    class="w-5 h-5 text-slate-400"
+                                ></i>
+                            </span>
+                            <input
+                                type="search"
+                                wire:model.live.debounce.300ms="search"
+                                placeholder="Cari artikel berdasarkan judul..."
+                                class="form-input w-full pl-10 !py-3"
+                            />
+                        </div>
+                    </div>
 
                     <div
                         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
@@ -307,4 +341,94 @@ new class extends Component {
             </div>
         </section>
     </main>
+
+    {{-- Cek apakah ada iklan yang dipublikasikan dan tersedia --}}
+    @if ($ad && $ad->is_published)
+        <div
+            x-data="{
+                show: @entangle("showAdPopup"),
+                delay: 4000, // Tentukan penundaan (misalnya 4000ms = 4 detik)
+            }"
+            x-show="show"
+            {{-- INIT: Logika untuk menunda penampilan pop-up --}}
+            x-init="
+                // Set show ke false saat inisialisasi agar tersembunyi dulu
+                show = false
+
+                // Atur penundaan
+                setTimeout(() => {
+                    // Setelah penundaan (misalnya 4 detik), set show menjadi true
+                    show = true
+                }, delay)
+
+                // Logika untuk menonaktifkan scrolling tubuh saat pop-up aktif
+                $watch('show', (value) => {
+                    if (value) {
+                        document.body.style.overflow = 'hidden'
+                    } else {
+                        document.body.style.overflow = 'auto'
+                    }
+                })
+            "
+            class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 transition-opacity duration-500"
+            {{-- Durasi Transisi Latar Belakang --}}
+            x-cloak
+        >
+            <div
+                @click.away="show = false"
+                class="bg-slate-800 rounded-lg shadow-2xl max-w-md w-full relative transform transition-all duration-500"
+                {{-- Durasi Transisi Pop-up --}}
+                {{-- ANIMASI TRANSISI (SCALE dan OPACITY) --}}
+                x-transition:enter="ease-out duration-500"
+                x-transition:enter-start="opacity-0 translate-y-full"
+                x-transition:enter-end="opacity-100 translate-y-0"
+                x-transition:leave="ease-in duration-300"
+                x-transition:leave-start="opacity-100 translate-y-0"
+                x-transition:leave-end="opacity-0 translate-y-full"
+            >
+                {{-- Tombol Tutup dan Isi Iklan (tidak berubah) --}}
+                <button
+                    @click="show = false"
+                    class="absolute top-2 right-2 text-white bg-red-600 hover:bg-red-700 p-1 rounded-full z-10"
+                    aria-label="Tutup Iklan"
+                >
+                    <x-icon name="lucide.x" class="w-5 h-5" />
+                </button>
+
+                <div class="text-center p-6">
+                    <p
+                        class="text-xs font-semibold text-sky-400 mb-2 uppercase"
+                    >
+                        Iklan Khusus
+                    </p>
+
+                    {{-- GAMBAR IKLAN --}}
+                    <img
+                        wire:click="recordClickAndRedirect({{ $ad->id }})"
+                        @click="show = false"
+                        src="{{ $ad->image_path ?? "https://placehold.co/600x400/1E293B/FFFFFF?text=Iklan+Shopee" }}"
+                        alt="{{ $ad->product_name }}"
+                        class="w-full h-48 object-cover rounded-md cursor-pointer hover:opacity-90 transition-opacity mx-auto"
+                    />
+
+                    <h3 class="mt-4 text-xl font-bold text-white">
+                        {{ $ad->product_name }}
+                    </h3>
+
+                    <p class="mt-2 text-slate-400 text-sm mb-4">
+                        {{ Str::limit(strip_tags($ad->description), 80) }}
+                    </p>
+
+                    {{-- TOMBOL CTA --}}
+                    <button
+                        wire:click="recordClickAndRedirect({{ $ad->id }})"
+                        @click="show = false"
+                        class="inline-block px-8 py-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-full transition duration-300 animate-pulse hover:animate-none cursor-pointer w-full"
+                    >
+                        Lihat Promo Sekarang!
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>

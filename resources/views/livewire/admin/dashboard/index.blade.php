@@ -13,13 +13,18 @@ new class extends Component {
     public int $views7Days;
     public int $views30Days;
 
+    // Card iklan (Statistik Klik)
+    public int $totalClickAds;
+    public int $clicksToday;
+    public int $clicks7Days;
+    public int $clicks30Days;
+
     public int $siteVisitorsToday;
 
     // Card Bawah (Statistik Total)
     public int $totalUsers;
     public int $totalPosts;
     public int $totalAds;
-    public int $totalClickAds;
     public int $totalTransactions;
 
     // Data untuk Chart
@@ -56,6 +61,21 @@ new class extends Component {
             "created_at",
             today(),
         )->count();
+
+        // Hitung klik iklan
+        $this->clicksToday = ShopeeAd::whereDate("created_at", today())->sum(
+            "clicks_count",
+        );
+        $this->clicks7Days = ShopeeAd::where(
+            "created_at",
+            ">=",
+            now()->subDays(7),
+        )->sum("clicks_count");
+        $this->clicks30Days = ShopeeAd::where(
+            "created_at",
+            ">=",
+            now()->subDays(30),
+        )->sum("clicks_count");
 
         // 2. Hitung data untuk 3 kartu bawah
         $this->totalUsers = User::count();
@@ -106,16 +126,19 @@ new class extends Component {
     public function with(): array
     {
         return [
+            "siteVisitorsToday" => $this->siteVisitorsToday,
+            "viewsToday" => $this->viewsToday,
+            "views7Days" => $this->views7Days,
+            "views30Days" => $this->views30Days,
+            "clicksToday" => $this->clicksToday,
+            "clicks7Days" => $this->clicks7Days,
+            "clicks30Days" => $this->clicks30Days,
+            "chartData" => $this->chartData,
             "totalUsers" => $this->totalUsers,
             "totalPosts" => $this->totalPosts,
             "totalAds" => $this->totalAds,
             "totalClickAds" => $this->totalClickAds,
             "totalTransactions" => $this->totalTransactions,
-            "viewsToday" => $this->viewsToday,
-            "views7Days" => $this->views7Days,
-            "views30Days" => $this->views30Days,
-            "chartData" => $this->chartData,
-            "siteVisitorsToday" => $this->siteVisitorsToday,
             "latestTransactions" => $this->latestTransactions,
         ];
     }
@@ -178,6 +201,53 @@ new class extends Component {
                 <p class="text-slate-400 font-medium">Pengunjung (30 Hari)</p>
                 <p class="text-3xl font-bold text-white">
                     {{ number_format($views30Days) }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ads Cards -->
+    <!-- Menampilkan data iklan klik hari ini, 7 hari, dan 30 hari -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div class="card p-6 flex items-center gap-6">
+            <div class="bg-pink-500/10 p-4 rounded-lg">
+                <x-icon
+                    name="lucide.mouse-pointer-click"
+                    class="w-8 h-8 text-pink-400"
+                />
+            </div>
+            <div class="text-center">
+                <p class="text-slate-400 font-medium">Iklan Klik (Hari Ini)</p>
+                <p class="text-3xl font-bold text-white">
+                    {{ number_format($clicksToday) }}
+                </p>
+            </div>
+        </div>
+        <div class="card p-6 flex items-center gap-6">
+            <div class="bg-pink-500/10 p-4 rounded-lg">
+                <x-icon
+                    name="lucide.square-dashed-mouse-pointer"
+                    class="w-8 h-8 text-pink-400"
+                />
+            </div>
+            <div class="text-center">
+                <p class="text-slate-400 font-medium">Iklan Klik (7 Hari)</p>
+                <p class="text-3xl font-bold text-white">
+                    {{ number_format($clicks7Days) }}
+                </p>
+            </div>
+        </div>
+        <div class="card p-6 flex items-center gap-6">
+            <div class="bg-pink-500/10 p-4 rounded-lg">
+                <x-icon
+                    name="lucide.square-mouse-pointer"
+                    class="w-8 h-8 text-pink-400"
+                />
+            </div>
+            <div class="text-center">
+                <p class="text-slate-400 font-medium">Iklan Klik (30 Hari)</p>
+                <p class="text-3xl font-bold text-white">
+                    {{ number_format($clicks30Days) }}
                 </p>
             </div>
         </div>
@@ -304,12 +374,7 @@ new class extends Component {
                 <div>
                     <p class="text-slate-400 font-medium">Total Iklan</p>
                     <p class="text-3xl font-bold text-white">
-                        <span class="flex items-center gap-2">
-                            {{ number_format($totalAds) }}
-                            <span class="text-xs text-slate-400">
-                                ~ {{ number_format($totalClickAds) }} klik
-                            </span>
-                        </span>
+                        {{ number_format($totalAds) }}
                     </p>
                 </div>
             </div>
