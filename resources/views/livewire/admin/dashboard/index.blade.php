@@ -63,7 +63,7 @@ new class extends Component {
         )->count();
 
         // Hitung klik iklan
-        $this->clicksToday = ShopeeAd::whereDate("created_at", today())->sum(
+        $this->clicksToday = ShopeeAd::whereDate("updated_at", today())->sum(
             "clicks_count",
         );
         $this->clicks7Days = ShopeeAd::where(
@@ -170,7 +170,7 @@ new class extends Component {
                 <x-icon name="lucide.eye" class="w-8 h-8 text-indigo-400" />
             </div>
             <div>
-                <p class="text-slate-400 font-medium">Pengunjung (Hari Ini)</p>
+                <p class="text-slate-400 font-medium">Artikel (Hari Ini)</p>
                 <p class="text-3xl font-bold text-white">
                     {{ number_format($viewsToday) }}
                 </p>
