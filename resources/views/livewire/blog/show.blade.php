@@ -46,10 +46,28 @@ new class extends Component {
 
     public function recordClickAndRedirect(ShopeeAd $ad): void
     {
+        // Setelah diklik, tutup pop-up (walaupun redirect akan memuat ulang halaman)
+        $this->showAdPopup = false;
+
         // Naikkan jumlah klik
         $ad->increment("clicks_count");
 
-        $this->redirect($ad->ad_link);
+        // 2. Gunakan $this->js() untuk menjalankan JavaScript di browser
+        //    window.open(URL, '_blank') akan membuka link di tab baru
+        $this->js('window.open("' . $ad->ad_link . '", "_blank");');
+    }
+
+    public function recordClickAndHide(ShopeeAd $ad): void
+    {
+        // Naikkan hitungan klik
+        $ad->increment("clicks_count");
+
+        // 2. Gunakan $this->js() untuk menjalankan JavaScript di browser
+        //    window.open(URL, '_blank') akan membuka link di tab baru, akan tetapi tabnya tidak berpindah tetap di halam blog sama, sehingga user tidak pindah ke tab iklan
+        $this->js('window.open("' . $ad->ad_link . '", "_blank");');
+
+        // Sembunyikan pop-up
+        $this->showAdPopup = false;
     }
 
     public function with(): array
@@ -158,7 +176,7 @@ new class extends Component {
                                     wire:click="recordClickAndRedirect({{ $ad->id }})"
                                     src="{{ $ad->image_path ?? "https://placehold.co/600x400/1E293B/FFFFFF?text=PortoKu.id" }}"
                                     alt="Gambar thumbnail untuk {{ $ad->product_name }}"
-                                    class="w-full h-48 lg:h-78 object-cover"
+                                    class="w-full h-auto object-cover"
                                 />
 
                                 <h2
@@ -464,6 +482,7 @@ new class extends Component {
     {{-- Cek apakah ada iklan yang dipublikasikan dan tersedia --}}
     @if ($ad && $ad->is_published)
         <div
+            wire:click="recordClickAndHide({{ $ad->id }})"
             x-data="{
                 show: @entangle("showAdPopup"),
                 delay: 4000, // Tentukan penundaan (misalnya 4000ms = 4 detik)
@@ -494,6 +513,7 @@ new class extends Component {
             x-cloak
         >
             <div
+                wire:click="recordClickAndHide({{ $ad->id }})"
                 @click.away="show = false"
                 class="bg-slate-800 rounded-lg shadow-2xl max-w-md w-full relative transform transition-all duration-500"
                 {{-- Durasi Transisi Pop-up --}}
@@ -507,8 +527,9 @@ new class extends Component {
             >
                 {{-- Tombol Tutup dan Isi Iklan (tidak berubah) --}}
                 <button
+                    wire:click="recordClickAndHide({{ $ad->id }})"
                     @click="show = false"
-                    class="absolute top-2 right-2 text-white bg-red-600 hover:bg-red-700 p-1 rounded-full z-10"
+                    class="absolute top-2 right-2 text-slate-400 hover:text-white z-10 cursor-pointer"
                     aria-label="Tutup Iklan"
                 >
                     <x-icon name="lucide.x" class="w-5 h-5" />
@@ -527,7 +548,7 @@ new class extends Component {
                         @click="show = false"
                         src="{{ $ad->image_path ?? "https://placehold.co/600x400/1E293B/FFFFFF?text=Iklan+Shopee" }}"
                         alt="{{ $ad->product_name }}"
-                        class="w-full h-48 object-cover rounded-md cursor-pointer hover:opacity-90 transition-opacity mx-auto"
+                        class="w-full h-auto object-cover rounded-md cursor-pointer hover:opacity-90 transition-opacity mx-auto"
                     />
 
                     <h3 class="mt-4 text-xl font-bold text-white">
