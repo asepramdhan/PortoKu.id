@@ -1,4 +1,68 @@
-<div>
+<?php
+
+use App\Models\ShopeeAd;
+use Livewire\Volt\Component;
+
+new class extends Component {
+    // Properti untuk mengontrol status pop-up
+    public bool $showAdPopup = false;
+
+    // Gunakan fungsi mount() untuk menampilkan pop-up saat pertama kali dimuat
+    public function mount()
+    {
+        // Secara default, pop-up akan ditampilkan saat komponen dimuat
+        // Di sini Anda bisa menambahkan logika pengecekan cookie
+        // agar pop-up tidak muncul berulang kali (lihat poin 3)
+        $this->showAdPopup = true;
+    }
+
+    public function recordClickAndHide(ShopeeAd $ad): void
+    {
+        // Naikkan hitungan klik
+        $ad->increment("clicks_count");
+
+        // 2. Gunakan $this->js() untuk menjalankan JavaScript di browser
+        //    window.open(URL, '_blank') akan membuka link di tab baru, akan tetapi tabnya tidak berpindah tetap di halam blog sama, sehingga user tidak pindah ke tab iklan
+        $this->js('window.open("' . $ad->ad_link . '", "_blank");');
+
+        // Sembunyikan pop-up
+        $this->showAdPopup = false;
+    }
+
+    public function with(): array
+    {
+        // buat iklan shopee secara random
+        // Ambil hanya iklan yang dipublikasikan
+        $ads = ShopeeAd::where("is_published", true)->get();
+        // Inisialisasi $ad sebagai null atau object kosong
+        $ad = null;
+        // Cek apakah ada iklan yang tersedia sebelum memanggil random()
+        if ($ads->isNotEmpty()) {
+            // Ambil iklan secara acak hanya jika ada data
+            $ad = $ads->random();
+        }
+
+        return [
+            "ad" => $ad,
+        ];
+    }
+}; ?>
+
+<div
+    x-data="{
+        init() {
+            // Cek apakah cookie 'ad_shown' sudah ada
+            if (localStorage.getItem('ad_shown') !== 'true') {
+                this.$wire.showAdPopup = true
+                // Set Local Storage setelah 5 detik agar tidak muncul lagi
+                setTimeout(() => {
+                    localStorage.setItem('ad_shown', 'true')
+                }, 5000) // Tampilkan pop-up selama 5 detik, lalu set cookie
+            }
+        },
+    }"
+    x-init="init()"
+>
     <!-- ===== Hero Section ===== -->
     <section
         class="relative text-center py-20 md:py-32 overflow-hidden hero-gradient"
@@ -272,4 +336,96 @@
             </div>
         </div>
     </section>
+    {{-- Cek apakah ada iklan yang dipublikasikan dan tersedia --}}
+    @if ($ad && $ad->is_published)
+        <div
+            wire:click="recordClickAndHide({{ $ad->id }})"
+            x-data="{
+                show: @entangle("showAdPopup"),
+                delay: 4000, // Tentukan penundaan (misalnya 4000ms = 4 detik)
+            }"
+            x-show="show"
+            {{-- INIT: Logika untuk menunda penampilan pop-up --}}
+            x-init="
+                // Set show ke false saat inisialisasi agar tersembunyi dulu
+                show = false
+
+                // Atur penundaan
+                setTimeout(() => {
+                    // Setelah penundaan (misalnya 4 detik), set show menjadi true
+                    show = true
+                }, delay)
+
+                // Logika untuk menonaktifkan scrolling tubuh saat pop-up aktif
+                $watch('show', (value) => {
+                    if (value) {
+                        document.body.style.overflow = 'hidden'
+                    } else {
+                        document.body.style.overflow = 'auto'
+                    }
+                })
+            "
+            class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 transition-opacity duration-500"
+            {{-- Durasi Transisi Latar Belakang --}}
+            x-cloak
+        >
+            <div
+                wire:click="recordClickAndHide({{ $ad->id }})"
+                @click.away="show = false"
+                class="bg-slate-800 rounded-lg shadow-2xl max-w-md w-full relative transform transition-all duration-500"
+                {{-- Durasi Transisi Pop-up --}}
+                {{-- ANIMASI TRANSISI (SCALE dan OPACITY) --}}
+                x-transition:enter="ease-out duration-500"
+                x-transition:enter-start="opacity-0 translate-y-full"
+                x-transition:enter-end="opacity-100 translate-y-0"
+                x-transition:leave="ease-in duration-300"
+                x-transition:leave-start="opacity-100 translate-y-0"
+                x-transition:leave-end="opacity-0 translate-y-full"
+            >
+                {{-- Tombol Tutup dan Isi Iklan (tidak berubah) --}}
+                <button
+                    wire:click="recordClickAndHide({{ $ad->id }})"
+                    @click="show = false"
+                    class="absolute top-2 right-2 text-slate-400 hover:text-white z-10 cursor-pointer"
+                    aria-label="Tutup Iklan"
+                >
+                    <x-icon name="lucide.x" class="w-5 h-5" />
+                </button>
+
+                <div class="text-center p-6">
+                    <p
+                        class="text-xs font-semibold text-sky-400 mb-2 uppercase"
+                    >
+                        Iklan Khusus
+                    </p>
+
+                    {{-- GAMBAR IKLAN --}}
+                    <img
+                        wire:click="recordClickAndRedirect({{ $ad->id }})"
+                        @click="show = false"
+                        src="{{ $ad->image_path ?? "https://placehold.co/600x400/1E293B/FFFFFF?text=Iklan+Shopee" }}"
+                        alt="{{ $ad->product_name }}"
+                        class="w-full h-auto object-cover rounded-md cursor-pointer hover:opacity-90 transition-opacity mx-auto"
+                    />
+
+                    <h3 class="mt-4 text-xl font-bold text-white">
+                        {{ $ad->product_name }}
+                    </h3>
+
+                    <p class="mt-2 text-slate-400 text-sm mb-4">
+                        {{ Str::limit(strip_tags($ad->description), 80) }}
+                    </p>
+
+                    {{-- TOMBOL CTA --}}
+                    <button
+                        wire:click="recordClickAndRedirect({{ $ad->id }})"
+                        @click="show = false"
+                        class="inline-block px-8 py-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-full transition duration-300 animate-pulse hover:animate-none cursor-pointer w-full"
+                    >
+                        Lihat Promo Sekarang!
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>
